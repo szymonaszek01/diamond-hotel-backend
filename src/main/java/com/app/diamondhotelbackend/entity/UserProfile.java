@@ -30,15 +30,18 @@ public class UserProfile {
 
     private String country;
 
+    @JsonProperty("passport_number")
     @Column(unique = true)
     private String passportNumber;
 
+    @JsonProperty("phone_number")
     private String phoneNumber;
 
     private String city;
 
     private String street;
 
+    @JsonProperty("postal_code")
     private String postalCode;
 
     private String role;

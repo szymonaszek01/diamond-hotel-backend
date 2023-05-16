@@ -62,18 +62,21 @@ public class Initializer implements CommandLineRunner {
                         .name("Deluxe Suite")
                         .capacity(2)
                         .pricePerHotelNight(BigDecimal.valueOf(350))
+                        .image("https://publish.purewow.net/wp-content/uploads/sites/2/2019/08/grand-velas.jpeg?fit=1360%2C906")
                         .equipmentList(Arrays.asList("King size bed", "Sofa bed", "Coffee maker", "Minibar", "Balcony"))
                         .build(),
                 RoomType.builder()
                         .name("Family Room")
                         .capacity(4)
                         .pricePerHotelNight(BigDecimal.valueOf(200))
+                        .image("https://publish.purewow.net/wp-content/uploads/sites/2/2019/08/grand-velas.jpeg?fit=1360%2C906")
                         .equipmentList(Arrays.asList("2 queen size beds", "Coffee maker", "Mini fridge", "Bathtub"))
                         .build(),
                 RoomType.builder()
                         .name("Standard Double Room")
                         .capacity(2)
                         .pricePerHotelNight(BigDecimal.valueOf(120))
+                        .image("https://publish.purewow.net/wp-content/uploads/sites/2/2019/08/grand-velas.jpeg?fit=1360%2C906")
                         .equipmentList(Arrays.asList("Double bed", "Desk", "Wardrobe"))
                         .build()
         ));

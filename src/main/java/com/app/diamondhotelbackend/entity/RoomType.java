@@ -28,6 +28,8 @@ public class RoomType {
     @JsonProperty("price_per_hotel_night")
     private BigDecimal pricePerHotelNight;
 
+    private String image;
+
     @JsonProperty("equipment_list")
     @ElementCollection
     @CollectionTable(name = "room_equipment", joinColumns = @JoinColumn(name = "room_type_id"))

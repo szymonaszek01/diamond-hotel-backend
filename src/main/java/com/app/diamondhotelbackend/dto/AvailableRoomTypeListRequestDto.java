@@ -5,12 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AvailableRoomsResponseDto {
+public class AvailableRoomTypeListRequestDto {
 
     @JsonProperty("check_in")
     private String checkIn;
@@ -18,6 +16,8 @@ public class AvailableRoomsResponseDto {
     @JsonProperty("check_out")
     private String checkOut;
 
-    @JsonProperty("available_room_list")
-    private List<AvailableRoomDto> availableRoomDtoList;
+    @JsonProperty("room_type_name")
+    private String roomTypeName;
+
+    private String capacity;
 }

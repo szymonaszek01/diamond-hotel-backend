@@ -27,6 +27,8 @@ public class Initializer implements CommandLineRunner {
 
     private final UserProfileRepository userProfileRepository;
 
+    private final RoomTypeOpinionRepository roomTypeOpinionRepository;
+
     private final ReservationRepository reservationRepository;
 
     private final List<RoomType> roomTypeList = new ArrayList<>();
@@ -36,6 +38,8 @@ public class Initializer implements CommandLineRunner {
     private final List<Room> roomList = new ArrayList<>();
 
     private final List<UserProfile> userProfileList = new ArrayList<>();
+
+    private final List<RoomTypeOpinion> roomTypeOpinionList = new ArrayList<>();
 
     private final List<Reservation> reservationList = new ArrayList<>();
 
@@ -47,12 +51,14 @@ public class Initializer implements CommandLineRunner {
         initializeFlightList();
         initializeRoomList();
         initializeUserProfileList();
+        initializeRoomTypeOpinionList();
         initializeReservationList();
 
         roomTypeRepository.saveAll(roomTypeList);
         flightRepository.saveAll(flightList);
         roomRepository.saveAll(roomList);
         userProfileRepository.saveAll(userProfileList);
+        roomTypeOpinionRepository.saveAll(roomTypeOpinionList);
         reservationRepository.saveAll(reservationList);
     }
 
@@ -63,21 +69,21 @@ public class Initializer implements CommandLineRunner {
                         .capacity(2)
                         .pricePerHotelNight(BigDecimal.valueOf(350))
                         .image("https://publish.purewow.net/wp-content/uploads/sites/2/2019/08/grand-velas.jpeg?fit=1360%2C906")
-                        .equipmentList(Arrays.asList("King size bed", "Sofa bed", "Coffee maker", "Minibar", "Balcony"))
+                        .equipmentList(Arrays.asList("King size bed", "Sofa bed", "Personalized Climate Control", "Minibar", "Balcony"))
                         .build(),
                 RoomType.builder()
                         .name("Family Room")
                         .capacity(4)
                         .pricePerHotelNight(BigDecimal.valueOf(200))
-                        .image("https://publish.purewow.net/wp-content/uploads/sites/2/2019/08/grand-velas.jpeg?fit=1360%2C906")
-                        .equipmentList(Arrays.asList("2 queen size beds", "Coffee maker", "Mini fridge", "Bathtub"))
+                        .image("https://images.unsplash.com/photo-1578683010236-d716f9a3f461?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bHV4dXJ5JTIwYmVkcm9vbXxlbnwwfHwwfHw%3D&w=1000&q=80")
+                        .equipmentList(Arrays.asList("2 queen size beds", "Coffee maker", "Mini fridge", "Bathtub", "Personalized Climate Control"))
                         .build(),
                 RoomType.builder()
-                        .name("Standard Double Room")
+                        .name("Standard Room")
                         .capacity(2)
                         .pricePerHotelNight(BigDecimal.valueOf(120))
-                        .image("https://publish.purewow.net/wp-content/uploads/sites/2/2019/08/grand-velas.jpeg?fit=1360%2C906")
-                        .equipmentList(Arrays.asList("Double bed", "Desk", "Wardrobe"))
+                        .image("https://64.media.tumblr.com/52fd5697912a153efc4fdf057d877ab4/453e1459b5398164-9a/s1280x1920/e6917139b223f2ae9996ed37c11e422f94c316e8.jpg")
+                        .equipmentList(Arrays.asList("King bed", "Desk", "Wardrobe", "Automated Lighting System", "Personalized Climate Control"))
                         .build()
         ));
     }
@@ -223,14 +229,64 @@ public class Initializer implements CommandLineRunner {
         ));
     }
 
+    private void initializeRoomTypeOpinionList() {
+        this.roomTypeOpinionList.addAll(Arrays.asList(
+                RoomTypeOpinion.builder()
+                        .rate(8)
+                        .roomType(roomTypeList.get(0))
+                        .userProfile(userProfileList.get(0))
+                        .build(),
+                RoomTypeOpinion.builder()
+                        .rate(9)
+                        .roomType(roomTypeList.get(1))
+                        .userProfile(userProfileList.get(1))
+                        .build(),
+                RoomTypeOpinion.builder()
+                        .rate(10)
+                        .roomType(roomTypeList.get(2))
+                        .userProfile(userProfileList.get(2))
+                        .build(),
+                      RoomTypeOpinion.builder()
+                        .rate(7)
+                        .roomType(roomTypeList.get(0))
+                        .userProfile(userProfileList.get(0))
+                        .build(),
+                RoomTypeOpinion.builder()
+                        .rate(8)
+                        .roomType(roomTypeList.get(1))
+                        .userProfile(userProfileList.get(1))
+                        .build(),
+                RoomTypeOpinion.builder()
+                        .rate(6)
+                        .roomType(roomTypeList.get(2))
+                        .userProfile(userProfileList.get(2))
+                        .build(),
+                RoomTypeOpinion.builder()
+                        .rate(10)
+                        .roomType(roomTypeList.get(0))
+                        .userProfile(userProfileList.get(0))
+                        .build(),
+                RoomTypeOpinion.builder()
+                        .rate(5)
+                        .roomType(roomTypeList.get(1))
+                        .userProfile(userProfileList.get(1))
+                        .build(),
+                RoomTypeOpinion.builder()
+                        .rate(8)
+                        .roomType(roomTypeList.get(2))
+                        .userProfile(userProfileList.get(2))
+                        .build()
+        ));
+    }
+
     private void initializeReservationList() {
         reservationList.addAll(Arrays.asList(
                 Reservation.builder()
                         .room(roomList.get(0))
                         .userProfile(userProfileList.get(0))
                         .flight(flightList.get(0))
-                        .checkIn(LocalDateTime.parse("2023-06-01T15:00:00"))
-                        .checkOut(LocalDateTime.parse("2023-06-05T17:00:00"))
+                        .checkIn(LocalDateTime.parse("2023-05-17T15:00:00"))
+                        .checkOut(LocalDateTime.parse("2023-05-22T17:00:00"))
                         .numberOfAdults(2)
                         .numberOfChildren(1)
                         .cost(new BigDecimal("1250.00"))

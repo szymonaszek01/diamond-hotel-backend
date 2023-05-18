@@ -1,8 +1,11 @@
 package com.app.diamondhotelbackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -45,4 +48,8 @@ public class UserProfile {
     private String postalCode;
 
     private String role;
+
+    @JsonIgnore
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "userProfile", cascade = CascadeType.ALL)
+    private List<RoomTypeOpinion> roomTypeOpinionList;
 }

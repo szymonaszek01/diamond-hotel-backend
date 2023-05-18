@@ -12,4 +12,10 @@ public class Constant {
     public static final String CANCELLED = "CANCELLED";
 
     public static final String USER_PROFILE_NOT_FOUND = "User profile not found";
+
+    public static final String BAD = "BAD";
+
+    public static final String GOOD = "GOOD";
+
+    public static final String EXCELLENT = "EXCELLENT";
 }

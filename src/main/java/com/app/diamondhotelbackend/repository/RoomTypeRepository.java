@@ -11,8 +11,8 @@ import java.util.List;
 public interface RoomTypeRepository extends JpaRepository<RoomType, Long> {
 
     @Query("SELECT DISTINCT r.name FROM RoomType r")
-    List<String> findAllRoomTypeNameList();
+    List<String> findAllNameList();
 
     @Query("SELECT DISTINCT CAST(r.capacity as string) FROM RoomType r")
-    List<String> findAllRoomTypeCapacityList();
+    List<String> findAllCapacityList();
 }

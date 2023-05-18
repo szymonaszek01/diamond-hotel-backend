@@ -1,13 +1,12 @@
 package com.app.diamondhotelbackend.controller;
 
+import com.app.diamondhotelbackend.dto.AvailableRoomTypeListRequestDto;
+import com.app.diamondhotelbackend.dto.AvailableRoomTypeListResponseDto;
 import com.app.diamondhotelbackend.dto.RoomTypeConfigurationInfoResponseDto;
 import com.app.diamondhotelbackend.service.RoomTypeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/api/v1/room-type")
 @RestController
@@ -20,5 +19,15 @@ public class RoomTypeController {
     @GetMapping("/configuration/info")
     public ResponseEntity<RoomTypeConfigurationInfoResponseDto> getRoomTypeConfigurationInfo() {
         return ResponseEntity.ok(roomTypeService.getRoomTypeConfigurationInfo());
+    }
+
+    @PostMapping("/available/info")
+    public ResponseEntity<AvailableRoomTypeListResponseDto> getAvailableRoomTypeList(@RequestBody AvailableRoomTypeListRequestDto body) {
+        AvailableRoomTypeListResponseDto availableRoomTypeListResponseDto = AvailableRoomTypeListResponseDto
+                .builder()
+                .availableRoomDtoList(roomTypeService.getAvailableRoomTypeList(body))
+                .build();
+
+        return ResponseEntity.ok(availableRoomTypeListResponseDto);
     }
 }

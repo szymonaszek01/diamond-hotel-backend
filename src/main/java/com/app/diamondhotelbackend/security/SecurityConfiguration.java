@@ -2,6 +2,7 @@ package com.app.diamondhotelbackend.security;
 
 import com.app.diamondhotelbackend.util.Constant;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.User;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -27,6 +28,7 @@ public class SecurityConfiguration {
                 .requestMatchers("/api/v1/user-profile/login").permitAll()
                 .requestMatchers("/api/v1/user-profile/register").permitAll()
                 .requestMatchers("/api/v1/room-type/configuration/info").hasAnyAuthority(Constant.USER, Constant.ADMIN)
+                .requestMatchers("/api/v1/room-type/available/info").hasAuthority(Constant.USER)
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)

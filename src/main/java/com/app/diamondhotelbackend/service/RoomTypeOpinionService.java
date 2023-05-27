@@ -1,6 +1,6 @@
 package com.app.diamondhotelbackend.service;
 
-import com.app.diamondhotelbackend.dto.RoomTypeOpinionSummaryDto;
+import com.app.diamondhotelbackend.dto.roomtype.RoomTypeOpinionSummaryDto;
 import com.app.diamondhotelbackend.repository.RoomTypeOpinionRepository;
 import com.app.diamondhotelbackend.util.Constant;
 import lombok.AllArgsConstructor;

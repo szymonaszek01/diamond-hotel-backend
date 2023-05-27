@@ -1,8 +1,8 @@
 package com.app.diamondhotelbackend.controller;
 
-import com.app.diamondhotelbackend.dto.LoginRequestDto;
-import com.app.diamondhotelbackend.dto.RegisterRequestDto;
-import com.app.diamondhotelbackend.dto.UserProfileDetailsResponseDto;
+import com.app.diamondhotelbackend.dto.auth.LoginRequestDto;
+import com.app.diamondhotelbackend.dto.auth.RegisterRequestDto;
+import com.app.diamondhotelbackend.dto.auth.UserProfileDetailsResponseDto;
 import com.app.diamondhotelbackend.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

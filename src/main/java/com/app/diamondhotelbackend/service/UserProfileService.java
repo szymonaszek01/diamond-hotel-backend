@@ -1,6 +1,6 @@
 package com.app.diamondhotelbackend.service;
 
-import com.app.diamondhotelbackend.dto.RegisterRequestDto;
+import com.app.diamondhotelbackend.dto.auth.RegisterRequestDto;
 import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.exception.UserProfileNotFoundException;
 import com.app.diamondhotelbackend.repository.UserProfileRepository;

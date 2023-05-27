@@ -1,5 +1,6 @@
-package com.app.diamondhotelbackend.dto;
+package com.app.diamondhotelbackend.dto.roomtype;
 
+import com.app.diamondhotelbackend.dto.roomtype.AvailableRoomTypeDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

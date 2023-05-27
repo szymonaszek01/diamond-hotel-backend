@@ -1,4 +1,4 @@
-package com.app.diamondhotelbackend.dto;
+package com.app.diamondhotelbackend.dto.roomtype;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;

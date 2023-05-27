@@ -1,4 +1,4 @@
-package com.app.diamondhotelbackend.dto;
+package com.app.diamondhotelbackend.dto.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

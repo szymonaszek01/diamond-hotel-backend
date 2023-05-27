@@ -1,4 +1,4 @@
-package com.app.diamondhotelbackend.dto;
+package com.app.diamondhotelbackend.dto.auth;
 
 import com.app.diamondhotelbackend.entity.UserProfile;
 import com.fasterxml.jackson.annotation.JsonProperty;

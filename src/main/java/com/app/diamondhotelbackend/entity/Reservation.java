@@ -27,15 +27,19 @@ public class Reservation {
     @ManyToOne
     private Flight flight;
 
+    private String code;
+
     private LocalDateTime checkIn;
 
     private LocalDateTime checkOut;
 
-    private int numberOfAdults;
+    private BigDecimal totalWithoutTax;
 
-    private int numberOfChildren;
+    private BigDecimal tax;
 
-    private BigDecimal cost;
+    private BigDecimal carRent;
+
+    private BigDecimal carPickUp;
 
     private String status;
 }

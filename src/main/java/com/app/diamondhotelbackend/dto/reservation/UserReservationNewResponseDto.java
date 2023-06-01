@@ -12,24 +12,13 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserReservationInfoDto {
+public class UserReservationNewResponseDto {
 
-    private long id;
+    private String status;
 
     @JsonProperty("transaction_code")
     private String transactionCode;
 
-    @JsonProperty("room_type_name")
-    private String roomType;
-
-    @JsonProperty("check_in")
-    private String checkIn;
-
-    @JsonProperty("check_out")
-    private String checkOut;
-
-    private int capacity;
-
-    @JsonProperty("room_cost")
-    private BigDecimal roomCost;
+    @JsonProperty("reservation_cost")
+    private BigDecimal reservationCost;
 }

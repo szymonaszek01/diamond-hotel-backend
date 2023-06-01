@@ -1,11 +1,8 @@
 package com.app.diamondhotelbackend.controller;
 
-import com.app.diamondhotelbackend.dto.auth.RegisterRequestDto;
-import com.app.diamondhotelbackend.dto.auth.UserProfileDetailsResponseDto;
-import com.app.diamondhotelbackend.dto.reservation.UserReservationAllRequestDto;
-import com.app.diamondhotelbackend.dto.reservation.UserReservationAllResponseDto;
-import com.app.diamondhotelbackend.dto.shoppingcart.CostSummaryDto;
+import com.app.diamondhotelbackend.dto.reservation.*;
 import com.app.diamondhotelbackend.exception.CheckInOutFormatException;
+import com.app.diamondhotelbackend.exception.NotAllSelectedRoomsAvailableException;
 import com.app.diamondhotelbackend.service.ReservationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,6 +23,15 @@ public class ReservationController {
         try {
             return ResponseEntity.ok(reservationService.getUserReservationInfoList(userReservationAllRequestDto));
         } catch (CheckInOutFormatException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/create/new")
+    public ResponseEntity<UserReservationNewResponseDto> createNewReservation(@RequestBody UserReservationNewRequestDto userReservationNewRequestDto) {
+        try {
+            return ResponseEntity.ok(reservationService.createNewReservation(userReservationNewRequestDto));
+        } catch (CheckInOutFormatException | NotAllSelectedRoomsAvailableException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
     }

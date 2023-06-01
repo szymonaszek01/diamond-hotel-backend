@@ -32,6 +32,8 @@ public class SecurityConfiguration {
                 .requestMatchers("/api/v1/room-type/summary/shopping/cart").hasAuthority(Constant.USER)
                 .requestMatchers("/api/v1/room-type/summary/shopping/cart/cost/with/car").hasAuthority(Constant.USER)
                 .requestMatchers("/api/v1/reservation/all/info").hasAuthority(Constant.USER)
+                .requestMatchers("/api/v1/reservation/create/new").hasAuthority(Constant.USER)
+                .requestMatchers("/api/v1/transaction/change/status").hasAuthority(Constant.USER)
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)

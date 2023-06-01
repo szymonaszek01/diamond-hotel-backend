@@ -23,6 +23,8 @@ public class Initializer implements CommandLineRunner {
 
     private final FlightRepository flightRepository;
 
+    private final TransactionRepository transactionRepository;
+
     private final RoomRepository roomRepository;
 
     private final UserProfileRepository userProfileRepository;
@@ -34,6 +36,8 @@ public class Initializer implements CommandLineRunner {
     private final List<RoomType> roomTypeList = new ArrayList<>();
 
     private final List<Flight> flightList = new ArrayList<>();
+
+    private final List<Transaction> transactionList = new ArrayList<>();
 
     private final List<Room> roomList = new ArrayList<>();
 
@@ -49,6 +53,7 @@ public class Initializer implements CommandLineRunner {
     public void run(String... args) {
         initializeRoomTypeList();
         initializeFlightList();
+        initializeTransactionList();
         initializeRoomList();
         initializeUserProfileList();
         initializeRoomTypeOpinionList();
@@ -56,6 +61,7 @@ public class Initializer implements CommandLineRunner {
 
         roomTypeRepository.saveAll(roomTypeList);
         flightRepository.saveAll(flightList);
+        transactionRepository.saveAll(transactionList);
         roomRepository.saveAll(roomList);
         userProfileRepository.saveAll(userProfileList);
         roomTypeOpinionRepository.saveAll(roomTypeOpinionList);
@@ -91,7 +97,7 @@ public class Initializer implements CommandLineRunner {
     private void initializeFlightList() {
         flightList.addAll(Arrays.asList(
                 Flight.builder()
-                        .flightNumber("AA123")
+                        .flightNumber("")
                         .build(),
                 Flight.builder()
                         .flightNumber("UA456")
@@ -104,6 +110,35 @@ public class Initializer implements CommandLineRunner {
                         .build(),
                 Flight.builder()
                         .flightNumber("BA234")
+                        .build()
+        ));
+    }
+
+    private void initializeTransactionList() {
+        transactionList.addAll(Arrays.asList(
+                Transaction.builder()
+                        .code("#12345678")
+                        .totalWithoutTax(new BigDecimal("1800.0"))
+                        .tax(new BigDecimal("180.0"))
+                        .carPickUp(new BigDecimal("50"))
+                        .carRent(new BigDecimal("150.0"))
+                        .status(Constant.APPROVED)
+                        .build(),
+                Transaction.builder()
+                        .totalWithoutTax(new BigDecimal("600.0"))
+                        .tax(new BigDecimal("60.0"))
+                        .carPickUp(new BigDecimal("0"))
+                        .carRent(new BigDecimal("100.0"))
+                        .status(Constant.APPROVED)
+                        .code("#87654321")
+                        .build(),
+                Transaction.builder()
+                        .totalWithoutTax(new BigDecimal("960.0"))
+                        .tax(new BigDecimal("96.0"))
+                        .carPickUp(new BigDecimal("50"))
+                        .carRent(new BigDecimal("200.0"))
+                        .status(Constant.APPROVED)
+                        .code("#43218765")
                         .build()
         ));
     }
@@ -132,6 +167,11 @@ public class Initializer implements CommandLineRunner {
                         .build(),
                 Room.builder()
                         .number(301)
+                        .floor(3)
+                        .roomType(roomTypeList.get(2))
+                        .build(),
+                Room.builder()
+                        .number(302)
                         .floor(3)
                         .roomType(roomTypeList.get(2))
                         .build()
@@ -231,7 +271,7 @@ public class Initializer implements CommandLineRunner {
                         .roomType(roomTypeList.get(2))
                         .userProfile(userProfileList.get(2))
                         .build(),
-                      RoomTypeOpinion.builder()
+                RoomTypeOpinion.builder()
                         .rate(7)
                         .roomType(roomTypeList.get(0))
                         .userProfile(userProfileList.get(0))
@@ -270,66 +310,55 @@ public class Initializer implements CommandLineRunner {
                         .room(roomList.get(0))
                         .userProfile(userProfileList.get(0))
                         .flight(flightList.get(0))
-                        .code("#12345678")
-                        .checkIn(LocalDateTime.parse("2023-05-17T15:00:00"))
-                        .checkOut(LocalDateTime.parse("2023-05-22T17:00:00"))
-                        .totalWithoutTax(new BigDecimal("1250.00"))
-                        .tax(new BigDecimal("125.0"))
-                        .carPickUp(new BigDecimal("50.0"))
-                        .carRent(new BigDecimal("150.0"))
-                        .status(Constant.WAITING_FOR_PAYMENT)
+                        .transaction(transactionList.get(0))
+                        .checkIn(LocalDateTime.parse("2023-06-20T15:00:00"))
+                        .checkOut(LocalDateTime.parse("2023-06-22T17:00:00"))
+                        .roomCost(new BigDecimal("700.00"))
                         .build(),
                 Reservation.builder()
                         .room(roomList.get(1))
-                        .userProfile(userProfileList.get(1))
-                        .flight(flightList.get(1))
-                        .code("#12345678")
-                        .checkIn(LocalDateTime.parse("2023-07-15T15:00:00"))
-                        .checkOut(LocalDateTime.parse("2023-07-19T17:00:00"))
-                        .totalWithoutTax(new BigDecimal("800.00"))
-                        .tax(new BigDecimal("80.0"))
-                        .carPickUp(new BigDecimal("50.0"))
-                        .carRent(new BigDecimal("250.0"))
-                        .status(Constant.WAITING_FOR_PAYMENT)
+                        .userProfile(userProfileList.get(0))
+                        .flight(flightList.get(0))
+                        .transaction(transactionList.get(0))
+                        .checkIn(LocalDateTime.parse("2023-06-20T15:00:00"))
+                        .checkOut(LocalDateTime.parse("2023-06-22T17:00:00"))
+                        .roomCost(new BigDecimal("700.00"))
                         .build(),
                 Reservation.builder()
                         .room(roomList.get(2))
-                        .userProfile(userProfileList.get(2))
-                        .flight(flightList.get(2))
-                        .code("#12345678")
-                        .checkIn(LocalDateTime.parse("2023-08-10T15:00:00"))
-                        .checkOut(LocalDateTime.parse("2023-08-14T17:00:00"))
-                        .totalWithoutTax(new BigDecimal("2250.00"))
-                        .tax(new BigDecimal("225.0"))
-                        .carPickUp(new BigDecimal("0"))
-                        .carRent(new BigDecimal("50.0"))
-                        .status(Constant.CANCELLED)
-                        .build(),
-                Reservation.builder()
-                        .room(roomList.get(3))
-                        .userProfile(userProfileList.get(3))
-                        .flight(flightList.get(3))
-                        .code("#87654321")
-                        .checkIn(LocalDateTime.parse("2023-09-20T15:00:00"))
-                        .checkOut(LocalDateTime.parse("2023-09-25T17:00:00"))
-                        .totalWithoutTax(new BigDecimal("3000.00"))
-                        .tax(new BigDecimal("300.0"))
-                        .carPickUp(new BigDecimal("0"))
-                        .carRent(new BigDecimal("300.0"))
-                        .status(Constant.APPROVED)
+                        .userProfile(userProfileList.get(0))
+                        .flight(flightList.get(0))
+                        .transaction(transactionList.get(0))
+                        .checkIn(LocalDateTime.parse("2023-06-20T15:00:00"))
+                        .checkOut(LocalDateTime.parse("2023-06-22T17:00:00"))
+                        .roomCost(new BigDecimal("400.00"))
                         .build(),
                 Reservation.builder()
                         .room(roomList.get(4))
-                        .userProfile(userProfileList.get(3))
-                        .flight(flightList.get(4))
-                        .code("#12345678")
-                        .checkIn(LocalDateTime.parse("2023-11-02T15:00:00"))
-                        .checkOut(LocalDateTime.parse("2023-11-07T17:00:00"))
-                        .totalWithoutTax(new BigDecimal("1250.00"))
-                        .tax(new BigDecimal("125.0"))
-                        .carPickUp(new BigDecimal("50.0"))
-                        .carRent(new BigDecimal("150.0"))
-                        .status(Constant.APPROVED)
+                        .userProfile(userProfileList.get(1))
+                        .flight(flightList.get(1))
+                        .transaction(transactionList.get(1))
+                        .checkIn(LocalDateTime.parse("2023-07-20T15:00:00"))
+                        .checkOut(LocalDateTime.parse("2023-07-25T17:00:00"))
+                        .roomCost(new BigDecimal("600.00"))
+                        .build(),
+                Reservation.builder()
+                        .room(roomList.get(3))
+                        .userProfile(userProfileList.get(2))
+                        .flight(flightList.get(2))
+                        .transaction(transactionList.get(2))
+                        .checkIn(LocalDateTime.parse("2023-08-10T15:00:00"))
+                        .checkOut(LocalDateTime.parse("2023-08-13T17:00:00"))
+                        .roomCost(new BigDecimal("600.00"))
+                        .build(),
+                Reservation.builder()
+                        .room(roomList.get(5))
+                        .userProfile(userProfileList.get(2))
+                        .flight(flightList.get(2))
+                        .transaction(transactionList.get(2))
+                        .checkIn(LocalDateTime.parse("2023-08-10T15:00:00"))
+                        .checkOut(LocalDateTime.parse("2023-08-13T17:00:00"))
+                        .roomCost(new BigDecimal("360.00"))
                         .build()
         ));
     }

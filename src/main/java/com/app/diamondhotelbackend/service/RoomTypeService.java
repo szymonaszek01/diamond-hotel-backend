@@ -4,12 +4,9 @@ import com.app.diamondhotelbackend.dto.roomtype.AvailableRoomTypeDto;
 import com.app.diamondhotelbackend.dto.roomtype.AvailableRoomTypeListRequestDto;
 import com.app.diamondhotelbackend.dto.roomtype.RoomTypeConfigurationInfoResponseDto;
 import com.app.diamondhotelbackend.dto.shoppingcart.*;
-import com.app.diamondhotelbackend.entity.Room;
 import com.app.diamondhotelbackend.entity.RoomType;
 import com.app.diamondhotelbackend.exception.CheckInOutFormatException;
 import com.app.diamondhotelbackend.exception.NotAllSelectedRoomsAvailableException;
-import com.app.diamondhotelbackend.repository.ReservationRepository;
-import com.app.diamondhotelbackend.repository.RoomRepository;
 import com.app.diamondhotelbackend.repository.RoomTypeRepository;
 import com.app.diamondhotelbackend.util.Constant;
 import lombok.AllArgsConstructor;
@@ -17,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -30,13 +26,11 @@ public class RoomTypeService {
 
     private final RoomTypeRepository roomTypeRepository;
 
-    private final RoomRepository roomRepository;
-
-    private final ReservationRepository reservationRepository;
+    private final RoomService roomService;
 
     private final RoomTypeOpinionService roomTypeOpinionService;
 
-    private final FilterService filterService;
+    private final DateService dateService;
 
     public RoomTypeConfigurationInfoResponseDto getRoomTypeConfigurationInfo() {
         List<String> roomTypeList = roomTypeRepository.findAllNameList();
@@ -46,10 +40,10 @@ public class RoomTypeService {
     }
 
     public List<AvailableRoomTypeDto> getAvailableRoomTypeList(AvailableRoomTypeListRequestDto availableRoomTypeListRequestDto) {
-        Optional<LocalDateTime> checkIn = filterService.isValidCheckInOrCheckOut(availableRoomTypeListRequestDto.getCheckIn());
-        Optional<LocalDateTime> checkOut = filterService.isValidCheckInOrCheckOut(availableRoomTypeListRequestDto.getCheckOut());
-        Optional<String> roomTypeName = filterService.isValidRoomTypeName(availableRoomTypeListRequestDto.getRoomTypeName());
-        Optional<Integer> capacity = filterService.isValidCapacity(availableRoomTypeListRequestDto.getCapacity());
+        Optional<LocalDateTime> checkIn = dateService.isValidCheckInOrCheckOut(availableRoomTypeListRequestDto.getCheckIn());
+        Optional<LocalDateTime> checkOut = dateService.isValidCheckInOrCheckOut(availableRoomTypeListRequestDto.getCheckOut());
+        Optional<String> roomTypeName = isValidRoomTypeName(availableRoomTypeListRequestDto.getRoomTypeName());
+        Optional<Integer> capacity = isValidCapacity(availableRoomTypeListRequestDto.getCapacity());
         if (checkIn.isEmpty() || checkOut.isEmpty()) {
             return Collections.emptyList();
         }
@@ -68,22 +62,22 @@ public class RoomTypeService {
     }
 
     public ShoppingCartSummaryResponseDto getShoppingCartSummary(ShoppingCartSummaryRequestDto shoppingCartSummaryRequestDto) {
-        Optional<LocalDateTime> checkIn = filterService.isValidCheckInOrCheckOut(shoppingCartSummaryRequestDto.getCheckIn());
-        Optional<LocalDateTime> checkOut = filterService.isValidCheckInOrCheckOut(shoppingCartSummaryRequestDto.getCheckOut());
+        Optional<LocalDateTime> checkIn = dateService.isValidCheckInOrCheckOut(shoppingCartSummaryRequestDto.getCheckIn());
+        Optional<LocalDateTime> checkOut = dateService.isValidCheckInOrCheckOut(shoppingCartSummaryRequestDto.getCheckOut());
         if (checkIn.isEmpty() || checkOut.isEmpty()) {
             throw new CheckInOutFormatException(Constant.INCORRECT_CHECK_IN_OR_CHECK_OUT_FORMAT);
         }
-        if (filterService.isMismatchBetweenSelectedAndAvailableRooms(shoppingCartSummaryRequestDto.getRoomTypeInfo(), checkIn.get(), checkOut.get())) {
+        if (roomService.isMismatchBetweenSelectedAndAvailableRooms(shoppingCartSummaryRequestDto.getRoomTypeInfo(), checkIn.get(), checkOut.get())) {
             throw new NotAllSelectedRoomsAvailableException(Constant.NUMBER_OF_AVAILABLE_ROOMS_HAS_CHANGED);
         }
 
-        Duration duration = Duration.between(checkIn.get(), checkOut.get());
         long totalRoomCost = 0;
-        List<RoomTypeSummaryDto> roomTypeSummaryDtoList = getRoomTypeSummaryDtoList(shoppingCartSummaryRequestDto.getRoomTypeInfo(), duration.toDays());
+        long duration = dateService.getDuration(checkIn.get(), checkOut.get());
+        List<RoomTypeSummaryDto> roomTypeSummaryDtoList = getRoomTypeSummaryDtoList(shoppingCartSummaryRequestDto.getRoomTypeInfo(), duration);
         for (RoomTypeSummaryDto roomTypeSummaryDto : roomTypeSummaryDtoList) {
             totalRoomCost += roomTypeSummaryDto.getSelectedRoomsCost().longValue();
         }
-        CostSummaryDto costSummaryDto = getCostSummaryDto(totalRoomCost, duration.toDays(), shoppingCartSummaryRequestDto.isCarRent(), shoppingCartSummaryRequestDto.isCarPickUp());
+        CostSummaryDto costSummaryDto = getCostSummaryDto(totalRoomCost, duration, shoppingCartSummaryRequestDto.isCarRent(), shoppingCartSummaryRequestDto.isCarPickUp());
 
         return ShoppingCartSummaryResponseDto.builder()
                 .checkIn(checkIn.get().toString())
@@ -94,8 +88,8 @@ public class RoomTypeService {
     }
 
     public CostSummaryDto getShoppingCartSummaryCostWithCar(CarDto carDto) {
-        Optional<LocalDateTime> checkIn = filterService.isValidCheckInOrCheckOut(carDto.getCheckIn());
-        Optional<LocalDateTime> checkOut = filterService.isValidCheckInOrCheckOut(carDto.getCheckOut());
+        Optional<LocalDateTime> checkIn = dateService.isValidCheckInOrCheckOut(carDto.getCheckIn());
+        Optional<LocalDateTime> checkOut = dateService.isValidCheckInOrCheckOut(carDto.getCheckOut());
         if (checkIn.isEmpty() || checkOut.isEmpty()) {
             throw new CheckInOutFormatException(Constant.INCORRECT_CHECK_IN_OR_CHECK_OUT_FORMAT);
         }
@@ -103,15 +97,32 @@ public class RoomTypeService {
         return getCostSummaryDto(carDto.getTotalRoomCost().longValue(), carDto.getCarRentDuration(), carDto.isCarRent(), carDto.isCarPickUp());
     }
 
-    private List<AvailableRoomTypeDto> getAvailableRoomTypeDtoListByCheckInAndCheckOut(LocalDateTime checkIn, LocalDateTime checkOut) {
-        List<Room> roomList = roomRepository.findAll()
-                .stream()
-                .filter(room -> reservationRepository.countAllByRoomIdAndOccupyStatus(room.getId(), checkIn, checkOut) == 0)
-                .toList();
+    public Optional<String> isValidRoomTypeName(String roomTypeName) {
+        if (roomTypeName == null || roomTypeName.isEmpty() || !roomTypeRepository.findAllNameList().contains(roomTypeName)) {
+            return Optional.empty();
+        }
 
+        return Optional.of(roomTypeName);
+    }
+
+    public Optional<Integer> isValidCapacity(String capacityAsString) {
+        try {
+            if (capacityAsString == null || capacityAsString.isEmpty() || !roomTypeRepository.findAllCapacityList().contains(capacityAsString)) {
+                return Optional.empty();
+            }
+
+            Integer capacity = Integer.parseInt(capacityAsString);
+            return Optional.of(capacity);
+
+        } catch (NumberFormatException e) {
+            return Optional.empty();
+        }
+    }
+
+    private List<AvailableRoomTypeDto> getAvailableRoomTypeDtoListByCheckInAndCheckOut(LocalDateTime checkIn, LocalDateTime checkOut) {
         return roomTypeRepository.findAll()
                 .stream()
-                .map(roomType -> toAvailableRoomTypeDtoMapper(roomType, roomList))
+                .map(roomType -> toAvailableRoomTypeDtoMapper(roomType, checkIn, checkOut))
                 .toList();
     }
 
@@ -134,7 +145,7 @@ public class RoomTypeService {
                 .build();
     }
 
-    private AvailableRoomTypeDto toAvailableRoomTypeDtoMapper(RoomType roomType, List<Room> roomList) {
+    private AvailableRoomTypeDto toAvailableRoomTypeDtoMapper(RoomType roomType, LocalDateTime checkIn, LocalDateTime checkOut) {
         return AvailableRoomTypeDto.builder()
                 .id(roomType.getId())
                 .name(roomType.getName())
@@ -143,7 +154,7 @@ public class RoomTypeService {
                 .equipmentList(roomType.getEquipmentList())
                 .image(roomType.getImage())
                 .opinion(roomTypeOpinionService.getRoomTypeOpinionSummaryDto(roomType.getName()))
-                .available(filterService.countAvailableRoomsByRoomTypeId(roomType.getId(), roomList))
+                .available(roomService.getRoomListByRoomTypeNameCheckInAndCheckOut(roomType.getName(), checkIn, checkOut).size())
                 .build();
     }
 

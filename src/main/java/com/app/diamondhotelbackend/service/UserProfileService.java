@@ -20,6 +20,10 @@ public class UserProfileService {
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+    public UserProfile getUserProfileById(long id) {
+        return userProfileRepository.findUserProfileById(id).orElseThrow(() -> new UserProfileNotFoundException(Constant.USER_PROFILE_NOT_FOUND));
+    }
+
     public UserProfile getUserProfileByEmail(String email) {
         return userProfileRepository.findUserProfileByEmail(email).orElseThrow(() -> new UserProfileNotFoundException(Constant.USER_PROFILE_NOT_FOUND));
     }

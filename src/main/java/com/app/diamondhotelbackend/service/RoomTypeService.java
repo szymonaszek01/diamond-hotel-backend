@@ -3,6 +3,7 @@ package com.app.diamondhotelbackend.service;
 import com.app.diamondhotelbackend.dto.roomtype.AvailableRoomTypeDto;
 import com.app.diamondhotelbackend.dto.roomtype.AvailableRoomTypeListRequestDto;
 import com.app.diamondhotelbackend.dto.roomtype.RoomTypeConfigurationInfoResponseDto;
+import com.app.diamondhotelbackend.dto.roomtype.RoomTypeDto;
 import com.app.diamondhotelbackend.dto.shoppingcart.*;
 import com.app.diamondhotelbackend.entity.RoomType;
 import com.app.diamondhotelbackend.exception.CheckInOutFormatException;
@@ -117,6 +118,18 @@ public class RoomTypeService {
         } catch (NumberFormatException e) {
             return Optional.empty();
         }
+    }
+
+    public RoomTypeDto toRoomTypeDtoMapper(RoomType roomType) {
+        return RoomTypeDto.builder()
+                .id(roomType.getId())
+                .name(roomType.getName())
+                .capacity(roomType.getCapacity())
+                .pricePerHotelNight(roomType.getPricePerHotelNight())
+                .equipmentList(roomType.getEquipmentList())
+                .image(roomType.getImage())
+                .opinion(roomTypeOpinionService.getRoomTypeOpinionSummaryDto(roomType.getName()))
+                .build();
     }
 
     private List<AvailableRoomTypeDto> getAvailableRoomTypeDtoListByCheckInAndCheckOut(LocalDateTime checkIn, LocalDateTime checkOut) {

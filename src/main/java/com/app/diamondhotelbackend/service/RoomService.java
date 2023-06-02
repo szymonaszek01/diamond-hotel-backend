@@ -1,5 +1,6 @@
 package com.app.diamondhotelbackend.service;
 
+import com.app.diamondhotelbackend.dto.room.RoomDto;
 import com.app.diamondhotelbackend.dto.shoppingcart.RoomTypeInfoDto;
 import com.app.diamondhotelbackend.entity.Room;
 import com.app.diamondhotelbackend.repository.ReservationRepository;
@@ -30,6 +31,13 @@ public class RoomService {
 
     public List<Room> getRoomListByRoomTypeName(String roomTypeName) {
         return roomRepository.findAllByRoomTypeName(roomTypeName);
+    }
+
+    public RoomDto toRoomDtoMapper(Room room) {
+        return RoomDto.builder()
+                .roomNumber(room.getNumber())
+                .floor(room.getFloor())
+                .build();
     }
 
     public boolean isMismatchBetweenSelectedAndAvailableRooms(List<RoomTypeInfoDto> roomTypeInfoDtoList, LocalDateTime checkIn, LocalDateTime checkOut) {

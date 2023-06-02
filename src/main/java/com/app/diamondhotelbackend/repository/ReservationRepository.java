@@ -7,9 +7,12 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
+
+    Optional<Reservation> findReservationByIdAndUserProfileId(long reservationId, long userProfileId);
 
     @Query("SELECT COUNT(r) FROM Reservation r WHERE " +
             "r.room.id = :roomId AND " +

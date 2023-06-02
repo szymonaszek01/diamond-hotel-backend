@@ -2,6 +2,7 @@ package com.app.diamondhotelbackend.service;
 
 
 import com.app.diamondhotelbackend.dto.shoppingcart.CostSummaryDto;
+import com.app.diamondhotelbackend.dto.transaction.TransactionDto;
 import com.app.diamondhotelbackend.dto.transaction.TransactionStatusInfoDto;
 import com.app.diamondhotelbackend.entity.Transaction;
 import com.app.diamondhotelbackend.exception.InvalidTransactionStatusException;
@@ -24,6 +25,17 @@ public class TransactionService {
 
     public Transaction findTransactionByCode(String code) throws TransactionNotFoundException {
         return transactionRepository.findTransactionByCode(code).orElseThrow(() -> new TransactionNotFoundException("Transaction not found"));
+    }
+
+    public TransactionDto toTransactionDtoMapper(Transaction transaction) {
+        return TransactionDto.builder()
+                .code(transaction.getCode())
+                .totalWithoutTax(transaction.getTotalWithoutTax())
+                .tax(transaction.getTax())
+                .carRent(transaction.getCarRent())
+                .carPickUp(transaction.getCarPickUp())
+                .status(transaction.getStatus())
+                .build();
     }
 
     public TransactionStatusInfoDto changeTransactionStatus(TransactionStatusInfoDto transactionStatusInfoDto) throws TransactionNotFoundException, InvalidTransactionStatusException {

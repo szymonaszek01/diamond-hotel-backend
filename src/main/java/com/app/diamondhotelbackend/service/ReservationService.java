@@ -5,6 +5,7 @@ import com.app.diamondhotelbackend.dto.shoppingcart.RoomTypeInfoDto;
 import com.app.diamondhotelbackend.entity.*;
 import com.app.diamondhotelbackend.exception.CheckInOutFormatException;
 import com.app.diamondhotelbackend.exception.NotAllSelectedRoomsAvailableException;
+import com.app.diamondhotelbackend.exception.ReservationNotFoundException;
 import com.app.diamondhotelbackend.exception.UserProfileNotFoundException;
 import com.app.diamondhotelbackend.repository.ReservationRepository;
 import com.app.diamondhotelbackend.util.Constant;
@@ -51,6 +52,23 @@ public class ReservationService {
         return UserReservationAllResponseDto.builder().
                 userProfileId(userReservationAllRequestDto.getUserProfileId())
                 .userReservationInfoDtoList(userReservationInfoDtoList)
+                .build();
+    }
+
+    public UserReservationDetailsInfoResponseDto getUserReservationDetailsInfo(UserReservationDetailsInfoRequestDto userReservationDetailsInfoRequestDto) throws ReservationNotFoundException {
+        Optional<Reservation> reservation = reservationRepository.findReservationByIdAndUserProfileId(userReservationDetailsInfoRequestDto.getReservationId(), userReservationDetailsInfoRequestDto.getUserProfileId());
+        if (reservation.isEmpty()) {
+            throw new ReservationNotFoundException("Reservation not found exception");
+        }
+
+        return UserReservationDetailsInfoResponseDto.builder()
+                .checkIn(reservation.get().getCheckIn().toString())
+                .checkOut(reservation.get().getCheckOut().toString())
+                .roomCost(reservation.get().getRoomCost())
+                .flightNumber(reservation.get().getFlight().getFlightNumber())
+                .roomTypeDto(roomTypeService.toRoomTypeDtoMapper(reservation.get().getRoom().getRoomType()))
+                .roomDto(roomService.toRoomDtoMapper(reservation.get().getRoom()))
+                .transactionDto(transactionService.toTransactionDtoMapper(reservation.get().getTransaction()))
                 .build();
     }
 

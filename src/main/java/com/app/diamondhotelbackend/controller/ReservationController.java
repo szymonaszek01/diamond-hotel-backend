@@ -3,6 +3,7 @@ package com.app.diamondhotelbackend.controller;
 import com.app.diamondhotelbackend.dto.reservation.*;
 import com.app.diamondhotelbackend.exception.CheckInOutFormatException;
 import com.app.diamondhotelbackend.exception.NotAllSelectedRoomsAvailableException;
+import com.app.diamondhotelbackend.exception.ReservationNotFoundException;
 import com.app.diamondhotelbackend.service.ReservationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -32,6 +33,15 @@ public class ReservationController {
         try {
             return ResponseEntity.ok(reservationService.createNewReservation(userReservationNewRequestDto));
         } catch (CheckInOutFormatException | NotAllSelectedRoomsAvailableException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/details/info")
+    public ResponseEntity<UserReservationDetailsInfoResponseDto> getUserReservationDetailsInfo(@RequestBody UserReservationDetailsInfoRequestDto userReservationDetailsInfoRequestDto) {
+        try {
+            return ResponseEntity.ok(reservationService.getUserReservationDetailsInfo(userReservationDetailsInfoRequestDto));
+        } catch (ReservationNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
     }

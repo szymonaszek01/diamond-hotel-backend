@@ -3,7 +3,10 @@ package com.app.diamondhotelbackend.controller;
 import com.app.diamondhotelbackend.dto.auth.LoginRequestDto;
 import com.app.diamondhotelbackend.dto.auth.RegisterRequestDto;
 import com.app.diamondhotelbackend.dto.auth.UserProfileDetailsResponseDto;
+import com.app.diamondhotelbackend.entity.UserProfile;
+import com.app.diamondhotelbackend.exception.UserProfileNotFoundException;
 import com.app.diamondhotelbackend.service.AuthService;
+import com.app.diamondhotelbackend.service.UserProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +22,8 @@ import java.util.Optional;
 public class UserProfileController {
 
     private final AuthService authService;
+
+    private final UserProfileService userProfileService;
 
     @PostMapping("/login")
     public ResponseEntity<UserProfileDetailsResponseDto> login(@RequestBody LoginRequestDto loginRequestDto) {
@@ -38,5 +43,14 @@ public class UserProfileController {
         }
 
         return ResponseEntity.ok(result.get());
+    }
+
+    @GetMapping("/id/{id}/details/info")
+    public ResponseEntity<UserProfile> getUserProfileDetails(@PathVariable long id) {
+        try {
+            return ResponseEntity.ok(userProfileService.getUserProfileById(id));
+        } catch (UserProfileNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
     }
 }

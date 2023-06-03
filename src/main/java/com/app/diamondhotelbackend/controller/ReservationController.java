@@ -45,4 +45,13 @@ public class ReservationController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
     }
+
+    @DeleteMapping("/id/{id}/cancel")
+    public ResponseEntity<UserReservationCancellationResponseDto> deleteUserReservationDetails(@PathVariable long id) {
+        try {
+            return ResponseEntity.ok(reservationService.deleteReservationDetails(id));
+        } catch (ReservationNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+    }
 }

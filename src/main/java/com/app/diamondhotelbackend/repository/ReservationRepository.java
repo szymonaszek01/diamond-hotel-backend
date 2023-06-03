@@ -12,6 +12,8 @@ import java.util.Optional;
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
+    Optional<Reservation> findReservationById(long id);
+
     Optional<Reservation> findReservationByIdAndUserProfileId(long reservationId, long userProfileId);
 
     @Query("SELECT COUNT(r) FROM Reservation r WHERE " +

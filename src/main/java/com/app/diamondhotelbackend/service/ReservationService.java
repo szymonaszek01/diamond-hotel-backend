@@ -126,6 +126,22 @@ public class ReservationService {
         return reservationList;
     }
 
+    public UserReservationCancellationResponseDto deleteReservationDetails(long reservationId) {
+        Optional<Reservation> reservation = reservationRepository.findReservationById(reservationId);
+        if (reservation.isEmpty()) {
+            throw new ReservationNotFoundException("Reservation not found");
+        }
+
+        reservationRepository.delete(reservation.get());
+        transactionService.updateTransactionAfterReservationCancellation(reservation.get());
+
+        return UserReservationCancellationResponseDto
+                .builder()
+                .reservationId(reservationId)
+                .status(Constant.CANCELLED)
+                .build();
+    }
+
     private UserReservationInfoDto toUserReservationInfoDtoMapper(Reservation reservation) {
         return UserReservationInfoDto.builder()
                 .id(reservation.getId())

@@ -30,6 +30,11 @@ public class UserReservationInfoDto {
 
     private int capacity;
 
-    @JsonProperty("room_cost")
-    private BigDecimal roomCost;
+    @JsonProperty("room_number")
+    private int roomNumber;
+
+    @JsonProperty("room_floor")
+    private int roomFloor;
+
+    private String email;
 }

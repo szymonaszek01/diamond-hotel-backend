@@ -29,6 +29,8 @@ public class UserReservationDetailsInfoResponseDto {
     @JsonProperty("flight_number")
     private String flightNumber;
 
+    private String email;
+
     @JsonProperty("room_type")
     private RoomTypeDto roomTypeDto;
 

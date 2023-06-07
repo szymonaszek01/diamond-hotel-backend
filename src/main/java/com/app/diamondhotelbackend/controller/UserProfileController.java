@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Optional;
 
 @RequestMapping("/api/v1/user-profile")
@@ -52,5 +53,10 @@ public class UserProfileController {
         } catch (UserProfileNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
+    }
+
+    @GetMapping("/all/info")
+    public List<UserProfile> getUserProfileInfoList() {
+        return userProfileService.getUserProfileInfoList();
     }
 }

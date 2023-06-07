@@ -39,7 +39,8 @@ public class ReservationService {
     private final RoomTypeService roomTypeService;
 
     public UserReservationAllResponseDto getUserReservationInfoList(UserReservationAllRequestDto userReservationAllRequestDto) {
-        List<UserReservationInfoDto> userReservationInfoDtoList = reservationRepository.findAllByUserProfileId(userReservationAllRequestDto.getUserProfileId())
+        List<Reservation> reservationList = userProfileService.isAdmin(userReservationAllRequestDto.getUserProfileId()) ? reservationRepository.findAll() : reservationRepository.findAllByUserProfileId(userReservationAllRequestDto.getUserProfileId());
+        List<UserReservationInfoDto> userReservationInfoDtoList = reservationList
                 .stream()
                 .map(this::toUserReservationInfoDtoMapper)
                 .toList();
@@ -56,7 +57,8 @@ public class ReservationService {
     }
 
     public UserReservationDetailsInfoResponseDto getUserReservationDetailsInfo(UserReservationDetailsInfoRequestDto userReservationDetailsInfoRequestDto) throws ReservationNotFoundException {
-        Optional<Reservation> reservation = reservationRepository.findReservationByIdAndUserProfileId(userReservationDetailsInfoRequestDto.getReservationId(), userReservationDetailsInfoRequestDto.getUserProfileId());
+        Optional<Reservation> reservation = userProfileService.isAdmin(userReservationDetailsInfoRequestDto.getUserProfileId()) ? reservationRepository.findReservationById(userReservationDetailsInfoRequestDto.getReservationId()) :
+                reservationRepository.findReservationByIdAndUserProfileId(userReservationDetailsInfoRequestDto.getReservationId(), userReservationDetailsInfoRequestDto.getUserProfileId());
         if (reservation.isEmpty()) {
             throw new ReservationNotFoundException("Reservation not found exception");
         }
@@ -66,6 +68,7 @@ public class ReservationService {
                 .checkOut(reservation.get().getCheckOut().toString())
                 .roomCost(reservation.get().getRoomCost())
                 .flightNumber(reservation.get().getFlight().getFlightNumber())
+                .email(reservation.get().getUserProfile().getEmail())
                 .roomTypeDto(roomTypeService.toRoomTypeDtoMapper(reservation.get().getRoom().getRoomType()))
                 .roomDto(roomService.toRoomDtoMapper(reservation.get().getRoom()))
                 .transactionDto(transactionService.toTransactionDtoMapper(reservation.get().getTransaction()))
@@ -150,7 +153,9 @@ public class ReservationService {
                 .checkIn(reservation.getCheckIn().toString())
                 .checkOut(reservation.getCheckOut().toString())
                 .capacity(reservation.getRoom().getRoomType().getCapacity())
-                .roomCost(reservation.getRoomCost())
+                .roomNumber(reservation.getRoom().getNumber())
+                .roomFloor(reservation.getRoom().getFloor())
+                .email(reservation.getUserProfile().getEmail())
                 .build();
     }
 

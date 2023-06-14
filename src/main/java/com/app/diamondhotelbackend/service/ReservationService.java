@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -39,7 +40,8 @@ public class ReservationService {
     private final RoomTypeService roomTypeService;
 
     public UserReservationAllResponseDto getUserReservationInfoList(UserReservationAllRequestDto userReservationAllRequestDto) {
-        List<Reservation> reservationList = userProfileService.isAdmin(userReservationAllRequestDto.getUserProfileId()) ? reservationRepository.findAll() : reservationRepository.findAllByUserProfileId(userReservationAllRequestDto.getUserProfileId());
+        long userProfileId = userReservationAllRequestDto.getUserProfileId();
+        List<Reservation> reservationList = userProfileService.isAdmin(userProfileId) ? getReservationListForAdmin() : getReservationListForUser(userProfileId);
         List<UserReservationInfoDto> userReservationInfoDtoList = reservationList
                 .stream()
                 .map(this::toUserReservationInfoDtoMapper)
@@ -91,6 +93,17 @@ public class ReservationService {
         createAndSaveReservationList(userReservationNewRequestDto.getRoomTypeInfoDtoList(), checkIn.get(), checkOut.get(), userProfile, flight, transaction);
 
         return createUserReservationNewResponseDto(transaction);
+    }
+
+    private List<Reservation> getReservationListForAdmin() {
+        return reservationRepository.findAll();
+    }
+
+    private List<Reservation> getReservationListForUser(long userProfileId) {
+        return reservationRepository.findAllByUserProfileId(userProfileId)
+                .stream()
+                .filter(reservation -> !Constant.CANCELLED.equals(reservation.getTransaction().getStatus()))
+                .collect(Collectors.toList());
     }
 
     private UserReservationNewResponseDto createUserReservationNewResponseDto(Transaction transaction) {

@@ -1,9 +1,6 @@
 package com.app.diamondhotelbackend.service;
 
-import com.app.diamondhotelbackend.dto.roomtype.AvailableRoomTypeDto;
-import com.app.diamondhotelbackend.dto.roomtype.AvailableRoomTypeListRequestDto;
-import com.app.diamondhotelbackend.dto.roomtype.RoomTypeConfigurationInfoResponseDto;
-import com.app.diamondhotelbackend.dto.roomtype.RoomTypeDto;
+import com.app.diamondhotelbackend.dto.roomtype.*;
 import com.app.diamondhotelbackend.dto.shoppingcart.*;
 import com.app.diamondhotelbackend.entity.RoomType;
 import com.app.diamondhotelbackend.exception.CheckInOutFormatException;
@@ -19,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -32,6 +30,14 @@ public class RoomTypeService {
     private final RoomTypeOpinionService roomTypeOpinionService;
 
     private final DateService dateService;
+
+    public RoomTypeOfferDto getRoomTypeInfoList() {
+        return RoomTypeOfferDto.builder().roomTypeDtoList(roomTypeRepository.findAll()
+                .stream()
+                .map(this::toRoomTypeDtoMapper)
+                .collect(Collectors.toList())
+        ).build();
+    }
 
     public RoomTypeConfigurationInfoResponseDto getRoomTypeConfigurationInfo() {
         List<String> roomTypeList = roomTypeRepository.findAllNameList();

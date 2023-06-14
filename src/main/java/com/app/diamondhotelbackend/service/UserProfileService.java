@@ -58,4 +58,9 @@ public class UserProfileService {
 
         return userProfileRepository.save(userProfile);
     }
+
+    public void deleteUserProfile(long id) throws UserProfileNotFoundException {
+        UserProfile userProfile = userProfileRepository.findUserProfileById(id).orElseThrow(() -> new UserProfileNotFoundException("User profile not found"));
+        userProfileRepository.deleteById(userProfile.getId());
+    }
 }

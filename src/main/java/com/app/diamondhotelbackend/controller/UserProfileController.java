@@ -59,4 +59,13 @@ public class UserProfileController {
     public List<UserProfile> getUserProfileInfoList() {
         return userProfileService.getUserProfileInfoList();
     }
+
+    @DeleteMapping("/id/{id}/delete")
+    public void deleteUserProfile(@PathVariable long id) {
+        try {
+            userProfileService.deleteUserProfile(id);
+        } catch (UserProfileNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
 }

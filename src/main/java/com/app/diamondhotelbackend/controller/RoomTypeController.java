@@ -3,6 +3,7 @@ package com.app.diamondhotelbackend.controller;
 import com.app.diamondhotelbackend.dto.roomtype.AvailableRoomTypeListRequestDto;
 import com.app.diamondhotelbackend.dto.roomtype.AvailableRoomTypeListResponseDto;
 import com.app.diamondhotelbackend.dto.roomtype.RoomTypeConfigurationInfoResponseDto;
+import com.app.diamondhotelbackend.dto.roomtype.RoomTypeOfferDto;
 import com.app.diamondhotelbackend.dto.shoppingcart.CarDto;
 import com.app.diamondhotelbackend.dto.shoppingcart.CostSummaryDto;
 import com.app.diamondhotelbackend.dto.shoppingcart.ShoppingCartSummaryRequestDto;
@@ -24,6 +25,11 @@ public class RoomTypeController {
 
     private final RoomTypeService roomTypeService;
 
+    @GetMapping("/all/info")
+    public ResponseEntity<RoomTypeOfferDto> getRoomTypeInfoList() {
+        return ResponseEntity.ok(roomTypeService.getRoomTypeInfoList());
+    }
+
     @GetMapping("/configuration/info")
     public ResponseEntity<RoomTypeConfigurationInfoResponseDto> getRoomTypeConfigurationInfo() {
         return ResponseEntity.ok(roomTypeService.getRoomTypeConfigurationInfo());
@@ -31,10 +37,7 @@ public class RoomTypeController {
 
     @PostMapping("/available/info")
     public ResponseEntity<AvailableRoomTypeListResponseDto> getAvailableRoomTypeList(@RequestBody AvailableRoomTypeListRequestDto body) {
-        AvailableRoomTypeListResponseDto availableRoomTypeListResponseDto = AvailableRoomTypeListResponseDto
-                .builder()
-                .availableRoomDtoList(roomTypeService.getAvailableRoomTypeList(body))
-                .build();
+        AvailableRoomTypeListResponseDto availableRoomTypeListResponseDto = AvailableRoomTypeListResponseDto.builder().availableRoomDtoList(roomTypeService.getAvailableRoomTypeList(body)).build();
 
         return ResponseEntity.ok(availableRoomTypeListResponseDto);
     }

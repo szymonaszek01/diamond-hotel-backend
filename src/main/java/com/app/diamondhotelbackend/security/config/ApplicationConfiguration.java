@@ -1,6 +1,7 @@
-package com.app.diamondhotelbackend.security;
+package com.app.diamondhotelbackend.security.config;
 
 import com.app.diamondhotelbackend.entity.UserProfile;
+import com.app.diamondhotelbackend.security.jwt.CustomUserDetails;
 import com.app.diamondhotelbackend.service.UserProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -31,12 +32,12 @@ public class ApplicationConfiguration {
             UserProfile userProfile = userProfileService.getUserProfileByEmail(username);
             List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(userProfile.getRole()));
 
-            return new MyUserDetails(userProfile.getId(), userProfile.getEmail(), userProfile.getPassword(), authorities);
+            return new CustomUserDetails(userProfile.getId(), userProfile.getEmail(), userProfile.getPassword(), authorities);
         };
     }
 
     @Bean
-    AuthenticationProvider authenticationProvider() {
+    public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
 
         daoAuthenticationProvider.setUserDetailsService(userDetailsService());
@@ -46,7 +47,7 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 

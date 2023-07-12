@@ -1,6 +1,5 @@
-package com.app.diamondhotelbackend.security;
+package com.app.diamondhotelbackend.security.jwt;
 
-import com.app.diamondhotelbackend.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,7 +22,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final UserDetailsService userDetailsService;
 
-    private final JwtService jwtService;
+    private final JwtProvider jwtProvider;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
@@ -36,14 +35,14 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         String jwt = authorizationHeader.substring(7);
-        String username = jwtService.extractUsername(jwt);
+        String username = jwtProvider.extractUsername(jwt);
 
         // 2) Check if username from token exist in database
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
             // 3) Refresh token and update the SecurityContextHolder
-            if (jwtService.validateToken(jwt, userDetails)) {
+            if (jwtProvider.validateToken(jwt, userDetails)) {
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);

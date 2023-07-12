@@ -1,5 +1,9 @@
-package com.app.diamondhotelbackend.security;
+package com.app.diamondhotelbackend.security.config;
 
+import com.app.diamondhotelbackend.security.jwt.JwtFilter;
+import com.app.diamondhotelbackend.security.oauth2.CustomOAuth2AuthenticationFailureHandler;
+import com.app.diamondhotelbackend.security.oauth2.CustomOAuth2AuthenticationSuccessHandler;
+import com.app.diamondhotelbackend.security.oauth2.CustomOAuth2UserService;
 import com.app.diamondhotelbackend.util.Constant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +23,12 @@ public class SecurityConfiguration {
     private final JwtFilter jwtFilter;
 
     private final AuthenticationProvider authenticationProvider;
+
+    private final CustomOAuth2UserService customOAuth2UserService;
+
+    private final CustomOAuth2AuthenticationSuccessHandler customOAuth2AuthenticationSuccessHandler;
+
+    private final CustomOAuth2AuthenticationFailureHandler customOAuth2AuthenticationFailureHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -40,6 +50,16 @@ public class SecurityConfiguration {
                 .requestMatchers("/api/v1/reservation/id/{id}/cancel").hasAnyAuthority(Constant.USER, Constant.ADMIN)
                 .requestMatchers("/api/v1/transaction/change/status").hasAuthority(Constant.USER)
                 .anyRequest().authenticated()
+                .and()
+                .oauth2Login()
+                .authorizationEndpoint()
+                .baseUri("/api/v1/user-profile/login/oauth2/google")
+                .and()
+                .userInfoEndpoint()
+                .userService(customOAuth2UserService)
+                .and()
+                .successHandler(customOAuth2AuthenticationSuccessHandler)
+                .failureHandler(customOAuth2AuthenticationFailureHandler)
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()

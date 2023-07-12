@@ -1,4 +1,4 @@
-package com.app.diamondhotelbackend.security;
+package com.app.diamondhotelbackend.security.jwt;
 
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -7,7 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 
 @Data
-public class MyUserDetails implements UserDetails {
+public class CustomUserDetails implements UserDetails {
 
     private long id;
 
@@ -17,7 +17,7 @@ public class MyUserDetails implements UserDetails {
 
     private Collection<? extends GrantedAuthority> authorities;
 
-    public MyUserDetails(long id, String email, String password, Collection<? extends GrantedAuthority> authorities) {
+    public CustomUserDetails(long id, String email, String password, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.email = email;
         this.password = password;

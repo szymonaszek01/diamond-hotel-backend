@@ -1,4 +1,4 @@
-package com.app.diamondhotelbackend.service;
+package com.app.diamondhotelbackend.security.jwt;
 
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
@@ -13,11 +13,11 @@ import java.util.function.Function;
 
 @Slf4j
 @Service
-public class JwtService {
+public class JwtProvider {
 
     private static final String SECRET_KEY = "secret123412398";
 
-    public String createJwt(UserDetails userDetails) {
+    public String createToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("authorities", List.of(userDetails.getAuthorities()));
 

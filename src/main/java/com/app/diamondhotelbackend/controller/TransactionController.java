@@ -13,7 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping("/api/v1/transaction")
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"https://diamond-hotel-frontend.vercel.app", "http://localhost:4200"})
+@CrossOrigin(origins = {"https://diamond-hotel-frontend.vercel.app", "http://localhost:4200", "http://localhost:3000"}, allowCredentials = "true")
 public class TransactionController {
 
     private final TransactionService transactionService;

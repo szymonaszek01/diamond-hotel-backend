@@ -2,7 +2,7 @@ package com.app.diamondhotelbackend.service;
 
 import com.app.diamondhotelbackend.dto.auth.RegisterRequestDto;
 import com.app.diamondhotelbackend.entity.UserProfile;
-import com.app.diamondhotelbackend.exception.UserProfileNotFoundException;
+import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.repository.UserProfileRepository;
 import com.app.diamondhotelbackend.util.Constant;
 import lombok.AllArgsConstructor;
@@ -24,11 +24,11 @@ public class UserProfileService {
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public UserProfile getUserProfileById(long id) {
-        return userProfileRepository.findUserProfileById(id).orElseThrow(() -> new UserProfileNotFoundException(Constant.USER_PROFILE_NOT_FOUND));
+        return userProfileRepository.findUserProfileById(id).orElseThrow(() -> new UserProfileProcessingException(Constant.USER_PROFILE_NOT_FOUND_EXCEPTION));
     }
 
     public UserProfile getUserProfileByEmail(String email) {
-        return userProfileRepository.findUserProfileByEmail(email).orElseThrow(() -> new UserProfileNotFoundException(Constant.USER_PROFILE_NOT_FOUND));
+        return userProfileRepository.findUserProfileByEmail(email).orElseThrow(() -> new UserProfileProcessingException(Constant.USER_PROFILE_NOT_FOUND_EXCEPTION));
     }
 
     public boolean isAdmin(long userProfileId) {
@@ -54,13 +54,18 @@ public class UserProfileService {
                 .street(registerRequestDto.getStreet())
                 .postalCode(registerRequestDto.getPostalCode())
                 .role(Constant.USER)
+                .authProvider(Constant.LOCAL)
                 .build();
 
         return userProfileRepository.save(userProfile);
     }
 
-    public void deleteUserProfile(long id) throws UserProfileNotFoundException {
-        UserProfile userProfile = userProfileRepository.findUserProfileById(id).orElseThrow(() -> new UserProfileNotFoundException("User profile not found"));
+    public void saveUserProfile(UserProfile userProfile) {
+        userProfileRepository.save(userProfile);
+    }
+
+    public void deleteUserProfile(long id) throws UserProfileProcessingException {
+        UserProfile userProfile = userProfileRepository.findUserProfileById(id).orElseThrow(() -> new UserProfileProcessingException("User profile not found"));
         userProfileRepository.deleteById(userProfile.getId());
     }
 }

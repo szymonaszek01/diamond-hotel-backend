@@ -193,20 +193,15 @@ public class Initializer implements CommandLineRunner {
                         street("Tadeusza Rechniewskiego 13/4").
                         postalCode("09-404").
                         role(Constant.USER).
+                        authProvider(Constant.LOCAL).
                         build(),
                 UserProfile.builder().
                         email("szymonCzopek@gmail.com").
-                        password(passwordEncoder.encode("#Test456")).
                         firstname("Szymon").
                         lastname("Czopek").
-                        age(18).
-                        country("Poland").
-                        passportNumber("01201201201").
-                        phoneNumber("607244054").
-                        city("Warszawa").
-                        street("Dymińskiego 12/4").
-                        postalCode("05-804").
+                        picture("https://lh3.googleusercontent.com/a/AAcHTtc0vrApUYIeq1MqvPjpmPzHtzR3Fm4HRpb6FKMFUbus=s96-c").
                         role(Constant.USER).
+                        authProvider(Constant.OAUTH2).
                         build(),
                 UserProfile.builder().
                         passportNumber("01301301301").
@@ -222,6 +217,7 @@ public class Initializer implements CommandLineRunner {
                         street("Bogusławskiego 1/4").
                         postalCode("09-304").
                         role(Constant.USER).
+                        authProvider(Constant.LOCAL).
                         build(),
                 UserProfile.builder()
                         .email("robert.garcia@gmail.com")
@@ -236,6 +232,7 @@ public class Initializer implements CommandLineRunner {
                         .street("1212 Ocean Dr")
                         .postalCode("33-139")
                         .role(Constant.USER)
+                        .authProvider(Constant.LOCAL)
                         .build(),
                 UserProfile.builder()
                         .email("emily.davis@gmail.com")
@@ -250,6 +247,7 @@ public class Initializer implements CommandLineRunner {
                         .street("1414 W Jackson Blvd")
                         .postalCode("60-607")
                         .role(Constant.ADMIN)
+                        .authProvider(Constant.LOCAL)
                         .build()
         ));
     }

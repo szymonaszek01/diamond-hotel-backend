@@ -6,7 +6,7 @@ import com.app.diamondhotelbackend.entity.*;
 import com.app.diamondhotelbackend.exception.CheckInOutFormatException;
 import com.app.diamondhotelbackend.exception.NotAllSelectedRoomsAvailableException;
 import com.app.diamondhotelbackend.exception.ReservationNotFoundException;
-import com.app.diamondhotelbackend.exception.UserProfileNotFoundException;
+import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.repository.ReservationRepository;
 import com.app.diamondhotelbackend.util.Constant;
 import lombok.AllArgsConstructor;
@@ -77,14 +77,14 @@ public class ReservationService {
                 .build();
     }
 
-    public UserReservationNewResponseDto createNewReservation(UserReservationNewRequestDto userReservationNewRequestDto) throws CheckInOutFormatException, NotAllSelectedRoomsAvailableException, UserProfileNotFoundException {
+    public UserReservationNewResponseDto createNewReservation(UserReservationNewRequestDto userReservationNewRequestDto) throws CheckInOutFormatException, NotAllSelectedRoomsAvailableException, UserProfileProcessingException {
         Optional<LocalDateTime> checkIn = dateService.isValidCheckInOrCheckOut(userReservationNewRequestDto.getCheckIn());
         Optional<LocalDateTime> checkOut = dateService.isValidCheckInOrCheckOut(userReservationNewRequestDto.getCheckOut());
         if (checkIn.isEmpty() || checkOut.isEmpty()) {
-            throw new CheckInOutFormatException(Constant.INCORRECT_CHECK_IN_OR_CHECK_OUT_FORMAT);
+            throw new CheckInOutFormatException(Constant.INCORRECT_CHECK_IN_OR_CHECK_OUT_FORMAT_EXCEPTION);
         }
         if (roomService.isMismatchBetweenSelectedAndAvailableRooms(userReservationNewRequestDto.getRoomTypeInfoDtoList(), checkIn.get(), checkOut.get())) {
-            throw new NotAllSelectedRoomsAvailableException(Constant.NUMBER_OF_AVAILABLE_ROOMS_HAS_CHANGED);
+            throw new NotAllSelectedRoomsAvailableException(Constant.NUMBER_OF_AVAILABLE_ROOMS_HAS_CHANGED_EXCEPTION);
         }
 
         UserProfile userProfile = userProfileService.getUserProfileById(userReservationNewRequestDto.getUserProfileId());

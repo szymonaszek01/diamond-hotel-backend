@@ -2,9 +2,14 @@ package com.app.diamondhotelbackend.service;
 
 import com.app.diamondhotelbackend.dto.auth.LoginRequestDto;
 import com.app.diamondhotelbackend.dto.auth.RegisterRequestDto;
+import com.app.diamondhotelbackend.dto.auth.TokenRefreshRequestDto;
 import com.app.diamondhotelbackend.dto.auth.UserProfileDetailsResponseDto;
+import com.app.diamondhotelbackend.entity.Token;
 import com.app.diamondhotelbackend.entity.UserProfile;
-import com.app.diamondhotelbackend.security.MyUserDetails;
+import com.app.diamondhotelbackend.exception.AuthProcessingException;
+import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
+import com.app.diamondhotelbackend.security.jwt.CustomUserDetails;
+import com.app.diamondhotelbackend.util.Constant;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,32 +32,46 @@ public class AuthService {
 
     private final UserProfileService userProfileService;
 
-    private final JwtService jwtService;
+    private final TokenService tokenService;
 
-    public Optional<UserProfileDetailsResponseDto> login(LoginRequestDto loginRequestDto) {
+    public UserProfileDetailsResponseDto login(LoginRequestDto loginRequestDto) throws AuthProcessingException, UserProfileProcessingException {
         Optional<UserDetails> optionalUserDetails = getUserDetails(loginRequestDto.getEmail(), loginRequestDto.getPassword());
         if (optionalUserDetails.isEmpty()) {
-            return Optional.empty();
+            throw new AuthProcessingException(Constant.USER_PROFILE_NOT_FOUND_EXCEPTION);
         }
 
-        String jwt = jwtService.createJwt(optionalUserDetails.get());
-        UserProfile userProfile = userProfileService.getUserProfileByEmail(optionalUserDetails.get().getUsername());
-
-        return Optional.of(new UserProfileDetailsResponseDto(jwt, userProfile));
+        return createUserProfileDetailsResponseDto(optionalUserDetails.get());
     }
 
-    public Optional<UserProfileDetailsResponseDto> register(RegisterRequestDto registerRequestDto) {
+    public UserProfileDetailsResponseDto register(RegisterRequestDto registerRequestDto) throws AuthProcessingException, UserProfileProcessingException {
         Optional<UserDetails> optionalUserDetails = getUserDetails(registerRequestDto.getEmail(), registerRequestDto.getPassword());
         if (optionalUserDetails.isPresent()) {
-            return Optional.empty();
+            throw new AuthProcessingException(Constant.USER_PROFILE_EXISTS_EXCEPTION);
         }
 
         UserProfile userProfile = userProfileService.saveUserProfile(registerRequestDto);
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(userProfile.getRole()));
-        MyUserDetails myUserDetails = new MyUserDetails(userProfile.getId(), userProfile.getEmail(), userProfile.getPassword(), authorities);
-        String jwt = jwtService.createJwt(myUserDetails);
+        return createUserProfileDetailsResponseDto(new CustomUserDetails(userProfile.getId(), userProfile.getEmail(), userProfile.getPassword(), authorities));
+    }
 
-        return Optional.of(new UserProfileDetailsResponseDto(jwt, userProfile));
+    public UserProfileDetailsResponseDto refreshAccessToken(TokenRefreshRequestDto tokenRefreshRequestDto) throws AuthProcessingException {
+        return tokenService.refreshAccessToken(tokenRefreshRequestDto.getRefreshToken())
+                .map(token -> UserProfileDetailsResponseDto.builder()
+                        .accessToken(token.getAccessValue())
+                        .refreshToken(token.getRefreshValue())
+                        .email(token.getUserProfile().getEmail())
+                        .build()
+                )
+                .orElseThrow(() -> new AuthProcessingException(Constant.INVALID_TOKEN_EXCEPTION));
+    }
+
+    public UserProfileDetailsResponseDto createUserProfileDetailsResponseDto(UserDetails userDetails) throws UserProfileProcessingException {
+        Token token = tokenService.saveToken(userDetails);
+        return UserProfileDetailsResponseDto.builder()
+                .accessToken(token.getAccessValue())
+                .refreshToken(token.getRefreshValue())
+                .email(token.getUserProfile().getEmail())
+                .build();
     }
 
     private Optional<UserDetails> getUserDetails(String email, String password) {

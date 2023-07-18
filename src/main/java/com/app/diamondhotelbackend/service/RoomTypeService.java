@@ -72,10 +72,10 @@ public class RoomTypeService {
         Optional<LocalDateTime> checkIn = dateService.isValidCheckInOrCheckOut(shoppingCartSummaryRequestDto.getCheckIn());
         Optional<LocalDateTime> checkOut = dateService.isValidCheckInOrCheckOut(shoppingCartSummaryRequestDto.getCheckOut());
         if (checkIn.isEmpty() || checkOut.isEmpty()) {
-            throw new CheckInOutFormatException(Constant.INCORRECT_CHECK_IN_OR_CHECK_OUT_FORMAT);
+            throw new CheckInOutFormatException(Constant.INCORRECT_CHECK_IN_OR_CHECK_OUT_FORMAT_EXCEPTION);
         }
         if (roomService.isMismatchBetweenSelectedAndAvailableRooms(shoppingCartSummaryRequestDto.getRoomTypeInfo(), checkIn.get(), checkOut.get())) {
-            throw new NotAllSelectedRoomsAvailableException(Constant.NUMBER_OF_AVAILABLE_ROOMS_HAS_CHANGED);
+            throw new NotAllSelectedRoomsAvailableException(Constant.NUMBER_OF_AVAILABLE_ROOMS_HAS_CHANGED_EXCEPTION);
         }
 
         long totalRoomCost = 0;
@@ -98,7 +98,7 @@ public class RoomTypeService {
         Optional<LocalDateTime> checkIn = dateService.isValidCheckInOrCheckOut(carDto.getCheckIn());
         Optional<LocalDateTime> checkOut = dateService.isValidCheckInOrCheckOut(carDto.getCheckOut());
         if (checkIn.isEmpty() || checkOut.isEmpty()) {
-            throw new CheckInOutFormatException(Constant.INCORRECT_CHECK_IN_OR_CHECK_OUT_FORMAT);
+            throw new CheckInOutFormatException(Constant.INCORRECT_CHECK_IN_OR_CHECK_OUT_FORMAT_EXCEPTION);
         }
 
         return getCostSummaryDto(carDto.getTotalRoomCost().longValue(), carDto.getCarRentDuration(), carDto.isCarRent(), carDto.isCarPickUp());

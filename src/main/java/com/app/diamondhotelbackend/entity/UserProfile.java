@@ -49,6 +49,11 @@ public class UserProfile {
 
     private String role;
 
+    @JsonProperty("auth_provider")
+    private String authProvider;
+
+    private String picture;
+
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "userProfile", cascade = CascadeType.ALL)
     private List<RoomTypeOpinion> roomTypeOpinionList;
@@ -57,4 +62,7 @@ public class UserProfile {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "userProfile", cascade = CascadeType.ALL)
     private List<Reservation> reservationList;
 
+    @JsonIgnore
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "userProfile", cascade = CascadeType.ALL)
+    private Token token;
 }

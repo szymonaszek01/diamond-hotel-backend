@@ -16,5 +16,7 @@ public class JwtPropertiesProvider {
 
     private String accessTokenExpiration;
 
+    private String confirmationTokenExpiration;
+
     private String refreshTokenExpiration;
 }

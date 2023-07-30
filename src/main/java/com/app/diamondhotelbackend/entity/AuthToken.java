@@ -9,14 +9,13 @@ import lombok.*;
 @Setter
 @Builder
 @Entity
-public class Token {
+public class AuthToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @OneToOne()
-    @JoinColumn(name = "user_profile_id", referencedColumnName = "id")
     private UserProfile userProfile;
 
     @Column(unique = true)

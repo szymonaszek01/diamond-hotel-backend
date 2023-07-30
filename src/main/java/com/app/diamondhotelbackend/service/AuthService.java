@@ -4,9 +4,11 @@ import com.app.diamondhotelbackend.dto.auth.LoginRequestDto;
 import com.app.diamondhotelbackend.dto.auth.RegisterRequestDto;
 import com.app.diamondhotelbackend.dto.auth.TokenRefreshRequestDto;
 import com.app.diamondhotelbackend.dto.auth.UserProfileDetailsResponseDto;
-import com.app.diamondhotelbackend.entity.Token;
+import com.app.diamondhotelbackend.entity.AuthToken;
+import com.app.diamondhotelbackend.entity.ConfirmationToken;
 import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.exception.AuthProcessingException;
+import com.app.diamondhotelbackend.exception.ConfirmationTokenProcessingException;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.security.jwt.CustomUserDetails;
 import com.app.diamondhotelbackend.util.Constant;
@@ -32,7 +34,11 @@ public class AuthService {
 
     private final UserProfileService userProfileService;
 
-    private final TokenService tokenService;
+    private final AuthTokenService authTokenService;
+
+    private final ConfirmationTokenService confirmationTokenService;
+
+    private final EmailService emailService;
 
     public UserProfileDetailsResponseDto login(LoginRequestDto loginRequestDto) throws AuthProcessingException, UserProfileProcessingException {
         Optional<UserDetails> optionalUserDetails = getUserDetails(loginRequestDto.getEmail(), loginRequestDto.getPassword());
@@ -50,27 +56,48 @@ public class AuthService {
         }
 
         UserProfile userProfile = userProfileService.saveUserProfile(registerRequestDto);
+        ConfirmationToken confirmationToken = confirmationTokenService.createConfirmationToken(userProfile);
+        emailService.sendConfirmationAccountEmail(confirmationToken);
+        confirmationTokenService.saveConfirmationToken(confirmationToken);
+
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(userProfile.getRole()));
         return createUserProfileDetailsResponseDto(new CustomUserDetails(userProfile.getId(), userProfile.getEmail(), userProfile.getPassword(), authorities));
     }
 
     public UserProfileDetailsResponseDto refreshAccessToken(TokenRefreshRequestDto tokenRefreshRequestDto) throws AuthProcessingException {
-        return tokenService.refreshAccessToken(tokenRefreshRequestDto.getRefreshToken())
+        return authTokenService.refreshAccessToken(tokenRefreshRequestDto.getRefreshToken())
                 .map(token -> UserProfileDetailsResponseDto.builder()
                         .accessToken(token.getAccessValue())
                         .refreshToken(token.getRefreshValue())
                         .email(token.getUserProfile().getEmail())
+                        .confirmed(token.getUserProfile().isAccountConfirmed())
                         .build()
                 )
                 .orElseThrow(() -> new AuthProcessingException(Constant.INVALID_TOKEN_EXCEPTION));
     }
 
+    public UserProfileDetailsResponseDto confirmAccount(String token) throws ConfirmationTokenProcessingException {
+        UserProfile userProfile = confirmationTokenService.updateConfirmedAt(token);
+        userProfile.setAccountConfirmed(true);
+        userProfileService.saveUserProfile(userProfile);
+        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(userProfile.getRole()));
+        CustomUserDetails customUserDetails = new CustomUserDetails(userProfile.getId(), userProfile.getEmail(), userProfile.getPassword(), authorities);
+
+        return createUserProfileDetailsResponseDto(customUserDetails);
+    }
+
+    public void resendConfirmationToken(long userId) throws UserProfileProcessingException, ConfirmationTokenProcessingException {
+        ConfirmationToken confirmationToken = confirmationTokenService.updateTokenToEmailConfirmation(userId);
+        emailService.sendConfirmationAccountEmail(confirmationToken);
+    }
+
     public UserProfileDetailsResponseDto createUserProfileDetailsResponseDto(UserDetails userDetails) throws UserProfileProcessingException {
-        Token token = tokenService.saveToken(userDetails);
+        AuthToken authToken = authTokenService.saveToken(userDetails);
         return UserProfileDetailsResponseDto.builder()
-                .accessToken(token.getAccessValue())
-                .refreshToken(token.getRefreshValue())
-                .email(token.getUserProfile().getEmail())
+                .accessToken(authToken.getAccessValue())
+                .refreshToken(authToken.getRefreshValue())
+                .email(authToken.getUserProfile().getEmail())
+                .confirmed(authToken.getUserProfile().isAccountConfirmed())
                 .build();
     }
 

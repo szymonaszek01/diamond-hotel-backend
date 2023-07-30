@@ -1,10 +1,10 @@
 package com.app.diamondhotelbackend.security.oauth2;
 
-import com.app.diamondhotelbackend.entity.Token;
+import com.app.diamondhotelbackend.entity.AuthToken;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
-import com.app.diamondhotelbackend.service.TokenService;
+import com.app.diamondhotelbackend.service.AuthTokenService;
+import com.app.diamondhotelbackend.util.BaseUriPropertiesProvider;
 import com.app.diamondhotelbackend.util.Constant;
-import com.app.diamondhotelbackend.util.OAuth2PropertiesProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -23,11 +23,11 @@ import java.nio.charset.StandardCharsets;
 @RequiredArgsConstructor
 public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
-    private final OAuth2PropertiesProvider oAuth2PropertiesProvider;
-
-    private final TokenService tokenService;
+    private final AuthTokenService authTokenService;
 
     private final UserDetailsService userDetailsService;
+
+    private final BaseUriPropertiesProvider baseUriPropertiesProvider;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -46,18 +46,19 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
 
     private String createCallbackUriOnSuccess(CustomOAuth2User customOAuth2User) throws UserProfileProcessingException {
         UserDetails userDetails = userDetailsService.loadUserByUsername(customOAuth2User.getEmail());
-        Token token = tokenService.saveToken(userDetails);
+        AuthToken authToken = authTokenService.saveToken(userDetails);
 
-        return UriComponentsBuilder.fromUriString(oAuth2PropertiesProvider.getCallbackUri())
-                .queryParam(Constant.OAUTH2_ATTR_ACCESS_TOKEN, URLEncoder.encode(token.getAccessValue(), StandardCharsets.UTF_8))
-                .queryParam(Constant.OAUTH2_ATTR_REFRESH_TOKEN, URLEncoder.encode(token.getRefreshValue(), StandardCharsets.UTF_8))
-                .queryParam(Constant.OAUTH2_ATTR_EMAIL, URLEncoder.encode(token.getUserProfile().getEmail(), StandardCharsets.UTF_8))
+        return UriComponentsBuilder.fromUriString(baseUriPropertiesProvider.getClient() + Constant.OAUTH2_CALLBACK_URI)
+                .queryParam(Constant.OAUTH2_ATTR_ACCESS_TOKEN, URLEncoder.encode(authToken.getAccessValue(), StandardCharsets.UTF_8))
+                .queryParam(Constant.OAUTH2_ATTR_REFRESH_TOKEN, URLEncoder.encode(authToken.getRefreshValue(), StandardCharsets.UTF_8))
+                .queryParam(Constant.OAUTH2_ATTR_EMAIL, URLEncoder.encode(authToken.getUserProfile().getEmail(), StandardCharsets.UTF_8))
+                .queryParam(Constant.OAUTH2_ATTR_CONFIRMED, authToken.getUserProfile().isAccountConfirmed())
                 .build()
                 .toUriString();
     }
 
     private String createCallbackUriOnFailure(UserProfileProcessingException e) {
-        return UriComponentsBuilder.fromUriString(oAuth2PropertiesProvider.getCallbackUri())
+        return UriComponentsBuilder.fromUriString(baseUriPropertiesProvider.getClient() + Constant.OAUTH2_CALLBACK_URI)
                 .queryParam(Constant.OAUTH2_ATTR_ERROR, URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8))
                 .build()
                 .toUriString();

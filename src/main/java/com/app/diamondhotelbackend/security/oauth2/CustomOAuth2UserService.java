@@ -1,8 +1,11 @@
 package com.app.diamondhotelbackend.security.oauth2;
 
+import com.app.diamondhotelbackend.entity.ConfirmationToken;
 import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.exception.OAuth2ProcessingException;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
+import com.app.diamondhotelbackend.service.ConfirmationTokenService;
+import com.app.diamondhotelbackend.service.EmailService;
 import com.app.diamondhotelbackend.service.UserProfileService;
 import com.app.diamondhotelbackend.util.Constant;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +20,10 @@ import org.springframework.stereotype.Service;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserProfileService userProfileService;
+
+    private final ConfirmationTokenService confirmationTokenService;
+
+    private final EmailService emailService;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -50,8 +57,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .picture(customOAuth2User.getPicture())
                 .authProvider(Constant.OAUTH2)
                 .role(Constant.USER)
+                .accountConfirmed(false)
                 .build();
-
         userProfileService.saveUserProfile(userProfile);
+
+        ConfirmationToken confirmationToken = confirmationTokenService.createConfirmationToken(userProfile);
+        emailService.sendConfirmationAccountEmail(confirmationToken);
+        confirmationTokenService.saveConfirmationToken(confirmationToken);
     }
 }

@@ -39,6 +39,8 @@ public class SecurityConfiguration {
                 .requestMatchers("/api/v1/auth/login").permitAll()
                 .requestMatchers("/api/v1/auth/register").permitAll()
                 .requestMatchers("/api/v1/auth/refresh/access-token").permitAll()
+                .requestMatchers("/api/v1/auth/confirm/account/token/{token}").permitAll()
+                .requestMatchers("/api/v1/auth/resend/confirmation/token/user/{id}").permitAll()
                 .requestMatchers("/api/v1/room-type/all/info").permitAll()
                 .requestMatchers("/api/v1/user-profile/all/info").hasAuthority(Constant.ADMIN)
                 .requestMatchers("/api/v1/user-profile/id/{id}/details/info").hasAnyAuthority(Constant.USER, Constant.ADMIN)

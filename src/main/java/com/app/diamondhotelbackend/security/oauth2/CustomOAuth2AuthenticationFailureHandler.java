@@ -1,7 +1,7 @@
 package com.app.diamondhotelbackend.security.oauth2;
 
+import com.app.diamondhotelbackend.util.BaseUriPropertiesProvider;
 import com.app.diamondhotelbackend.util.Constant;
-import com.app.diamondhotelbackend.util.OAuth2PropertiesProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -18,11 +18,11 @@ import java.nio.charset.StandardCharsets;
 @RequiredArgsConstructor
 public class CustomOAuth2AuthenticationFailureHandler implements AuthenticationFailureHandler {
 
-    private final OAuth2PropertiesProvider oAuth2PropertiesProvider;
+    private final BaseUriPropertiesProvider baseUriPropertiesProvider;
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException {
-        String callbackUri = UriComponentsBuilder.fromUriString(oAuth2PropertiesProvider.getCallbackUri())
+        String callbackUri = UriComponentsBuilder.fromUriString(baseUriPropertiesProvider.getClient() + Constant.OAUTH2_CALLBACK_URI)
                 .queryParam(Constant.OAUTH2_ATTR_ERROR, URLEncoder.encode(exception.getMessage(), StandardCharsets.UTF_8))
                 .build()
                 .toUriString();

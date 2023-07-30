@@ -5,6 +5,7 @@ import com.app.diamondhotelbackend.dto.auth.RegisterRequestDto;
 import com.app.diamondhotelbackend.dto.auth.TokenRefreshRequestDto;
 import com.app.diamondhotelbackend.dto.auth.UserProfileDetailsResponseDto;
 import com.app.diamondhotelbackend.exception.AuthProcessingException;
+import com.app.diamondhotelbackend.exception.ConfirmationTokenProcessingException;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +46,25 @@ public class AuthController {
             return ResponseEntity.ok(authService.refreshAccessToken(tokenRefreshRequestDto));
         } catch (AuthProcessingException | UserProfileProcessingException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
+        }
+    }
+
+    @GetMapping("/confirm/account/token/{token}")
+    public ResponseEntity<UserProfileDetailsResponseDto> confirmAccount(@PathVariable String token) {
+        try {
+            return ResponseEntity.ok(authService.confirmAccount(token));
+        } catch (ConfirmationTokenProcessingException e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+        }
+    }
+
+    @GetMapping("/resend/confirmation/token/user/{id}")
+    public void confirmAccount(@PathVariable long id) {
+        try {
+            authService.resendConfirmationToken(id);
+
+        } catch (UserProfileProcessingException | ConfirmationTokenProcessingException e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
         }
     }
 }

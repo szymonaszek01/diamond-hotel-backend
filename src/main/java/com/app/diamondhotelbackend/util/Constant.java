@@ -33,11 +33,15 @@ public class Constant {
 
     public static final String OAUTH2_ATTR_EMAIL = "email";
 
+    public static final String OAUTH2_ATTR_CONFIRMED = "confirmed";
+
     public static final String OAUTH2_ATTR_ACCESS_TOKEN = "access-token";
 
     public static final String OAUTH2_ATTR_REFRESH_TOKEN = "refresh-token";
 
     public static final String OAUTH2_ATTR_ERROR = "error";
+
+    public static final String OAUTH2_CALLBACK_URI = "/sign-in/oauth2/callback";
 
 
     /**
@@ -71,6 +75,12 @@ public class Constant {
 
     public static final String TOKEN_CLAIMS_STRING_IS_EMPTY_EXCEPTION = "JWT claims string is empty";
 
+    public static final String CONFIRMATION_TOKEN_NOT_FOUND = "Email token not found";
+
+    public static final String CONFIRMATION_TOKEN_ALREADY_CONFIRMED = "Confirmation token already confirmed";
+
+    public static final String CONFIRMATION_TOKEN_ALREADY_EXPIRED = "Confirmation token already expired";
+
 
     /**
      * ----- OPINION -----
@@ -80,4 +90,24 @@ public class Constant {
     public static final String GOOD = "GOOD";
 
     public static final String EXCELLENT = "EXCELLENT";
+
+
+    /**
+     * ----- EMAIL -----
+     **/
+    public static final String EMAIL_SENDER = "diamond.hotel.contact@gmail.com";
+
+    public static final String EMAIL_CONFIRM_ACCOUNT_SUBJECT = "Confirm your email";
+
+    public static final String EMAIL_CONFIRM_ACCOUNT_CALLBACK_URI = "/account/confirmation";
+
+    public static final String EMAIL_CONFIRM_ACCOUNT_ATTR_CONFIRMATION_TOKEN = "confirmation-token";
+
+    public static final String EMAIL_CONFIRM_ACCOUNT_ATTR_USER = "user";
+
+    public static final String EMAIL_CONFIRM_ACCOUNT_LINK_DESCRIPTION = "Activate account now";
+
+    public static final String EMAIL_CONFIRM_ACCOUNT_CONTENT_DESCRIPTION = "Thank you for registering. Please click on the below link to activate your account:";
+
+    public static final String EMAIL_CONFIRM_ACCOUNT_CONTENT_TITLE = "Confirm your email";
 }

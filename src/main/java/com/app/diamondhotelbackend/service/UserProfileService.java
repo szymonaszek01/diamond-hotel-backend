@@ -55,6 +55,7 @@ public class UserProfileService {
                 .postalCode(registerRequestDto.getPostalCode())
                 .role(Constant.USER)
                 .authProvider(Constant.LOCAL)
+                .accountConfirmed(false)
                 .build();
 
         return userProfileRepository.save(userProfile);

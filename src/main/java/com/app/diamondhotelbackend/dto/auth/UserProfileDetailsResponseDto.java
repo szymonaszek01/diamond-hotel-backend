@@ -19,4 +19,6 @@ public class UserProfileDetailsResponseDto {
     private String refreshToken;
 
     private String email;
+
+    private boolean confirmed;
 }

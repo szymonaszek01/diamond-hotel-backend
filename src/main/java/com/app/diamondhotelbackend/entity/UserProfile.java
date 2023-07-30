@@ -55,6 +55,9 @@ public class UserProfile {
     private String picture;
 
     @JsonIgnore
+    private boolean accountConfirmed;
+
+    @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "userProfile", cascade = CascadeType.ALL)
     private List<RoomTypeOpinion> roomTypeOpinionList;
 
@@ -64,5 +67,9 @@ public class UserProfile {
 
     @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "userProfile", cascade = CascadeType.ALL)
-    private Token token;
+    private AuthToken authToken;
+
+    @JsonIgnore
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "userProfile", cascade = CascadeType.ALL)
+    private ConfirmationToken confirmationToken;
 }

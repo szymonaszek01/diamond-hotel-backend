@@ -194,6 +194,7 @@ public class Initializer implements CommandLineRunner {
                         postalCode("09-404").
                         role(Constant.USER).
                         authProvider(Constant.LOCAL).
+                        accountConfirmed(true).
                         build(),
                 UserProfile.builder().
                         email("szymonCzopek@gmail.com").
@@ -202,6 +203,7 @@ public class Initializer implements CommandLineRunner {
                         picture("https://lh3.googleusercontent.com/a/AAcHTtc0vrApUYIeq1MqvPjpmPzHtzR3Fm4HRpb6FKMFUbus=s96-c").
                         role(Constant.USER).
                         authProvider(Constant.OAUTH2).
+                        accountConfirmed(true).
                         build(),
                 UserProfile.builder().
                         passportNumber("01301301301").
@@ -218,6 +220,7 @@ public class Initializer implements CommandLineRunner {
                         postalCode("09-304").
                         role(Constant.USER).
                         authProvider(Constant.LOCAL).
+                        accountConfirmed(true).
                         build(),
                 UserProfile.builder()
                         .email("robert.garcia@gmail.com")
@@ -233,6 +236,7 @@ public class Initializer implements CommandLineRunner {
                         .postalCode("33-139")
                         .role(Constant.USER)
                         .authProvider(Constant.LOCAL)
+                        .accountConfirmed(true)
                         .build(),
                 UserProfile.builder()
                         .email("emily.davis@gmail.com")
@@ -248,6 +252,7 @@ public class Initializer implements CommandLineRunner {
                         .postalCode("60-607")
                         .role(Constant.ADMIN)
                         .authProvider(Constant.LOCAL)
+                        .accountConfirmed(true)
                         .build()
         ));
     }

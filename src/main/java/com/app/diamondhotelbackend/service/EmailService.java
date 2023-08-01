@@ -36,8 +36,7 @@ public class EmailService {
 
     public void sendConfirmationAccountEmail(ConfirmationToken confirmationToken) {
         String link = UriComponentsBuilder.fromUriString(baseUriPropertiesProvider.getClient() + Constant.EMAIL_CONFIRM_ACCOUNT_CALLBACK_URI)
-                .queryParam(Constant.EMAIL_CONFIRM_ACCOUNT_ATTR_USER, URLEncoder.encode(String.valueOf(confirmationToken.getUserProfile().getId()), StandardCharsets.UTF_8))
-                .queryParam(Constant.EMAIL_CONFIRM_ACCOUNT_ATTR_CONFIRMATION_TOKEN, URLEncoder.encode(confirmationToken.getAccessValue(), StandardCharsets.UTF_8))
+                .queryParam(Constant.EMAIL_ATTR_CONFIRMATION_TOKEN, URLEncoder.encode(confirmationToken.getAccessValue(), StandardCharsets.UTF_8))
                 .build()
                 .toUriString();
 
@@ -50,6 +49,24 @@ public class EmailService {
                         link
                 ),
                 Constant.EMAIL_CONFIRM_ACCOUNT_SUBJECT
+        );
+    }
+
+    public void sendChangingPasswordEmail(ConfirmationToken confirmationToken) {
+        String link = UriComponentsBuilder.fromUriString(baseUriPropertiesProvider.getClient() + Constant.EMAIL_CHANGE_PASSWORD_CALLBACK_URI)
+                .queryParam(Constant.EMAIL_ATTR_CONFIRMATION_TOKEN, URLEncoder.encode(confirmationToken.getAccessValue(), StandardCharsets.UTF_8))
+                .build()
+                .toUriString();
+
+        send(
+                confirmationToken.getUserProfile().getEmail(),
+                emailUtil.buildEmail(confirmationToken.getUserProfile().getFirstname(),
+                        Constant.EMAIL_CHANGE_PASSWORD_CONTENT_TITLE,
+                        Constant.EMAIL_CHANGE_PASSWORD_CONTENT_DESCRIPTION,
+                        Constant.EMAIL_CHANGE_PASSWORD_LINK_DESCRIPTION,
+                        link
+                ),
+                Constant.EMAIL_CHANGE_PASSWORD_SUBJECT
         );
     }
 

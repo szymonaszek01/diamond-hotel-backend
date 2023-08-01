@@ -69,4 +69,11 @@ public class UserProfileService {
         UserProfile userProfile = userProfileRepository.findUserProfileById(id).orElseThrow(() -> new UserProfileProcessingException("User profile not found"));
         userProfileRepository.deleteById(userProfile.getId());
     }
+
+    public boolean isNewPasswordUnique(String password) {
+        return userProfileRepository.findAll()
+                .stream()
+                .filter(userProfile -> !Constant.OAUTH2.equals(userProfile.getAuthProvider()))
+                .noneMatch(userProfile -> passwordEncoder.matches(password, userProfile.getPassword()));
+    }
 }

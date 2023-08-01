@@ -253,6 +253,22 @@ public class Initializer implements CommandLineRunner {
                         .role(Constant.ADMIN)
                         .authProvider(Constant.LOCAL)
                         .accountConfirmed(true)
+                        .build(),
+                UserProfile.builder()
+                        .email("szymon-jakubaszek@wp.pl")
+                        .password(passwordEncoder.encode("#Test1910"))
+                        .firstname("Szymon")
+                        .lastname("Jakubaszek")
+                        .age(22)
+                        .country("Poland")
+                        .passportNumber("CF447771486")
+                        .phoneNumber("789500345")
+                        .city("Garwolin")
+                        .street("Adamska 12/23")
+                        .postalCode("90-607")
+                        .role(Constant.USER)
+                        .authProvider(Constant.LOCAL)
+                        .accountConfirmed(true)
                         .build()
         ));
     }

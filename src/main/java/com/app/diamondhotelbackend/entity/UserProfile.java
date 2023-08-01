@@ -22,7 +22,7 @@ public class UserProfile {
     @Column(unique = true)
     private String email;
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JsonIgnore
     private String password;
 
     private String firstname;
@@ -70,6 +70,6 @@ public class UserProfile {
     private AuthToken authToken;
 
     @JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "userProfile", cascade = CascadeType.ALL)
-    private ConfirmationToken confirmationToken;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "userProfile", cascade = CascadeType.ALL)
+    private List<ConfirmationToken> confirmationTokenList;
 }

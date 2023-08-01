@@ -17,7 +17,7 @@ public class ConfirmationToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @OneToOne()
+    @ManyToOne()
     private UserProfile userProfile;
 
     @Column(unique = true)

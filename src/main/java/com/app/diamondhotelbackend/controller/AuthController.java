@@ -1,9 +1,6 @@
 package com.app.diamondhotelbackend.controller;
 
-import com.app.diamondhotelbackend.dto.auth.LoginRequestDto;
-import com.app.diamondhotelbackend.dto.auth.RegisterRequestDto;
-import com.app.diamondhotelbackend.dto.auth.TokenRefreshRequestDto;
-import com.app.diamondhotelbackend.dto.auth.UserProfileDetailsResponseDto;
+import com.app.diamondhotelbackend.dto.auth.*;
 import com.app.diamondhotelbackend.exception.AuthProcessingException;
 import com.app.diamondhotelbackend.exception.ConfirmationTokenProcessingException;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
@@ -41,11 +38,21 @@ public class AuthController {
     }
 
     @PostMapping("/refresh/access-token")
-    public ResponseEntity<UserProfileDetailsResponseDto> refreshToken(@RequestBody TokenRefreshRequestDto tokenRefreshRequestDto) {
+    public ResponseEntity<UserProfileDetailsResponseDto> refreshAuthToken(@RequestBody TokenRefreshRequestDto tokenRefreshRequestDto) {
         try {
-            return ResponseEntity.ok(authService.refreshAccessToken(tokenRefreshRequestDto));
+            return ResponseEntity.ok(authService.refreshAuthToken(tokenRefreshRequestDto));
         } catch (AuthProcessingException | UserProfileProcessingException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
+        }
+    }
+
+    @GetMapping("/refresh/confirmation-token/{token}")
+    public void refreshConfirmationToken(@PathVariable String token) {
+        try {
+            authService.refreshConfirmationToken(token);
+
+        } catch (UserProfileProcessingException | ConfirmationTokenProcessingException e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
         }
     }
 
@@ -58,12 +65,22 @@ public class AuthController {
         }
     }
 
-    @GetMapping("/resend/confirmation/token/user/{id}")
-    public void confirmAccount(@PathVariable long id) {
+    @GetMapping("/confirm/changing/password/email/{email}")
+    public void confirmChangingPassword(@PathVariable String email) {
         try {
-            authService.resendConfirmationToken(id);
+            authService.confirmChangingPassword(email);
 
-        } catch (UserProfileProcessingException | ConfirmationTokenProcessingException e) {
+        } catch (UserProfileProcessingException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
+    @PostMapping("/change/password")
+    public void changePassword(@RequestBody ChangePasswordRequestDto changePasswordRequestDto) {
+        try {
+            authService.changePassword(changePasswordRequestDto);
+
+        } catch (AuthProcessingException | ConfirmationTokenProcessingException e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
         }
     }

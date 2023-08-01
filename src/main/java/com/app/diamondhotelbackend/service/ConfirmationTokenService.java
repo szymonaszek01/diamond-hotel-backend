@@ -21,8 +21,6 @@ public class ConfirmationTokenService {
 
     private final ConfirmationTokenRepository confirmationTokenRepository;
 
-    private final UserProfileService userProfileService;
-
     private final JwtPropertiesProvider jwtPropertiesProvider;
 
     public ConfirmationToken createConfirmationToken(UserProfile userProfile) {
@@ -55,9 +53,8 @@ public class ConfirmationTokenService {
         return confirmationToken.getUserProfile();
     }
 
-    public ConfirmationToken updateTokenToEmailConfirmation(long userId) throws UserProfileProcessingException, ConfirmationTokenProcessingException {
-        UserProfile userProfile = userProfileService.getUserProfileById(userId);
-        ConfirmationToken confirmationToken = confirmationTokenRepository.findConfirmationTokenByUserProfile(userProfile).orElseThrow(() -> new ConfirmationTokenProcessingException(Constant.CONFIRMATION_TOKEN_NOT_FOUND));
+    public ConfirmationToken refreshConfirmationToken(String expiredToken) throws UserProfileProcessingException, ConfirmationTokenProcessingException {
+        ConfirmationToken confirmationToken = confirmationTokenRepository.findConfirmationTokenByAccessValue(expiredToken).orElseThrow(() -> new ConfirmationTokenProcessingException(Constant.CONFIRMATION_TOKEN_NOT_FOUND));
         if (confirmationToken.getConfirmedAt() != null) {
             throw new ConfirmationTokenProcessingException(Constant.CONFIRMATION_TOKEN_ALREADY_CONFIRMED);
         }

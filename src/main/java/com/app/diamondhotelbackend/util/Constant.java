@@ -57,6 +57,10 @@ public class Constant {
     /**
      * ----- EXCEPTION -----
      **/
+    public static final String INVALID_AUTH_PROVIDER_EXCEPTION = "Invalid auth provider exception";
+
+    public static final String PASSWORD_EXISTS_EXCEPTION = "Password exists exception";
+
     public static final String USER_PROFILE_NOT_FOUND_EXCEPTION = "User profile not found";
 
     public static final String USER_PROFILE_EXISTS_EXCEPTION = "User profile exists";
@@ -97,17 +101,25 @@ public class Constant {
      **/
     public static final String EMAIL_SENDER = "diamond.hotel.contact@gmail.com";
 
-    public static final String EMAIL_CONFIRM_ACCOUNT_SUBJECT = "Confirm your email";
+    public static final String EMAIL_ATTR_CONFIRMATION_TOKEN = "confirmation-token";
+
+    public static final String EMAIL_CONFIRM_ACCOUNT_SUBJECT = "Diamond hotel - confirm your email";
 
     public static final String EMAIL_CONFIRM_ACCOUNT_CALLBACK_URI = "/account/confirmation";
-
-    public static final String EMAIL_CONFIRM_ACCOUNT_ATTR_CONFIRMATION_TOKEN = "confirmation-token";
-
-    public static final String EMAIL_CONFIRM_ACCOUNT_ATTR_USER = "user";
 
     public static final String EMAIL_CONFIRM_ACCOUNT_LINK_DESCRIPTION = "Activate account now";
 
     public static final String EMAIL_CONFIRM_ACCOUNT_CONTENT_DESCRIPTION = "Thank you for registering. Please click on the below link to activate your account:";
 
     public static final String EMAIL_CONFIRM_ACCOUNT_CONTENT_TITLE = "Confirm your email";
+
+    public static final String EMAIL_CHANGE_PASSWORD_CALLBACK_URI = "/change/password";
+
+    public static final String EMAIL_CHANGE_PASSWORD_CONTENT_TITLE = "Change your password";
+
+    public static final String EMAIL_CHANGE_PASSWORD_CONTENT_DESCRIPTION = "Do you want to change your password?. If you have not used the password reminder function, just ignore this message.";
+
+    public static final String EMAIL_CHANGE_PASSWORD_LINK_DESCRIPTION = "Change password now";
+
+    public static final String EMAIL_CHANGE_PASSWORD_SUBJECT = "Diamond hotel - change your password";
 }

@@ -200,7 +200,7 @@ public class Initializer implements CommandLineRunner {
                         email("szymonCzopek@gmail.com").
                         firstname("Szymon").
                         lastname("Czopek").
-                        picture("https://lh3.googleusercontent.com/a/AAcHTtc0vrApUYIeq1MqvPjpmPzHtzR3Fm4HRpb6FKMFUbus=s96-c").
+                        picture(null).
                         role(Constant.USER).
                         authProvider(Constant.OAUTH2).
                         accountConfirmed(true).
@@ -261,7 +261,7 @@ public class Initializer implements CommandLineRunner {
                         .lastname("Jakubaszek")
                         .age(22)
                         .country("Poland")
-                        .passportNumber("CF447771486")
+                        .passportNumber("CF445401499")
                         .phoneNumber("789500345")
                         .city("Garwolin")
                         .street("Adamska 12/23")

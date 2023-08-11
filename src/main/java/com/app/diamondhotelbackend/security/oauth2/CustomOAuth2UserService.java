@@ -8,6 +8,7 @@ import com.app.diamondhotelbackend.service.ConfirmationTokenService;
 import com.app.diamondhotelbackend.service.EmailService;
 import com.app.diamondhotelbackend.service.UserProfileService;
 import com.app.diamondhotelbackend.util.Constant;
+import com.app.diamondhotelbackend.util.ImageUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -24,6 +25,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final ConfirmationTokenService confirmationTokenService;
 
     private final EmailService emailService;
+
+    private final ImageUtil imageUtil;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -50,14 +53,16 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
 
     private void createAndSaveUserProfile(CustomOAuth2User customOAuth2User) {
+        byte[] image = imageUtil.getImageFromUrl(customOAuth2User.getPicture());
+
         UserProfile userProfile = UserProfile.builder()
                 .email(customOAuth2User.getEmail())
                 .firstname(customOAuth2User.getGivenName())
                 .lastname(customOAuth2User.getFamilyName())
-                .picture(customOAuth2User.getPicture())
                 .authProvider(Constant.OAUTH2)
                 .role(Constant.USER)
                 .accountConfirmed(false)
+                .picture(imageUtil.compressImage(image))
                 .build();
         userProfileService.saveUserProfile(userProfile);
 

@@ -3,6 +3,12 @@ package com.app.diamondhotelbackend.util;
 public class Constant {
 
     /**
+     * ----- IMAGE -----
+     **/
+    public static final int MAX_IMAGE_SIZE = 4 * 1024;
+
+
+    /**
      * ----- GRANTED AUTHORITY -----
      **/
     public static final String USER = "USER";

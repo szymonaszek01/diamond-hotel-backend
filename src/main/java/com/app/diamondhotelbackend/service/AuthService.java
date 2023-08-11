@@ -9,6 +9,7 @@ import com.app.diamondhotelbackend.exception.ConfirmationTokenProcessingExceptio
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.security.jwt.CustomUserDetails;
 import com.app.diamondhotelbackend.util.Constant;
+import com.app.diamondhotelbackend.util.UrlUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -41,6 +42,8 @@ public class AuthService {
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+    private final UrlUtil urlUtil;
+
     public UserProfileDetailsResponseDto login(LoginRequestDto loginRequestDto) throws AuthProcessingException, UserProfileProcessingException {
         Optional<UserDetails> optionalUserDetails = getUserDetails(loginRequestDto.getEmail(), loginRequestDto.getPassword());
         if (optionalUserDetails.isEmpty()) {
@@ -66,7 +69,8 @@ public class AuthService {
     }
 
     public UserProfileDetailsResponseDto confirmAccount(String token) throws ConfirmationTokenProcessingException {
-        UserProfile userProfile = confirmationTokenService.updateConfirmedAt(token);
+        String decodedToken = urlUtil.decode(token);
+        UserProfile userProfile = confirmationTokenService.updateConfirmedAt(decodedToken);
         userProfile.setAccountConfirmed(true);
         userProfileService.saveUserProfile(userProfile);
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(userProfile.getRole()));
@@ -88,7 +92,8 @@ public class AuthService {
     }
 
     public void refreshConfirmationToken(String expiredToken) throws UserProfileProcessingException, ConfirmationTokenProcessingException {
-        ConfirmationToken confirmationToken = confirmationTokenService.refreshConfirmationToken(expiredToken);
+        String decodedExpiredToken = urlUtil.decode(expiredToken);
+        ConfirmationToken confirmationToken = confirmationTokenService.refreshConfirmationToken(decodedExpiredToken);
         emailService.sendConfirmationAccountEmail(confirmationToken);
     }
 
@@ -103,7 +108,8 @@ public class AuthService {
     }
 
     public void confirmChangingPassword(String email) throws UserProfileProcessingException {
-        UserProfile userProfile = userProfileService.getUserProfileByEmail(email);
+        String decodedEmail = urlUtil.decode(email);
+        UserProfile userProfile = userProfileService.getUserProfileByEmail(decodedEmail);
         ConfirmationToken confirmationToken = confirmationTokenService.createConfirmationToken(userProfile);
         confirmationTokenService.saveConfirmationToken(confirmationToken);
         emailService.sendChangingPasswordEmail(confirmationToken);

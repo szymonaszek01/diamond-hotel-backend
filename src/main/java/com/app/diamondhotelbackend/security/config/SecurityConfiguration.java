@@ -48,6 +48,8 @@ public class SecurityConfiguration {
                 .requestMatchers("/api/v1/user-profile/id/{id}/details/info").hasAnyAuthority(Constant.USER, Constant.ADMIN)
                 .requestMatchers("/api/v1/user-profile/id/{id}/delete").hasAuthority(Constant.ADMIN)
                 .requestMatchers("/api/v1/user-profile/email/{email}/details/info").hasAnyAuthority(Constant.USER, Constant.ADMIN)
+                .requestMatchers("/api/v1/user-profile/email/{email}/image").hasAnyAuthority(Constant.USER, Constant.ADMIN)
+                .requestMatchers("/api/v1/user-profile/email/{email}/upload/image").hasAnyAuthority(Constant.USER, Constant.ADMIN)
                 .requestMatchers("/api/v1/room-type/configuration/info").hasAnyAuthority(Constant.USER, Constant.ADMIN)
                 .requestMatchers("/api/v1/room-type/available/info").hasAuthority(Constant.USER)
                 .requestMatchers("/api/v1/room-type/summary/shopping/cart").hasAuthority(Constant.USER)

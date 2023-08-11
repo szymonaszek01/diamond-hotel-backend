@@ -1,5 +1,6 @@
 package com.app.diamondhotelbackend.controller;
 
+import com.app.diamondhotelbackend.dto.userprofile.UserImageResponseDto;
 import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.service.UserProfileService;
@@ -7,9 +8,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.zip.DataFormatException;
 
 @RequestMapping("/api/v1/user-profile")
 @RestController
@@ -48,6 +52,24 @@ public class UserProfileController {
             userProfileService.deleteUserProfile(id);
         } catch (UserProfileProcessingException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
+    @GetMapping("/email/{email}/image")
+    public ResponseEntity<UserImageResponseDto> getUserImageByEmail(@PathVariable String email) {
+        try {
+            return ResponseEntity.ok(userProfileService.getUserImageByEmail(email));
+        } catch (UserProfileProcessingException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
+    @PostMapping("/email/{email}/upload/image")
+    public ResponseEntity<UserImageResponseDto> updateUserImageByEmail(@PathVariable String email, @RequestParam("image") MultipartFile file) {
+        try {
+            return ResponseEntity.ok(userProfileService.updateUserImageByEmail(file, email));
+        } catch (IOException | UserProfileProcessingException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 }

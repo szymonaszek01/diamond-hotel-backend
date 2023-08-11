@@ -4,6 +4,7 @@ import com.app.diamondhotelbackend.entity.ConfirmationToken;
 import com.app.diamondhotelbackend.util.BaseUriPropertiesProvider;
 import com.app.diamondhotelbackend.util.Constant;
 import com.app.diamondhotelbackend.util.EmailUtil;
+import com.app.diamondhotelbackend.util.UrlUtil;
 import jakarta.activation.DataHandler;
 import jakarta.activation.DataSource;
 import jakarta.activation.FileDataSource;
@@ -20,9 +21,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-
 @Service
 @AllArgsConstructor
 @Slf4j
@@ -34,9 +32,11 @@ public class EmailService {
 
     private final EmailUtil emailUtil;
 
+    private final UrlUtil urlUtil;
+
     public void sendConfirmationAccountEmail(ConfirmationToken confirmationToken) {
         String link = UriComponentsBuilder.fromUriString(baseUriPropertiesProvider.getClient() + Constant.EMAIL_CONFIRM_ACCOUNT_CALLBACK_URI)
-                .queryParam(Constant.EMAIL_ATTR_CONFIRMATION_TOKEN, URLEncoder.encode(confirmationToken.getAccessValue(), StandardCharsets.UTF_8))
+                .queryParam(Constant.EMAIL_ATTR_CONFIRMATION_TOKEN, urlUtil.encode(confirmationToken.getAccessValue()))
                 .build()
                 .toUriString();
 
@@ -54,7 +54,7 @@ public class EmailService {
 
     public void sendChangingPasswordEmail(ConfirmationToken confirmationToken) {
         String link = UriComponentsBuilder.fromUriString(baseUriPropertiesProvider.getClient() + Constant.EMAIL_CHANGE_PASSWORD_CALLBACK_URI)
-                .queryParam(Constant.EMAIL_ATTR_CONFIRMATION_TOKEN, URLEncoder.encode(confirmationToken.getAccessValue(), StandardCharsets.UTF_8))
+                .queryParam(Constant.EMAIL_ATTR_CONFIRMATION_TOKEN, urlUtil.encode(confirmationToken.getAccessValue()))
                 .build()
                 .toUriString();
 

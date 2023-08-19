@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ChangePasswordRequestDto {
 
-    @JsonProperty("token")
     private String token;
 
     @JsonProperty("new_password")

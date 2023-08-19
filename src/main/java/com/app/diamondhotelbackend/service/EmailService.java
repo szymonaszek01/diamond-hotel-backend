@@ -34,6 +34,7 @@ public class EmailService {
 
     private final UrlUtil urlUtil;
 
+    @Async
     public void sendConfirmationAccountEmail(ConfirmationToken confirmationToken) {
         String link = UriComponentsBuilder.fromUriString(baseUriPropertiesProvider.getClient() + Constant.EMAIL_CONFIRM_ACCOUNT_CALLBACK_URI)
                 .queryParam(Constant.EMAIL_ATTR_CONFIRMATION_TOKEN, urlUtil.encode(confirmationToken.getAccessValue()))

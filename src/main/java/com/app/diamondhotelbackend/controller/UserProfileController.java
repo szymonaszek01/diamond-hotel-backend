@@ -1,5 +1,6 @@
 package com.app.diamondhotelbackend.controller;
 
+import com.app.diamondhotelbackend.dto.userprofile.UpdateUserDetailsRequestDto;
 import com.app.diamondhotelbackend.dto.userprofile.UserImageResponseDto;
 import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
@@ -13,7 +14,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.zip.DataFormatException;
 
 @RequestMapping("/api/v1/user-profile")
 @RestController
@@ -56,7 +56,7 @@ public class UserProfileController {
     }
 
     @GetMapping("/email/{email}/image")
-    public ResponseEntity<UserImageResponseDto> getUserImageByEmail(@PathVariable String email) {
+    public ResponseEntity<UserImageResponseDto> getUserProfileImageByEmail(@PathVariable String email) {
         try {
             return ResponseEntity.ok(userProfileService.getUserImageByEmail(email));
         } catch (UserProfileProcessingException e) {
@@ -64,12 +64,21 @@ public class UserProfileController {
         }
     }
 
-    @PostMapping("/email/{email}/upload/image")
-    public ResponseEntity<UserImageResponseDto> updateUserImageByEmail(@PathVariable String email, @RequestParam("image") MultipartFile file) {
+    @PutMapping("/email/{email}/update/image")
+    public ResponseEntity<UserImageResponseDto> updateUserProfileImage(@PathVariable String email, @RequestParam("image") MultipartFile file) {
         try {
-            return ResponseEntity.ok(userProfileService.updateUserImageByEmail(file, email));
+            return ResponseEntity.ok(userProfileService.updateUserImage(file, email));
         } catch (IOException | UserProfileProcessingException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    @PutMapping("/email/{email}/update/details")
+    public void updateUserProfile(@PathVariable String email, @RequestBody UpdateUserDetailsRequestDto updateUserDetailsRequestDto) {
+        try {
+            userProfileService.updateUserProfile(email, updateUserDetailsRequestDto);
+        } catch (UserProfileProcessingException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
 }

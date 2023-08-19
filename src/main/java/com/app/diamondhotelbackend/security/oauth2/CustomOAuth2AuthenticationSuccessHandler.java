@@ -52,6 +52,7 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
         return UriComponentsBuilder.fromUriString(baseUriPropertiesProvider.getClient() + Constant.OAUTH2_CALLBACK_URI)
                 .queryParam(Constant.OAUTH2_ATTR_ACCESS_TOKEN, urlUtil.encode(authToken.getAccessValue()))
                 .queryParam(Constant.OAUTH2_ATTR_REFRESH_TOKEN, urlUtil.encode(authToken.getRefreshValue()))
+                .queryParam(Constant.OAUTH2_ATTR_ID, urlUtil.encode(String.valueOf(authToken.getUserProfile().getId())))
                 .queryParam(Constant.OAUTH2_ATTR_EMAIL, urlUtil.encode(authToken.getUserProfile().getEmail()))
                 .queryParam(Constant.OAUTH2_ATTR_CONFIRMED, authToken.getUserProfile().isAccountConfirmed())
                 .build()

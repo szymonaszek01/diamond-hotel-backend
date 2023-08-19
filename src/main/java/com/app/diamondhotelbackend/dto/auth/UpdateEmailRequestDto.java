@@ -10,17 +10,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserProfileDetailsResponseDto {
-
-    @JsonProperty("access_token")
-    private String accessToken;
-
-    @JsonProperty("refresh_token")
-    private String refreshToken;
-
-    private long id;
+public class UpdateEmailRequestDto {
 
     private String email;
 
-    private boolean confirmed;
+    @JsonProperty("new_email")
+    private String newEmail;
 }

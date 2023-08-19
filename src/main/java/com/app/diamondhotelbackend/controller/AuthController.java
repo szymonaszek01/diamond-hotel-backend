@@ -37,10 +37,10 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/refresh/access-token")
-    public ResponseEntity<UserProfileDetailsResponseDto> refreshAuthToken(@RequestBody TokenRefreshRequestDto tokenRefreshRequestDto) {
+    @GetMapping("/refresh/access-token/{token}")
+    public ResponseEntity<UserProfileDetailsResponseDto> refreshAuthToken(@PathVariable String token) {
         try {
-            return ResponseEntity.ok(authService.refreshAuthToken(tokenRefreshRequestDto));
+            return ResponseEntity.ok(authService.refreshAuthToken(token));
         } catch (AuthProcessingException | UserProfileProcessingException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
         }
@@ -50,13 +50,12 @@ public class AuthController {
     public void refreshConfirmationToken(@PathVariable String token) {
         try {
             authService.refreshConfirmationToken(token);
-
         } catch (UserProfileProcessingException | ConfirmationTokenProcessingException e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
         }
     }
 
-    @GetMapping("/confirm/account/token/{token}")
+    @GetMapping("/confirm/account/confirmation-token/{token}")
     public ResponseEntity<UserProfileDetailsResponseDto> confirmAccount(@PathVariable String token) {
         try {
             return ResponseEntity.ok(authService.confirmAccount(token));
@@ -65,21 +64,37 @@ public class AuthController {
         }
     }
 
-    @GetMapping("/confirm/changing/password/email/{email}")
-    public void confirmChangingPassword(@PathVariable String email) {
+    @GetMapping("/forgot/password/email/{email}")
+    public void forgotPasswordConfirm(@PathVariable String email) {
         try {
             authService.confirmChangingPassword(email);
-
         } catch (UserProfileProcessingException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
 
-    @PostMapping("/change/password")
-    public void changePassword(@RequestBody ChangePasswordRequestDto changePasswordRequestDto) {
+    @PutMapping("/forgot/password/new")
+    public void forgotPasswordNew(@RequestBody ChangePasswordRequestDto changePasswordRequestDto) {
         try {
-            authService.changePassword(changePasswordRequestDto);
+            authService.updatePassword(changePasswordRequestDto);
+        } catch (AuthProcessingException | ConfirmationTokenProcessingException e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+        }
+    }
 
+    @PutMapping("/update/email")
+    public void updateEmail(@RequestBody UpdateEmailRequestDto changeEmailRequestDto) {
+        try {
+            authService.updateEmail(changeEmailRequestDto);
+        } catch (AuthProcessingException | ConfirmationTokenProcessingException e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+        }
+    }
+
+    @PutMapping("/update/password")
+    public void updatePassword(@RequestBody UpdatePasswordRequestDto updatePasswordRequestDto) {
+        try {
+            authService.updatePassword(updatePasswordRequestDto);
         } catch (AuthProcessingException | ConfirmationTokenProcessingException e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
         }

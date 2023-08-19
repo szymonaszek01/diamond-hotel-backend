@@ -1,12 +1,12 @@
 package com.app.diamondhotelbackend.service;
 
 import com.app.diamondhotelbackend.dto.auth.RegisterRequestDto;
+import com.app.diamondhotelbackend.dto.userprofile.UpdateUserDetailsRequestDto;
 import com.app.diamondhotelbackend.dto.userprofile.UserImageResponseDto;
 import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.repository.UserProfileRepository;
 import com.app.diamondhotelbackend.util.Constant;
-import com.app.diamondhotelbackend.util.ImageUtil;
 import com.app.diamondhotelbackend.util.UrlUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +28,6 @@ public class UserProfileService {
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    private final ImageUtil imageUtil;
-
     private final UrlUtil urlUtil;
 
     public UserProfile getUserProfileById(long id) {
@@ -37,27 +35,7 @@ public class UserProfileService {
     }
 
     public UserProfile getUserProfileByEmail(String email) {
-        UserProfile userProfile = userProfileRepository.findUserProfileByEmail(email).orElseThrow(() -> new UserProfileProcessingException(Constant.USER_PROFILE_NOT_FOUND_EXCEPTION));
-        byte[] picture = userProfile.getPicture();
-
-        return UserProfile.builder()
-                .id(userProfile.getId())
-                .email(userProfile.getEmail())
-                .password(userProfile.getPassword())
-                .firstname(userProfile.getFirstname())
-                .lastname(userProfile.getLastname())
-                .age(userProfile.getAge())
-                .country(userProfile.getCountry())
-                .passportNumber(userProfile.getPassportNumber())
-                .phoneNumber(userProfile.getPhoneNumber())
-                .city(userProfile.getCity())
-                .street(userProfile.getStreet())
-                .postalCode(userProfile.getPostalCode())
-                .authProvider(userProfile.getAuthProvider())
-                .picture(imageUtil.decompressImage(picture))
-                .role(userProfile.getRole())
-                .accountConfirmed(userProfile.isAccountConfirmed())
-                .build();
+        return userProfileRepository.findUserProfileByEmail(email).orElseThrow(() -> new UserProfileProcessingException(Constant.USER_PROFILE_NOT_FOUND_EXCEPTION));
     }
 
     public boolean isAdmin(long userProfileId) {
@@ -94,6 +72,22 @@ public class UserProfileService {
         userProfileRepository.save(userProfile);
     }
 
+    public void updateUserProfile(String email, UpdateUserDetailsRequestDto userProfileRequestDto) throws UserProfileProcessingException {
+        UserProfile userProfile = getUserProfileByEmail(email);
+
+        userProfile.setFirstname(userProfileRequestDto.getFirstname());
+        userProfile.setLastname(userProfileRequestDto.getLastname());
+        userProfile.setAge(userProfileRequestDto.getAge());
+        userProfile.setCountry(userProfileRequestDto.getCountry());
+        userProfile.setPassportNumber(userProfileRequestDto.getPassportNumber());
+        userProfile.setPhoneNumber(userProfileRequestDto.getPhoneNumber());
+        userProfile.setCity(userProfileRequestDto.getCity());
+        userProfile.setStreet(userProfileRequestDto.getStreet());
+        userProfile.setPostalCode(userProfileRequestDto.getPostalCode());
+
+        userProfileRepository.save(userProfile);
+    }
+
     public void deleteUserProfile(long id) throws UserProfileProcessingException {
         UserProfile userProfile = userProfileRepository.findUserProfileById(id).orElseThrow(() -> new UserProfileProcessingException("User profile not found"));
         userProfileRepository.deleteById(userProfile.getId());
@@ -106,9 +100,16 @@ public class UserProfileService {
                 .noneMatch(userProfile -> passwordEncoder.matches(password, userProfile.getPassword()));
     }
 
-    public UserImageResponseDto updateUserImageByEmail(MultipartFile file, String email) throws UserProfileProcessingException, IOException {
+    public boolean isNewEmailUnique(String email) {
+        return userProfileRepository.findAll()
+                .stream()
+                .filter(userProfile -> !Constant.OAUTH2.equals(userProfile.getAuthProvider()))
+                .noneMatch(userProfile -> userProfile.getEmail().equals(email));
+    }
+
+    public UserImageResponseDto updateUserImage(MultipartFile file, String email) throws UserProfileProcessingException, IOException {
         UserProfile userProfile = getUserProfileByEmail(urlUtil.decode(email));
-        userProfile.setPicture(imageUtil.compressImage(file.getBytes()));
+        userProfile.setPicture(file.getBytes());
         userProfileRepository.save(userProfile);
 
         return UserImageResponseDto.builder().email(userProfile.getEmail()).image(file.getBytes()).build();
@@ -116,8 +117,6 @@ public class UserProfileService {
 
     public UserImageResponseDto getUserImageByEmail(String email) throws UserProfileProcessingException {
         UserProfile userProfile = getUserProfileByEmail(urlUtil.decode(email));
-        byte[] image = imageUtil.decompressImage(userProfile.getPicture());
-
-        return UserImageResponseDto.builder().email(userProfile.getEmail()).image(image).build();
+        return UserImageResponseDto.builder().email(userProfile.getEmail()).image(userProfile.getPicture()).build();
     }
 }

@@ -79,12 +79,13 @@ public class AuthService {
         return createUserProfileDetailsResponseDto(customUserDetails);
     }
 
-    public UserProfileDetailsResponseDto refreshAuthToken(TokenRefreshRequestDto tokenRefreshRequestDto) throws AuthProcessingException {
-        return authTokenService.refreshAccessToken(tokenRefreshRequestDto.getRefreshToken())
+    public UserProfileDetailsResponseDto refreshAuthToken(String expiredToken) throws AuthProcessingException {
+        return authTokenService.refreshAccessToken(urlUtil.decode(expiredToken))
                 .map(token -> UserProfileDetailsResponseDto.builder()
                         .accessToken(token.getAccessValue())
                         .refreshToken(token.getRefreshValue())
                         .email(token.getUserProfile().getEmail())
+                        .id(token.getUserProfile().getId())
                         .confirmed(token.getUserProfile().isAccountConfirmed())
                         .build()
                 )
@@ -103,6 +104,7 @@ public class AuthService {
                 .accessToken(authToken.getAccessValue())
                 .refreshToken(authToken.getRefreshValue())
                 .email(authToken.getUserProfile().getEmail())
+                .id(authToken.getUserProfile().getId())
                 .confirmed(authToken.getUserProfile().isAccountConfirmed())
                 .build();
     }
@@ -115,16 +117,43 @@ public class AuthService {
         emailService.sendChangingPasswordEmail(confirmationToken);
     }
 
-    public void changePassword(ChangePasswordRequestDto changePasswordRequestDto) throws AuthProcessingException, ConfirmationTokenProcessingException {
-        UserProfile userProfile = confirmationTokenService.updateConfirmedAt(changePasswordRequestDto.getToken());
+    public void updateEmail(UpdateEmailRequestDto updateEmailRequestDto) {
+        UserProfile userProfile = userProfileService.getUserProfileByEmail(updateEmailRequestDto.getEmail());
         if (Constant.OAUTH2.equals(userProfile.getAuthProvider())) {
             throw new AuthProcessingException(Constant.INVALID_AUTH_PROVIDER_EXCEPTION);
         }
-        if (!userProfileService.isNewPasswordUnique(changePasswordRequestDto.getNewPassword())) {
+        if (!userProfileService.isNewEmailUnique(updateEmailRequestDto.getNewEmail())) {
+            throw new AuthProcessingException(Constant.EMAIL_EXISTS_EXCEPTION);
+        }
+
+        userProfile.setEmail(updateEmailRequestDto.getNewEmail());
+        userProfile.setAccountConfirmed(false);
+        ConfirmationToken confirmationToken = confirmationTokenService.createConfirmationToken(userProfile);
+
+        confirmationTokenService.saveConfirmationToken(confirmationToken);
+        emailService.sendConfirmationAccountEmail(confirmationToken);
+        userProfileService.saveUserProfile(userProfile);
+    }
+
+    public void updatePassword(ChangePasswordRequestDto changePasswordRequestDto) throws AuthProcessingException, ConfirmationTokenProcessingException {
+        UserProfile userProfile = confirmationTokenService.updateConfirmedAt(changePasswordRequestDto.getToken());
+        verifyAndChangePassword(userProfile, changePasswordRequestDto.getNewPassword());
+    }
+
+    public void updatePassword(UpdatePasswordRequestDto updatePasswordRequestDto) throws AuthProcessingException, UserProfileProcessingException {
+        UserProfile userProfile = userProfileService.getUserProfileByEmail(updatePasswordRequestDto.getEmail());
+        verifyAndChangePassword(userProfile, updatePasswordRequestDto.getNewPassword());
+    }
+
+    private void verifyAndChangePassword(UserProfile userProfile, String newPassword) throws AuthProcessingException {
+        if (Constant.OAUTH2.equals(userProfile.getAuthProvider())) {
+            throw new AuthProcessingException(Constant.INVALID_AUTH_PROVIDER_EXCEPTION);
+        }
+        if (!userProfileService.isNewPasswordUnique(newPassword)) {
             throw new AuthProcessingException(Constant.PASSWORD_EXISTS_EXCEPTION);
         }
 
-        userProfile.setPassword(passwordEncoder.encode(changePasswordRequestDto.getNewPassword()));
+        userProfile.setPassword(passwordEncoder.encode(newPassword));
         userProfileService.saveUserProfile(userProfile);
     }
 

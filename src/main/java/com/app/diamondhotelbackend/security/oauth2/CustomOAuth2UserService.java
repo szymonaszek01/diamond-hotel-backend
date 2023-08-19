@@ -2,7 +2,6 @@ package com.app.diamondhotelbackend.security.oauth2;
 
 import com.app.diamondhotelbackend.entity.ConfirmationToken;
 import com.app.diamondhotelbackend.entity.UserProfile;
-import com.app.diamondhotelbackend.exception.OAuth2ProcessingException;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.service.ConfirmationTokenService;
 import com.app.diamondhotelbackend.service.EmailService;
@@ -32,13 +31,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         CustomOAuth2User customOAuth2User = CustomOAuth2User.builder().oauth2User(super.loadUser(userRequest)).build();
         if (customOAuth2User.getEmail().isEmpty()) {
-            throw new OAuth2ProcessingException("Email not found from OAuth2 provider");
+            throw new OAuth2AuthenticationException(Constant.EMAIL_NOT_FOUND_FROM_OAUTH_2_PROVIDER_EXCEPTION);
         }
 
         try {
             UserProfile userProfile = userProfileService.getUserProfileByEmail(customOAuth2User.getEmail());
             if (isAuthProviderMismatch(userProfile)) {
-                throw new OAuth2ProcessingException("User not registered by OAuth2 provider");
+                throw new OAuth2AuthenticationException(Constant.INVALID_AUTH_PROVIDER_EXCEPTION);
             }
 
         } catch (UserProfileProcessingException e) {
@@ -62,7 +61,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .authProvider(Constant.OAUTH2)
                 .role(Constant.USER)
                 .accountConfirmed(false)
-                .picture(imageUtil.compressImage(image))
+                .picture(image)
                 .build();
         userProfileService.saveUserProfile(userProfile);
 

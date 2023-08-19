@@ -41,6 +41,8 @@ public class Constant {
 
     public static final String OAUTH2_ATTR_CONFIRMED = "confirmed";
 
+    public static final String OAUTH2_ATTR_ID = "id";
+
     public static final String OAUTH2_ATTR_ACCESS_TOKEN = "access-token";
 
     public static final String OAUTH2_ATTR_REFRESH_TOKEN = "refresh-token";
@@ -63,11 +65,15 @@ public class Constant {
     /**
      * ----- EXCEPTION -----
      **/
-    public static final String INVALID_AUTH_PROVIDER_EXCEPTION = "Invalid auth provider exception";
+    public static final String INVALID_AUTH_PROVIDER_EXCEPTION = "Invalid auth provider";
 
-    public static final String PASSWORD_EXISTS_EXCEPTION = "Password exists exception";
+    public static final String PASSWORD_EXISTS_EXCEPTION = "Password exists";
+
+    public static final String EMAIL_EXISTS_EXCEPTION = "Email exists";
 
     public static final String USER_PROFILE_NOT_FOUND_EXCEPTION = "User profile not found";
+
+    public static final String EMAIL_NOT_FOUND_FROM_OAUTH_2_PROVIDER_EXCEPTION = "Email not found from OAuth2 provider";
 
     public static final String USER_PROFILE_EXISTS_EXCEPTION = "User profile exists";
 

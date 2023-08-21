@@ -10,10 +10,9 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
-@Component
 public class ImageUtil {
 
-    public byte[] getImageFromUrl(String urlText) {
+    public static byte[] getImageFromUrl(String urlText) {
         try {
             URL url = new URL(urlText);
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -31,7 +30,7 @@ public class ImageUtil {
         }
     }
 
-    public byte[] compressImage(byte[] data) {
+    public static byte[] compressImage(byte[] data) {
         try {
             Deflater deflater = new Deflater();
             deflater.setLevel(Deflater.BEST_COMPRESSION);

@@ -1,4 +1,4 @@
-package com.app.diamondhotelbackend.service;
+package com.app.diamondhotelbackend.service.transaction;
 
 
 import com.app.diamondhotelbackend.dto.shoppingcart.CostSummaryDto;
@@ -20,14 +20,16 @@ import java.util.Random;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class TransactionService {
+public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionRepository transactionRepository;
 
+    @Override
     public Transaction findTransactionByCode(String code) throws TransactionNotFoundException {
         return transactionRepository.findTransactionByCode(code).orElseThrow(() -> new TransactionNotFoundException("Transaction not found"));
     }
 
+    @Override
     public void updateTransactionAfterReservationCancellation(Reservation reservation) {
         Transaction transaction = reservation.getTransaction();
         long totalWithoutTax = transaction.getTotalWithoutTax().longValue() - reservation.getRoomCost().longValue();
@@ -37,6 +39,7 @@ public class TransactionService {
         transactionRepository.save(transaction);
     }
 
+    @Override
     public TransactionDto toTransactionDtoMapper(Transaction transaction) {
         return TransactionDto.builder()
                 .code(transaction.getCode())
@@ -48,6 +51,7 @@ public class TransactionService {
                 .build();
     }
 
+    @Override
     public TransactionStatusInfoDto changeTransactionStatus(TransactionStatusInfoDto transactionStatusInfoDto) throws TransactionNotFoundException, InvalidTransactionStatusException {
         Transaction transaction = findTransactionByCode(transactionStatusInfoDto.getCode());
         if (!isValidTransactionStatus(transactionStatusInfoDto.getStatus())) {
@@ -60,6 +64,7 @@ public class TransactionService {
         return transactionStatusInfoDto;
     }
 
+    @Override
     public Transaction createNewTransaction(CostSummaryDto costSummaryDto) {
         return transactionRepository.save(Transaction.builder()
                 .code(generateTransactionCode())
@@ -71,6 +76,7 @@ public class TransactionService {
                 .build());
     }
 
+    @Override
     public BigDecimal getTotalCost(Transaction transaction) {
         return new BigDecimal(transaction.getTotalWithoutTax().longValue() + transaction.getTax().longValue() + transaction.getCarPickUp().longValue() + transaction.getCarRent().longValue());
     }

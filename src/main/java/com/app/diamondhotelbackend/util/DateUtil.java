@@ -1,20 +1,13 @@
-package com.app.diamondhotelbackend.service;
-
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+package com.app.diamondhotelbackend.util;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
-@Service
-@AllArgsConstructor
-@Slf4j
-public class DateService {
+public class DateUtil {
 
-    public Optional<LocalDateTime> isValidCheckInOrCheckOut(String localDateTimeAsString) {
+    public static Optional<LocalDateTime> isValidCheckInOrCheckOut(String localDateTimeAsString) {
         try {
             if (localDateTimeAsString == null || localDateTimeAsString.isEmpty()) {
                 return Optional.empty();
@@ -27,7 +20,7 @@ public class DateService {
         }
     }
 
-    public long getDuration(LocalDateTime checkIn, LocalDateTime checkOut) {
+    public static long getDuration(LocalDateTime checkIn, LocalDateTime checkOut) {
         return Duration.between(checkIn, checkOut).toDays();
     }
 }

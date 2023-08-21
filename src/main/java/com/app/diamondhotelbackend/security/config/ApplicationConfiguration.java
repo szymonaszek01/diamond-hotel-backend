@@ -2,7 +2,7 @@ package com.app.diamondhotelbackend.security.config;
 
 import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.security.jwt.CustomUserDetails;
-import com.app.diamondhotelbackend.service.UserProfileService;
+import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ApplicationConfiguration {
 
-    private final UserProfileService userProfileService;
+    private final UserProfileServiceImpl userProfileService;
 
     @Bean
     public UserDetailsService userDetailsService() throws UsernameNotFoundException {

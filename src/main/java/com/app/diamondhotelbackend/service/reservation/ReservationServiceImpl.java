@@ -1,4 +1,4 @@
-package com.app.diamondhotelbackend.service;
+package com.app.diamondhotelbackend.service.reservation;
 
 import com.app.diamondhotelbackend.dto.reservation.*;
 import com.app.diamondhotelbackend.dto.shoppingcart.RoomTypeInfoDto;
@@ -8,7 +8,13 @@ import com.app.diamondhotelbackend.exception.NotAllSelectedRoomsAvailableExcepti
 import com.app.diamondhotelbackend.exception.ReservationNotFoundException;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.repository.ReservationRepository;
+import com.app.diamondhotelbackend.service.room.RoomServiceImpl;
+import com.app.diamondhotelbackend.service.roomtype.RoomTypeServiceImpl;
+import com.app.diamondhotelbackend.service.transaction.TransactionServiceImpl;
+import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
+import com.app.diamondhotelbackend.service.flight.FlightServiceImpl;
 import com.app.diamondhotelbackend.util.Constant;
+import com.app.diamondhotelbackend.util.DateUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,22 +29,21 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class ReservationService {
+public class ReservationServiceImpl implements ReservationService {
 
     private final ReservationRepository reservationRepository;
 
-    private final TransactionService transactionService;
+    private final TransactionServiceImpl transactionService;
 
-    private final DateService dateService;
+    private final UserProfileServiceImpl userProfileService;
 
-    private final UserProfileService userProfileService;
+    private final RoomServiceImpl roomService;
 
-    private final RoomService roomService;
+    private final FlightServiceImpl flightService;
 
-    private final FlightService flightService;
+    private final RoomTypeServiceImpl roomTypeService;
 
-    private final RoomTypeService roomTypeService;
-
+    @Override
     public UserReservationAllResponseDto getUserReservationInfoList(UserReservationAllRequestDto userReservationAllRequestDto) {
         long userProfileId = userReservationAllRequestDto.getUserProfileId();
         List<Reservation> reservationList = userProfileService.isAdmin(userProfileId) ? getReservationListForAdmin() : getReservationListForUser(userProfileId);
@@ -58,6 +63,7 @@ public class ReservationService {
                 .build();
     }
 
+    @Override
     public UserReservationDetailsInfoResponseDto getUserReservationDetailsInfo(UserReservationDetailsInfoRequestDto userReservationDetailsInfoRequestDto) throws ReservationNotFoundException {
         Optional<Reservation> reservation = userProfileService.isAdmin(userReservationDetailsInfoRequestDto.getUserProfileId()) ? reservationRepository.findReservationById(userReservationDetailsInfoRequestDto.getReservationId()) :
                 reservationRepository.findReservationByIdAndUserProfileId(userReservationDetailsInfoRequestDto.getReservationId(), userReservationDetailsInfoRequestDto.getUserProfileId());
@@ -77,9 +83,10 @@ public class ReservationService {
                 .build();
     }
 
+    @Override
     public UserReservationNewResponseDto createNewReservation(UserReservationNewRequestDto userReservationNewRequestDto) throws CheckInOutFormatException, NotAllSelectedRoomsAvailableException, UserProfileProcessingException {
-        Optional<LocalDateTime> checkIn = dateService.isValidCheckInOrCheckOut(userReservationNewRequestDto.getCheckIn());
-        Optional<LocalDateTime> checkOut = dateService.isValidCheckInOrCheckOut(userReservationNewRequestDto.getCheckOut());
+        Optional<LocalDateTime> checkIn = DateUtil.isValidCheckInOrCheckOut(userReservationNewRequestDto.getCheckIn());
+        Optional<LocalDateTime> checkOut = DateUtil.isValidCheckInOrCheckOut(userReservationNewRequestDto.getCheckOut());
         if (checkIn.isEmpty() || checkOut.isEmpty()) {
             throw new CheckInOutFormatException(Constant.INCORRECT_CHECK_IN_OR_CHECK_OUT_FORMAT_EXCEPTION);
         }
@@ -93,6 +100,23 @@ public class ReservationService {
         createAndSaveReservationList(userReservationNewRequestDto.getRoomTypeInfoDtoList(), checkIn.get(), checkOut.get(), userProfile, flight, transaction);
 
         return createUserReservationNewResponseDto(transaction);
+    }
+
+    @Override
+    public UserReservationCancellationResponseDto deleteReservationDetails(long reservationId) {
+        Optional<Reservation> reservation = reservationRepository.findReservationById(reservationId);
+        if (reservation.isEmpty()) {
+            throw new ReservationNotFoundException("Reservation not found");
+        }
+
+        reservationRepository.delete(reservation.get());
+        transactionService.updateTransactionAfterReservationCancellation(reservation.get());
+
+        return UserReservationCancellationResponseDto
+                .builder()
+                .reservationId(reservationId)
+                .status(Constant.CANCELLED)
+                .build();
     }
 
     private List<Reservation> getReservationListForAdmin() {
@@ -134,28 +158,12 @@ public class ReservationService {
                     .room(roomList.get(i))
                     .checkIn(checkIn)
                     .checkOut(checkOut)
-                    .roomCost(new BigDecimal(dateService.getDuration(checkIn, checkOut) * roomList.get(i).getRoomType().getPricePerHotelNight().longValue()))
+                    .roomCost(new BigDecimal(DateUtil.getDuration(checkIn, checkOut) * roomList.get(i).getRoomType().getPricePerHotelNight().longValue()))
                     .build()
             );
         }
 
         return reservationList;
-    }
-
-    public UserReservationCancellationResponseDto deleteReservationDetails(long reservationId) {
-        Optional<Reservation> reservation = reservationRepository.findReservationById(reservationId);
-        if (reservation.isEmpty()) {
-            throw new ReservationNotFoundException("Reservation not found");
-        }
-
-        reservationRepository.delete(reservation.get());
-        transactionService.updateTransactionAfterReservationCancellation(reservation.get());
-
-        return UserReservationCancellationResponseDto
-                .builder()
-                .reservationId(reservationId)
-                .status(Constant.CANCELLED)
-                .build();
     }
 
     private UserReservationInfoDto toUserReservationInfoDtoMapper(Reservation reservation) {
@@ -173,7 +181,7 @@ public class ReservationService {
     }
 
     private List<UserReservationInfoDto> filterUserReservationInfoDtoListByCheckIn(List<UserReservationInfoDto> userReservationInfoDtoList, String checkIn) {
-        Optional<LocalDateTime> checkInUser = dateService.isValidCheckInOrCheckOut(checkIn);
+        Optional<LocalDateTime> checkInUser = DateUtil.isValidCheckInOrCheckOut(checkIn);
         if (checkInUser.isEmpty()) {
             return userReservationInfoDtoList;
         }
@@ -181,14 +189,14 @@ public class ReservationService {
         return userReservationInfoDtoList
                 .stream()
                 .filter(userReservationInfoDto -> {
-                    Optional<LocalDateTime> checkInReservation = dateService.isValidCheckInOrCheckOut(userReservationInfoDto.getCheckIn());
+                    Optional<LocalDateTime> checkInReservation = DateUtil.isValidCheckInOrCheckOut(userReservationInfoDto.getCheckIn());
                     return checkInReservation.isPresent() && checkInReservation.get().isAfter(checkInUser.get());
                 })
                 .toList();
     }
 
     private List<UserReservationInfoDto> filterUserReservationInfoDtoListByCheckOut(List<UserReservationInfoDto> userReservationInfoDtoList, String checkOut) {
-        Optional<LocalDateTime> checkOutUser = dateService.isValidCheckInOrCheckOut(checkOut);
+        Optional<LocalDateTime> checkOutUser = DateUtil.isValidCheckInOrCheckOut(checkOut);
         if (checkOutUser.isEmpty()) {
             return userReservationInfoDtoList;
         }
@@ -196,7 +204,7 @@ public class ReservationService {
         return userReservationInfoDtoList
                 .stream()
                 .filter(userReservationInfoDto -> {
-                    Optional<LocalDateTime> checkOutReservation = dateService.isValidCheckInOrCheckOut(userReservationInfoDto.getCheckIn());
+                    Optional<LocalDateTime> checkOutReservation = DateUtil.isValidCheckInOrCheckOut(userReservationInfoDto.getCheckIn());
                     return checkOutReservation.isPresent() && checkOutReservation.get().isBefore(checkOutUser.get());
                 })
                 .toList();

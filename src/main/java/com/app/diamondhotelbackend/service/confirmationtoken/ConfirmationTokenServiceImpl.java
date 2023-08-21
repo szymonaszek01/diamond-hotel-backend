@@ -1,10 +1,11 @@
-package com.app.diamondhotelbackend.service;
+package com.app.diamondhotelbackend.service.confirmationtoken;
 
 import com.app.diamondhotelbackend.entity.ConfirmationToken;
 import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.exception.ConfirmationTokenProcessingException;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.repository.ConfirmationTokenRepository;
+import com.app.diamondhotelbackend.service.confirmationtoken.ConfirmationTokenService;
 import com.app.diamondhotelbackend.util.Constant;
 import com.app.diamondhotelbackend.util.JwtPropertiesProvider;
 import lombok.AllArgsConstructor;
@@ -17,12 +18,13 @@ import java.util.UUID;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class ConfirmationTokenService {
+public class ConfirmationTokenServiceImpl implements ConfirmationTokenService {
 
     private final ConfirmationTokenRepository confirmationTokenRepository;
 
     private final JwtPropertiesProvider jwtPropertiesProvider;
 
+    @Override
     public ConfirmationToken createConfirmationToken(UserProfile userProfile) {
         String accessValue = UUID.randomUUID().toString();
 
@@ -34,10 +36,12 @@ public class ConfirmationTokenService {
                 .build();
     }
 
+    @Override
     public void saveConfirmationToken(ConfirmationToken confirmationToken) {
         confirmationTokenRepository.save(confirmationToken);
     }
 
+    @Override
     public UserProfile updateConfirmedAt(String token) throws ConfirmationTokenProcessingException {
         ConfirmationToken confirmationToken = confirmationTokenRepository.findConfirmationTokenByAccessValue(token).orElseThrow(() -> new ConfirmationTokenProcessingException(Constant.CONFIRMATION_TOKEN_NOT_FOUND));
         if (confirmationToken.getConfirmedAt() != null) {
@@ -53,6 +57,7 @@ public class ConfirmationTokenService {
         return confirmationToken.getUserProfile();
     }
 
+    @Override
     public ConfirmationToken refreshConfirmationToken(String expiredToken) throws UserProfileProcessingException, ConfirmationTokenProcessingException {
         ConfirmationToken confirmationToken = confirmationTokenRepository.findConfirmationTokenByAccessValue(expiredToken).orElseThrow(() -> new ConfirmationTokenProcessingException(Constant.CONFIRMATION_TOKEN_NOT_FOUND));
         if (confirmationToken.getConfirmedAt() != null) {

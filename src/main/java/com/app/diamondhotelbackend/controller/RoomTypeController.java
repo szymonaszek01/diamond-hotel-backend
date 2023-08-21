@@ -10,7 +10,7 @@ import com.app.diamondhotelbackend.dto.shoppingcart.ShoppingCartSummaryRequestDt
 import com.app.diamondhotelbackend.dto.shoppingcart.ShoppingCartSummaryResponseDto;
 import com.app.diamondhotelbackend.exception.CheckInOutFormatException;
 import com.app.diamondhotelbackend.exception.NotAllSelectedRoomsAvailableException;
-import com.app.diamondhotelbackend.service.RoomTypeService;
+import com.app.diamondhotelbackend.service.roomtype.RoomTypeServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +23,7 @@ import org.springframework.web.server.ResponseStatusException;
 @CrossOrigin(origins = {"https://diamond-hotel-frontend.vercel.app", "http://localhost:4200", "http://localhost:3000"}, allowCredentials = "true")
 public class RoomTypeController {
 
-    private final RoomTypeService roomTypeService;
+    private final RoomTypeServiceImpl roomTypeService;
 
     @GetMapping("/all/info")
     public ResponseEntity<RoomTypeOfferDto> getRoomTypeInfoList() {

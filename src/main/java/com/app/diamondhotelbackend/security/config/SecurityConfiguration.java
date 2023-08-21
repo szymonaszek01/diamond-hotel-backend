@@ -3,7 +3,7 @@ package com.app.diamondhotelbackend.security.config;
 import com.app.diamondhotelbackend.security.jwt.JwtFilter;
 import com.app.diamondhotelbackend.security.oauth2.CustomOAuth2AuthenticationFailureHandler;
 import com.app.diamondhotelbackend.security.oauth2.CustomOAuth2AuthenticationSuccessHandler;
-import com.app.diamondhotelbackend.security.oauth2.CustomOAuth2UserService;
+import com.app.diamondhotelbackend.service.oauth2.OAuth2ServiceImpl;
 import com.app.diamondhotelbackend.util.Constant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -24,7 +24,7 @@ public class SecurityConfiguration {
 
     private final AuthenticationProvider authenticationProvider;
 
-    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2ServiceImpl OAuth2Service;
 
     private final CustomOAuth2AuthenticationSuccessHandler customOAuth2AuthenticationSuccessHandler;
 
@@ -69,7 +69,7 @@ public class SecurityConfiguration {
                 .baseUri("/api/v1/user-profile/login/oauth2/google")
                 .and()
                 .userInfoEndpoint()
-                .userService(customOAuth2UserService)
+                .userService(OAuth2Service)
                 .and()
                 .successHandler(customOAuth2AuthenticationSuccessHandler)
                 .failureHandler(customOAuth2AuthenticationFailureHandler)

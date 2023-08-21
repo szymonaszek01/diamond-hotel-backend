@@ -4,7 +4,7 @@ import com.app.diamondhotelbackend.dto.auth.*;
 import com.app.diamondhotelbackend.exception.AuthProcessingException;
 import com.app.diamondhotelbackend.exception.ConfirmationTokenProcessingException;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
-import com.app.diamondhotelbackend.service.AuthService;
+import com.app.diamondhotelbackend.service.auth.AuthServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 @CrossOrigin(origins = {"https://diamond-hotel-frontend.vercel.app", "http://localhost:4200", "http://localhost:3000"}, allowCredentials = "true")
 public class AuthController {
 
-    private final AuthService authService;
+    private final AuthServiceImpl authService;
 
     @PostMapping("/login")
     public ResponseEntity<UserProfileDetailsResponseDto> login(@RequestBody LoginRequestDto loginRequestDto) {

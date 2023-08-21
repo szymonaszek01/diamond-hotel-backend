@@ -2,7 +2,7 @@ package com.app.diamondhotelbackend.security.oauth2;
 
 import com.app.diamondhotelbackend.entity.AuthToken;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
-import com.app.diamondhotelbackend.service.AuthTokenService;
+import com.app.diamondhotelbackend.service.authtoken.AuthTokenServiceImpl;
 import com.app.diamondhotelbackend.util.BaseUriPropertiesProvider;
 import com.app.diamondhotelbackend.util.Constant;
 import com.app.diamondhotelbackend.util.UrlUtil;
@@ -22,13 +22,11 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
-    private final AuthTokenService authTokenService;
+    private final AuthTokenServiceImpl authTokenService;
 
     private final UserDetailsService userDetailsService;
 
     private final BaseUriPropertiesProvider baseUriPropertiesProvider;
-
-    private final UrlUtil urlUtil;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -50,10 +48,10 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
         AuthToken authToken = authTokenService.saveToken(userDetails);
 
         return UriComponentsBuilder.fromUriString(baseUriPropertiesProvider.getClient() + Constant.OAUTH2_CALLBACK_URI)
-                .queryParam(Constant.OAUTH2_ATTR_ACCESS_TOKEN, urlUtil.encode(authToken.getAccessValue()))
-                .queryParam(Constant.OAUTH2_ATTR_REFRESH_TOKEN, urlUtil.encode(authToken.getRefreshValue()))
-                .queryParam(Constant.OAUTH2_ATTR_ID, urlUtil.encode(String.valueOf(authToken.getUserProfile().getId())))
-                .queryParam(Constant.OAUTH2_ATTR_EMAIL, urlUtil.encode(authToken.getUserProfile().getEmail()))
+                .queryParam(Constant.OAUTH2_ATTR_ACCESS_TOKEN, UrlUtil.encode(authToken.getAccessValue()))
+                .queryParam(Constant.OAUTH2_ATTR_REFRESH_TOKEN, UrlUtil.encode(authToken.getRefreshValue()))
+                .queryParam(Constant.OAUTH2_ATTR_ID, UrlUtil.encode(String.valueOf(authToken.getUserProfile().getId())))
+                .queryParam(Constant.OAUTH2_ATTR_EMAIL, UrlUtil.encode(authToken.getUserProfile().getEmail()))
                 .queryParam(Constant.OAUTH2_ATTR_CONFIRMED, authToken.getUserProfile().isAccountConfirmed())
                 .build()
                 .toUriString();
@@ -61,7 +59,7 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
 
     private String createCallbackUriOnFailure(UserProfileProcessingException e) {
         return UriComponentsBuilder.fromUriString(baseUriPropertiesProvider.getClient() + Constant.OAUTH2_CALLBACK_URI)
-                .queryParam(Constant.OAUTH2_ATTR_ERROR, urlUtil.encode(e.getMessage()))
+                .queryParam(Constant.OAUTH2_ATTR_ERROR, UrlUtil.encode(e.getMessage()))
                 .build()
                 .toUriString();
     }

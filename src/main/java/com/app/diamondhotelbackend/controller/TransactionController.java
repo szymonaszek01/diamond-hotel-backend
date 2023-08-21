@@ -3,7 +3,7 @@ package com.app.diamondhotelbackend.controller;
 import com.app.diamondhotelbackend.dto.transaction.TransactionStatusInfoDto;
 import com.app.diamondhotelbackend.exception.InvalidTransactionStatusException;
 import com.app.diamondhotelbackend.exception.TransactionNotFoundException;
-import com.app.diamondhotelbackend.service.TransactionService;
+import com.app.diamondhotelbackend.service.transaction.TransactionServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 @CrossOrigin(origins = {"https://diamond-hotel-frontend.vercel.app", "http://localhost:4200", "http://localhost:3000"}, allowCredentials = "true")
 public class TransactionController {
 
-    private final TransactionService transactionService;
+    private final TransactionServiceImpl transactionService;
 
     @PostMapping("/change/status")
     public ResponseEntity<TransactionStatusInfoDto> changeReservationStatus(@RequestBody TransactionStatusInfoDto transactionStatusInfoDto) {

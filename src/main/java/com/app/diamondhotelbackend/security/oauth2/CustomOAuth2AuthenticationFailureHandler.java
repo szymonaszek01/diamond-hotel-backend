@@ -19,12 +19,10 @@ public class CustomOAuth2AuthenticationFailureHandler implements AuthenticationF
 
     private final BaseUriPropertiesProvider baseUriPropertiesProvider;
 
-    private final UrlUtil urlUtil;
-
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException {
         String callbackUri = UriComponentsBuilder.fromUriString(baseUriPropertiesProvider.getClient() + Constant.OAUTH2_CALLBACK_URI)
-                .queryParam(Constant.OAUTH2_ATTR_ERROR, urlUtil.encode(Constant.INVALID_AUTH_PROVIDER_EXCEPTION))
+                .queryParam(Constant.OAUTH2_ATTR_ERROR, UrlUtil.encode(Constant.INVALID_AUTH_PROVIDER_EXCEPTION))
                 .build()
                 .toUriString();
 

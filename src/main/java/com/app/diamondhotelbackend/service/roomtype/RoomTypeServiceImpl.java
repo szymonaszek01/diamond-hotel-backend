@@ -1,4 +1,4 @@
-package com.app.diamondhotelbackend.service;
+package com.app.diamondhotelbackend.service.roomtype;
 
 import com.app.diamondhotelbackend.dto.roomtype.*;
 import com.app.diamondhotelbackend.dto.shoppingcart.*;
@@ -6,7 +6,10 @@ import com.app.diamondhotelbackend.entity.RoomType;
 import com.app.diamondhotelbackend.exception.CheckInOutFormatException;
 import com.app.diamondhotelbackend.exception.NotAllSelectedRoomsAvailableException;
 import com.app.diamondhotelbackend.repository.RoomTypeRepository;
+import com.app.diamondhotelbackend.service.roomtypeopinion.RoomTypeOpinionServiceImpl;
+import com.app.diamondhotelbackend.service.room.RoomServiceImpl;
 import com.app.diamondhotelbackend.util.Constant;
+import com.app.diamondhotelbackend.util.DateUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,16 +24,15 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class RoomTypeService {
+public class RoomTypeServiceImpl implements RoomTypeService {
 
     private final RoomTypeRepository roomTypeRepository;
 
-    private final RoomService roomService;
+    private final RoomServiceImpl roomService;
 
-    private final RoomTypeOpinionService roomTypeOpinionService;
+    private final RoomTypeOpinionServiceImpl roomTypeOpinionService;
 
-    private final DateService dateService;
-
+    @Override
     public RoomTypeOfferDto getRoomTypeInfoList() {
         return RoomTypeOfferDto.builder().roomTypeDtoList(roomTypeRepository.findAll()
                 .stream()
@@ -39,6 +41,7 @@ public class RoomTypeService {
         ).build();
     }
 
+    @Override
     public RoomTypeConfigurationInfoResponseDto getRoomTypeConfigurationInfo() {
         List<String> roomTypeList = roomTypeRepository.findAllNameList();
         List<String> capacityList = roomTypeRepository.findAllCapacityList();
@@ -46,9 +49,10 @@ public class RoomTypeService {
         return RoomTypeConfigurationInfoResponseDto.builder().roomTypeList(roomTypeList).capacityList(capacityList).build();
     }
 
+    @Override
     public List<AvailableRoomTypeDto> getAvailableRoomTypeList(AvailableRoomTypeListRequestDto availableRoomTypeListRequestDto) {
-        Optional<LocalDateTime> checkIn = dateService.isValidCheckInOrCheckOut(availableRoomTypeListRequestDto.getCheckIn());
-        Optional<LocalDateTime> checkOut = dateService.isValidCheckInOrCheckOut(availableRoomTypeListRequestDto.getCheckOut());
+        Optional<LocalDateTime> checkIn = DateUtil.isValidCheckInOrCheckOut(availableRoomTypeListRequestDto.getCheckIn());
+        Optional<LocalDateTime> checkOut = DateUtil.isValidCheckInOrCheckOut(availableRoomTypeListRequestDto.getCheckOut());
         Optional<String> roomTypeName = isValidRoomTypeName(availableRoomTypeListRequestDto.getRoomTypeName());
         Optional<Integer> capacity = isValidCapacity(availableRoomTypeListRequestDto.getCapacity());
         if (checkIn.isEmpty() || checkOut.isEmpty()) {
@@ -68,9 +72,10 @@ public class RoomTypeService {
         }
     }
 
+    @Override
     public ShoppingCartSummaryResponseDto getShoppingCartSummary(ShoppingCartSummaryRequestDto shoppingCartSummaryRequestDto) {
-        Optional<LocalDateTime> checkIn = dateService.isValidCheckInOrCheckOut(shoppingCartSummaryRequestDto.getCheckIn());
-        Optional<LocalDateTime> checkOut = dateService.isValidCheckInOrCheckOut(shoppingCartSummaryRequestDto.getCheckOut());
+        Optional<LocalDateTime> checkIn = DateUtil.isValidCheckInOrCheckOut(shoppingCartSummaryRequestDto.getCheckIn());
+        Optional<LocalDateTime> checkOut = DateUtil.isValidCheckInOrCheckOut(shoppingCartSummaryRequestDto.getCheckOut());
         if (checkIn.isEmpty() || checkOut.isEmpty()) {
             throw new CheckInOutFormatException(Constant.INCORRECT_CHECK_IN_OR_CHECK_OUT_FORMAT_EXCEPTION);
         }
@@ -79,7 +84,7 @@ public class RoomTypeService {
         }
 
         long totalRoomCost = 0;
-        long duration = dateService.getDuration(checkIn.get(), checkOut.get());
+        long duration = DateUtil.getDuration(checkIn.get(), checkOut.get());
         List<RoomTypeSummaryDto> roomTypeSummaryDtoList = getRoomTypeSummaryDtoList(shoppingCartSummaryRequestDto.getRoomTypeInfo(), duration);
         for (RoomTypeSummaryDto roomTypeSummaryDto : roomTypeSummaryDtoList) {
             totalRoomCost += roomTypeSummaryDto.getSelectedRoomsCost().longValue();
@@ -94,9 +99,10 @@ public class RoomTypeService {
                 .build();
     }
 
+    @Override
     public CostSummaryDto getShoppingCartSummaryCostWithCar(CarDto carDto) {
-        Optional<LocalDateTime> checkIn = dateService.isValidCheckInOrCheckOut(carDto.getCheckIn());
-        Optional<LocalDateTime> checkOut = dateService.isValidCheckInOrCheckOut(carDto.getCheckOut());
+        Optional<LocalDateTime> checkIn = DateUtil.isValidCheckInOrCheckOut(carDto.getCheckIn());
+        Optional<LocalDateTime> checkOut = DateUtil.isValidCheckInOrCheckOut(carDto.getCheckOut());
         if (checkIn.isEmpty() || checkOut.isEmpty()) {
             throw new CheckInOutFormatException(Constant.INCORRECT_CHECK_IN_OR_CHECK_OUT_FORMAT_EXCEPTION);
         }
@@ -104,6 +110,7 @@ public class RoomTypeService {
         return getCostSummaryDto(carDto.getTotalRoomCost().longValue(), carDto.getCarRentDuration(), carDto.isCarRent(), carDto.isCarPickUp());
     }
 
+    @Override
     public Optional<String> isValidRoomTypeName(String roomTypeName) {
         if (roomTypeName == null || roomTypeName.isEmpty() || !roomTypeRepository.findAllNameList().contains(roomTypeName)) {
             return Optional.empty();
@@ -112,6 +119,7 @@ public class RoomTypeService {
         return Optional.of(roomTypeName);
     }
 
+    @Override
     public Optional<Integer> isValidCapacity(String capacityAsString) {
         try {
             if (capacityAsString == null || capacityAsString.isEmpty() || !roomTypeRepository.findAllCapacityList().contains(capacityAsString)) {
@@ -126,6 +134,7 @@ public class RoomTypeService {
         }
     }
 
+    @Override
     public RoomTypeDto toRoomTypeDtoMapper(RoomType roomType) {
         return RoomTypeDto.builder()
                 .id(roomType.getId())

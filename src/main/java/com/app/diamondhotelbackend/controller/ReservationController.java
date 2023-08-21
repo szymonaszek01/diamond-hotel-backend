@@ -4,7 +4,7 @@ import com.app.diamondhotelbackend.dto.reservation.*;
 import com.app.diamondhotelbackend.exception.CheckInOutFormatException;
 import com.app.diamondhotelbackend.exception.NotAllSelectedRoomsAvailableException;
 import com.app.diamondhotelbackend.exception.ReservationNotFoundException;
-import com.app.diamondhotelbackend.service.ReservationService;
+import com.app.diamondhotelbackend.service.reservation.ReservationServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 @CrossOrigin(origins = {"https://diamond-hotel-frontend.vercel.app", "http://localhost:4200", "http://localhost:3000"}, allowCredentials = "true")
 public class ReservationController {
 
-    private final ReservationService reservationService;
+    private final ReservationServiceImpl reservationService;
 
     @PostMapping("/all/info")
     public ResponseEntity<UserReservationAllResponseDto> getUserReservationInfoList(@RequestBody UserReservationAllRequestDto userReservationAllRequestDto) {

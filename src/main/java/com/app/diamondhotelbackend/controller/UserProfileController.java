@@ -4,7 +4,7 @@ import com.app.diamondhotelbackend.dto.userprofile.UpdateUserDetailsRequestDto;
 import com.app.diamondhotelbackend.dto.userprofile.UserImageResponseDto;
 import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
-import com.app.diamondhotelbackend.service.UserProfileService;
+import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +21,7 @@ import java.util.List;
 @CrossOrigin(origins = {"https://diamond-hotel-frontend.vercel.app", "http://localhost:4200", "http://localhost:3000"}, allowCredentials = "true")
 public class UserProfileController {
 
-    private final UserProfileService userProfileService;
+    private final UserProfileServiceImpl userProfileService;
 
     @GetMapping("/id/{id}/details/info")
     public ResponseEntity<UserProfile> getUserProfileDetails(@PathVariable long id) {

@@ -1,11 +1,12 @@
-package com.app.diamondhotelbackend.security.oauth2;
+package com.app.diamondhotelbackend.service.oauth2;
 
 import com.app.diamondhotelbackend.entity.ConfirmationToken;
 import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
-import com.app.diamondhotelbackend.service.ConfirmationTokenService;
-import com.app.diamondhotelbackend.service.EmailService;
-import com.app.diamondhotelbackend.service.UserProfileService;
+import com.app.diamondhotelbackend.security.oauth2.CustomOAuth2User;
+import com.app.diamondhotelbackend.service.email.EmailServiceImpl;
+import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
+import com.app.diamondhotelbackend.service.confirmationtoken.ConfirmationTokenService;
 import com.app.diamondhotelbackend.util.Constant;
 import com.app.diamondhotelbackend.util.ImageUtil;
 import lombok.RequiredArgsConstructor;
@@ -17,15 +18,13 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class CustomOAuth2UserService extends DefaultOAuth2UserService {
+public class OAuth2ServiceImpl extends DefaultOAuth2UserService implements OAuth2Service {
 
-    private final UserProfileService userProfileService;
+    private final UserProfileServiceImpl userProfileService;
 
     private final ConfirmationTokenService confirmationTokenService;
 
-    private final EmailService emailService;
-
-    private final ImageUtil imageUtil;
+    private final EmailServiceImpl emailService;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -52,7 +51,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
 
     private void createAndSaveUserProfile(CustomOAuth2User customOAuth2User) {
-        byte[] image = imageUtil.getImageFromUrl(customOAuth2User.getPicture());
+        byte[] image = ImageUtil.getImageFromUrl(customOAuth2User.getPicture());
 
         UserProfile userProfile = UserProfile.builder()
                 .email(customOAuth2User.getEmail())

@@ -24,7 +24,7 @@ public class UserProfileController {
     private final UserProfileServiceImpl userProfileService;
 
     @GetMapping("/id/{id}/details/info")
-    public ResponseEntity<UserProfile> getUserProfileDetails(@PathVariable long id) {
+    public ResponseEntity<UserProfile> GetUserProfileById(@PathVariable long id) {
         try {
             return ResponseEntity.ok(userProfileService.getUserProfileById(id));
         } catch (UserProfileProcessingException e) {
@@ -33,7 +33,7 @@ public class UserProfileController {
     }
 
     @GetMapping("/email/{email}/details/info")
-    public ResponseEntity<UserProfile> getUserProfileDetails(@PathVariable String email) {
+    public ResponseEntity<UserProfile> getUserProfileByEmail(@PathVariable String email) {
         try {
             return ResponseEntity.ok(userProfileService.getUserProfileByEmail(email));
         } catch (UserProfileProcessingException e) {
@@ -42,41 +42,41 @@ public class UserProfileController {
     }
 
     @GetMapping("/all/info")
-    public List<UserProfile> getUserProfileInfoList() {
-        return userProfileService.getUserProfileInfoList();
-    }
-
-    @DeleteMapping("/id/{id}/delete")
-    public void deleteUserProfile(@PathVariable long id) {
-        try {
-            userProfileService.deleteUserProfile(id);
-        } catch (UserProfileProcessingException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        }
+    public List<UserProfile> getUserProfileList() {
+        return userProfileService.getUserProfileList();
     }
 
     @GetMapping("/email/{email}/image")
-    public ResponseEntity<UserImageResponseDto> getUserProfileImageByEmail(@PathVariable String email) {
+    public ResponseEntity<UserImageResponseDto> getUserProfilePictureByEmail(@PathVariable String email) {
         try {
-            return ResponseEntity.ok(userProfileService.getUserImageByEmail(email));
+            return ResponseEntity.ok(userProfileService.getUserProfilePictureByEmail(email));
         } catch (UserProfileProcessingException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
 
-    @PutMapping("/email/{email}/update/image")
-    public ResponseEntity<UserImageResponseDto> updateUserProfileImage(@PathVariable String email, @RequestParam("image") MultipartFile file) {
+    @PutMapping("/email/{email}/update/details")
+    public ResponseEntity<UserProfile> updateUserProfile(@PathVariable String email, @RequestBody UpdateUserDetailsRequestDto updateUserDetailsRequestDto) {
         try {
-            return ResponseEntity.ok(userProfileService.updateUserImage(file, email));
+            return ResponseEntity.ok(userProfileService.updateUserProfile(email, updateUserDetailsRequestDto));
+        } catch (UserProfileProcessingException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
+    @PostMapping("/email/{email}/update/image")
+    public ResponseEntity<UserImageResponseDto> updateUserProfilePicture(@PathVariable String email, @RequestParam("image") MultipartFile file) {
+        try {
+            return ResponseEntity.ok(userProfileService.updateUserProfilePicture(file, email));
         } catch (IOException | UserProfileProcessingException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 
-    @PutMapping("/email/{email}/update/details")
-    public void updateUserProfile(@PathVariable String email, @RequestBody UpdateUserDetailsRequestDto updateUserDetailsRequestDto) {
+    @DeleteMapping("/id/{id}/delete")
+    public ResponseEntity<UserProfile> deleteUserProfile(@PathVariable long id) {
         try {
-            userProfileService.updateUserProfile(email, updateUserDetailsRequestDto);
+            return ResponseEntity.ok(userProfileService.deleteUserProfile(id));
         } catch (UserProfileProcessingException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }

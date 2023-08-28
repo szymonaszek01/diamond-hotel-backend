@@ -1,7 +1,6 @@
 package com.app.diamondhotelbackend.service.email;
 
 import com.app.diamondhotelbackend.entity.ConfirmationToken;
-import com.app.diamondhotelbackend.service.email.EmailService;
 import com.app.diamondhotelbackend.util.BaseUriPropertiesProvider;
 import com.app.diamondhotelbackend.util.Constant;
 import com.app.diamondhotelbackend.util.EmailUtil;
@@ -40,7 +39,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendChangingPasswordEmail(ConfirmationToken confirmationToken) {
+    public void sendConfirmationPasswordChangingEmail(ConfirmationToken confirmationToken) {
         String link = UriComponentsBuilder.fromUriString(baseUriPropertiesProvider.getClient() + Constant.EMAIL_CHANGE_PASSWORD_CALLBACK_URI)
                 .queryParam(Constant.EMAIL_ATTR_CONFIRMATION_TOKEN, UrlUtil.encode(confirmationToken.getAccessValue()))
                 .build()

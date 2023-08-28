@@ -1,5 +1,6 @@
 package com.app.diamondhotelbackend.security.jwt;
 
+import com.app.diamondhotelbackend.service.jwt.JwtServiceImpl;
 import com.app.diamondhotelbackend.util.Constant;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -22,7 +23,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
-    private final JwtProvider jwtProvider;
+    private final JwtServiceImpl jwtService;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
@@ -39,7 +40,7 @@ public class JwtFilter extends OncePerRequestFilter {
         // 2) Check if username from token exist in database
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
             // 3) Update the SecurityContextHolder
-            Optional<UserDetails> userDetails = jwtProvider.validateToken(jwt);
+            Optional<UserDetails> userDetails = jwtService.validateToken(jwt);
             if (userDetails.isEmpty()) {
                 response.sendError(HttpStatus.UNAUTHORIZED.value(), Constant.INVALID_TOKEN_EXCEPTION);
                 return;

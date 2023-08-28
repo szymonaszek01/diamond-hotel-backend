@@ -6,11 +6,10 @@ import com.app.diamondhotelbackend.exception.ConfirmationTokenProcessingExceptio
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 
 public interface ConfirmationTokenService {
+
     ConfirmationToken createConfirmationToken(UserProfile userProfile);
 
-    void saveConfirmationToken(ConfirmationToken confirmationToken);
+    ConfirmationToken updateConfirmationToken(String expiredToken) throws UserProfileProcessingException, ConfirmationTokenProcessingException;
 
-    UserProfile updateConfirmedAt(String token) throws ConfirmationTokenProcessingException;
-
-    ConfirmationToken refreshConfirmationToken(String expiredToken) throws UserProfileProcessingException, ConfirmationTokenProcessingException;
+    ConfirmationToken updateConfirmationTokenConfirmedAt(String token) throws ConfirmationTokenProcessingException;
 }

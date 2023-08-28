@@ -13,12 +13,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 
-@Service
+@Component
 @RequiredArgsConstructor
 public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
@@ -45,7 +46,7 @@ public class CustomOAuth2AuthenticationSuccessHandler implements AuthenticationS
 
     private String createCallbackUriOnSuccess(CustomOAuth2User customOAuth2User) throws UserProfileProcessingException {
         UserDetails userDetails = userDetailsService.loadUserByUsername(customOAuth2User.getEmail());
-        AuthToken authToken = authTokenService.saveToken(userDetails);
+        AuthToken authToken = authTokenService.createAuthToken(userDetails);
 
         return UriComponentsBuilder.fromUriString(baseUriPropertiesProvider.getClient() + Constant.OAUTH2_CALLBACK_URI)
                 .queryParam(Constant.OAUTH2_ATTR_ACCESS_TOKEN, UrlUtil.encode(authToken.getAccessValue()))

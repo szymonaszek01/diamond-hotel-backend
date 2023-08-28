@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface AuthTokenService {
 
-    Optional<AuthToken> refreshAccessToken(String refreshToken);
+    AuthToken createAuthToken(UserDetails userDetails) throws UserProfileProcessingException;
 
-    AuthToken saveToken(UserDetails userDetails) throws UserProfileProcessingException;
+    Optional<AuthToken> updateAuthTokenAccessValue(String refreshToken);
 }

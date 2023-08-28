@@ -4,9 +4,9 @@ import com.app.diamondhotelbackend.entity.ConfirmationToken;
 import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.security.oauth2.CustomOAuth2User;
+import com.app.diamondhotelbackend.service.confirmationtoken.ConfirmationTokenServiceImpl;
 import com.app.diamondhotelbackend.service.email.EmailServiceImpl;
 import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
-import com.app.diamondhotelbackend.service.confirmationtoken.ConfirmationTokenService;
 import com.app.diamondhotelbackend.util.Constant;
 import com.app.diamondhotelbackend.util.ImageUtil;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class OAuth2ServiceImpl extends DefaultOAuth2UserService implements OAuth
 
     private final UserProfileServiceImpl userProfileService;
 
-    private final ConfirmationTokenService confirmationTokenService;
+    private final ConfirmationTokenServiceImpl confirmationTokenService;
 
     private final EmailServiceImpl emailService;
 
@@ -62,10 +62,9 @@ public class OAuth2ServiceImpl extends DefaultOAuth2UserService implements OAuth
                 .accountConfirmed(false)
                 .picture(image)
                 .build();
-        userProfileService.saveUserProfile(userProfile);
+        userProfileService.createUserProfile(userProfile);
 
         ConfirmationToken confirmationToken = confirmationTokenService.createConfirmationToken(userProfile);
         emailService.sendConfirmationAccountEmail(confirmationToken);
-        confirmationTokenService.saveConfirmationToken(confirmationToken);
     }
 }

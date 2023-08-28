@@ -1,12 +1,10 @@
 package com.app.diamondhotelbackend.service.userprofile;
 
-import com.app.diamondhotelbackend.dto.auth.RegisterRequestDto;
 import com.app.diamondhotelbackend.dto.userprofile.UpdateUserDetailsRequestDto;
 import com.app.diamondhotelbackend.dto.userprofile.UserImageResponseDto;
 import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.repository.UserProfileRepository;
-import com.app.diamondhotelbackend.service.userprofile.UserProfileService;
 import com.app.diamondhotelbackend.util.Constant;
 import com.app.diamondhotelbackend.util.UrlUtil;
 import lombok.AllArgsConstructor;
@@ -30,55 +28,38 @@ public class UserProfileServiceImpl implements UserProfileService {
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
-    public UserProfile getUserProfileById(long id) {
-        return userProfileRepository.findUserProfileById(id).orElseThrow(() -> new UserProfileProcessingException(Constant.USER_PROFILE_NOT_FOUND_EXCEPTION));
-    }
-
-    @Override
-    public UserProfile getUserProfileByEmail(String email) {
-        return userProfileRepository.findUserProfileByEmail(email).orElseThrow(() -> new UserProfileProcessingException(Constant.USER_PROFILE_NOT_FOUND_EXCEPTION));
-    }
-
-    @Override
-    public boolean isAdmin(long userProfileId) {
-        Optional<UserProfile> userProfile = userProfileRepository.findUserProfileById(userProfileId);
-        return userProfile.isPresent() && Constant.ADMIN.equals(userProfile.get().getRole());
-    }
-
-    @Override
-    public List<UserProfile> getUserProfileInfoList() {
-        return userProfileRepository.findAll();
-    }
-
-    @Override
-    public UserProfile saveUserProfile(RegisterRequestDto registerRequestDto) {
-        UserProfile userProfile = UserProfile.builder()
-                .email(registerRequestDto.getEmail())
-                .password(passwordEncoder.encode(registerRequestDto.getPassword()))
-                .firstname(registerRequestDto.getFirstname())
-                .lastname(registerRequestDto.getLastname())
-                .age(registerRequestDto.getAge())
-                .country(registerRequestDto.getCountry())
-                .passportNumber(registerRequestDto.getPassportNumber())
-                .phoneNumber(registerRequestDto.getPhoneNumber())
-                .city(registerRequestDto.getCity())
-                .street(registerRequestDto.getStreet())
-                .postalCode(registerRequestDto.getPostalCode())
-                .role(Constant.USER)
-                .authProvider(Constant.LOCAL)
-                .accountConfirmed(false)
-                .build();
-
+    public UserProfile createUserProfile(UserProfile userProfile) {
         return userProfileRepository.save(userProfile);
     }
 
     @Override
-    public void saveUserProfile(UserProfile userProfile) {
-        userProfileRepository.save(userProfile);
+    public UserProfile getUserProfileById(long id) {
+        return userProfileRepository.findById(id).orElseThrow(() -> new UserProfileProcessingException(Constant.USER_PROFILE_NOT_FOUND_EXCEPTION));
     }
 
     @Override
-    public void updateUserProfile(String email, UpdateUserDetailsRequestDto userProfileRequestDto) throws UserProfileProcessingException {
+    public UserProfile getUserProfileByEmail(String email) {
+        return userProfileRepository.findByEmail(email).orElseThrow(() -> new UserProfileProcessingException(Constant.USER_PROFILE_NOT_FOUND_EXCEPTION));
+    }
+
+    @Override
+    public List<UserProfile> getUserProfileList() {
+        return userProfileRepository.findAll();
+    }
+
+    @Override
+    public UserImageResponseDto getUserProfilePictureByEmail(String email) throws UserProfileProcessingException {
+        UserProfile userProfile = getUserProfileByEmail(UrlUtil.decode(email));
+        return UserImageResponseDto.builder().email(userProfile.getEmail()).image(userProfile.getPicture()).build();
+    }
+
+    @Override
+    public UserProfile updateUserProfile(UserProfile userProfile) {
+        return userProfileRepository.save(userProfile);
+    }
+
+    @Override
+    public UserProfile updateUserProfile(String email, UpdateUserDetailsRequestDto userProfileRequestDto) throws UserProfileProcessingException {
         UserProfile userProfile = getUserProfileByEmail(email);
 
         userProfile.setFirstname(userProfileRequestDto.getFirstname());
@@ -91,21 +72,29 @@ public class UserProfileServiceImpl implements UserProfileService {
         userProfile.setStreet(userProfileRequestDto.getStreet());
         userProfile.setPostalCode(userProfileRequestDto.getPostalCode());
 
+        return userProfileRepository.save(userProfile);
+    }
+
+    @Override
+    public UserImageResponseDto updateUserProfilePicture(MultipartFile file, String email) throws UserProfileProcessingException, IOException {
+        UserProfile userProfile = getUserProfileByEmail(UrlUtil.decode(email));
+        userProfile.setPicture(file.getBytes());
         userProfileRepository.save(userProfile);
+
+        return UserImageResponseDto.builder().email(userProfile.getEmail()).image(file.getBytes()).build();
     }
 
     @Override
-    public void deleteUserProfile(long id) throws UserProfileProcessingException {
-        UserProfile userProfile = userProfileRepository.findUserProfileById(id).orElseThrow(() -> new UserProfileProcessingException("User profile not found"));
-        userProfileRepository.deleteById(userProfile.getId());
+    public UserProfile deleteUserProfile(long id) throws UserProfileProcessingException {
+        UserProfile userProfile = userProfileRepository.findById(id).orElseThrow(() -> new UserProfileProcessingException("User profile not found"));
+        userProfileRepository.delete(userProfile);
+        return userProfile;
     }
 
     @Override
-    public boolean isNewPasswordUnique(String password) {
-        return userProfileRepository.findAll()
-                .stream()
-                .filter(userProfile -> !Constant.OAUTH2.equals(userProfile.getAuthProvider()))
-                .noneMatch(userProfile -> passwordEncoder.matches(password, userProfile.getPassword()));
+    public boolean isAdmin(long userProfileId) {
+        Optional<UserProfile> userProfile = userProfileRepository.findById(userProfileId);
+        return userProfile.isPresent() && Constant.ADMIN.equals(userProfile.get().getRole());
     }
 
     @Override
@@ -117,17 +106,10 @@ public class UserProfileServiceImpl implements UserProfileService {
     }
 
     @Override
-    public UserImageResponseDto updateUserImage(MultipartFile file, String email) throws UserProfileProcessingException, IOException {
-        UserProfile userProfile = getUserProfileByEmail(UrlUtil.decode(email));
-        userProfile.setPicture(file.getBytes());
-        userProfileRepository.save(userProfile);
-
-        return UserImageResponseDto.builder().email(userProfile.getEmail()).image(file.getBytes()).build();
-    }
-
-    @Override
-    public UserImageResponseDto getUserImageByEmail(String email) throws UserProfileProcessingException {
-        UserProfile userProfile = getUserProfileByEmail(UrlUtil.decode(email));
-        return UserImageResponseDto.builder().email(userProfile.getEmail()).image(userProfile.getPicture()).build();
+    public boolean isNewPasswordUnique(String password) {
+        return userProfileRepository.findAll()
+                .stream()
+                .filter(userProfile -> !Constant.OAUTH2.equals(userProfile.getAuthProvider()))
+                .noneMatch(userProfile -> passwordEncoder.matches(password, userProfile.getPassword()));
     }
 }

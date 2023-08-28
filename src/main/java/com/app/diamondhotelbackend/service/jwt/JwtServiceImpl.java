@@ -1,4 +1,4 @@
-package com.app.diamondhotelbackend.security.jwt;
+package com.app.diamondhotelbackend.service.jwt;
 
 import com.app.diamondhotelbackend.util.Constant;
 import com.app.diamondhotelbackend.util.JwtPropertiesProvider;
@@ -16,12 +16,13 @@ import java.util.function.Function;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class JwtProvider {
+public class JwtServiceImpl implements JwtService {
 
     private final UserDetailsService userDetailsService;
 
     private final JwtPropertiesProvider jwtPropertiesProvider;
 
+    @Override
     public String createToken(UserDetails userDetails, long expirationTime) {
         Map<String, Object> claims = new HashMap<>();
         claims.put(Constant.JWT_CLAIM_AUTHORITIES, List.of(userDetails.getAuthorities()));
@@ -29,15 +30,18 @@ public class JwtProvider {
         return Jwts.builder().setClaims(claims).setSubject(userDetails.getUsername()).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + expirationTime)).signWith(SignatureAlgorithm.HS256, jwtPropertiesProvider.getSecretKey()).compact();
     }
 
+    @Override
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
+    @Override
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
+    @Override
     public Optional<UserDetails> validateToken(String token) {
         try {
             final String username = extractUsername(token);
@@ -68,10 +72,12 @@ public class JwtProvider {
         }
     }
 
+    @Override
     public long getAccessTokenExpiration() {
         return Long.parseLong(jwtPropertiesProvider.getAccessTokenExpiration());
     }
 
+    @Override
     public long getRefreshTokenExpiration() {
         return Long.parseLong(jwtPropertiesProvider.getRefreshTokenExpiration());
     }
@@ -80,7 +86,7 @@ public class JwtProvider {
         return extractExpiration(token).before(new Date());
     }
 
-    public Date extractExpiration(String token) {
+    private Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 

@@ -6,5 +6,5 @@ public interface EmailService {
 
     void sendConfirmationAccountEmail(ConfirmationToken confirmationToken);
 
-    void sendChangingPasswordEmail(ConfirmationToken confirmationToken);
+    void sendConfirmationPasswordChangingEmail(ConfirmationToken confirmationToken);
 }

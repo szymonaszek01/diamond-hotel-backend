@@ -1,27 +1,29 @@
 package com.app.diamondhotelbackend.service.auth;
 
 import com.app.diamondhotelbackend.dto.auth.*;
+import com.app.diamondhotelbackend.entity.ConfirmationToken;
+import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.exception.AuthProcessingException;
 import com.app.diamondhotelbackend.exception.ConfirmationTokenProcessingException;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 
 public interface AuthService {
 
-    UserProfileDetailsResponseDto login(LoginRequestDto loginRequestDto) throws AuthProcessingException, UserProfileProcessingException;
+    UserProfileDetailsResponseDto loginAccount(LoginRequestDto loginRequestDto) throws AuthProcessingException, UserProfileProcessingException;
 
-    UserProfileDetailsResponseDto register(RegisterRequestDto registerRequestDto) throws AuthProcessingException, UserProfileProcessingException;
+    UserProfileDetailsResponseDto registerAccount(RegisterRequestDto registerRequestDto) throws AuthProcessingException, UserProfileProcessingException;
 
     UserProfileDetailsResponseDto confirmAccount(String token) throws ConfirmationTokenProcessingException;
 
-    UserProfileDetailsResponseDto refreshAuthToken(String expiredToken) throws AuthProcessingException;
+    ConfirmationToken forgotAccountPassword(String email) throws UserProfileProcessingException;
 
-    void refreshConfirmationToken(String expiredToken) throws UserProfileProcessingException, ConfirmationTokenProcessingException;
+    UserProfile updateAccountEmail(UpdateEmailRequestDto updateEmailRequestDto);
 
-    void confirmChangingPassword(String email) throws UserProfileProcessingException;
+    UserProfile updateAccountPassword(ChangePasswordRequestDto changePasswordRequestDto) throws AuthProcessingException, ConfirmationTokenProcessingException;
 
-    void updateEmail(UpdateEmailRequestDto updateEmailRequestDto);
+    UserProfile updateAccountPassword(UpdatePasswordRequestDto updatePasswordRequestDto) throws AuthProcessingException, UserProfileProcessingException;
 
-    void updatePassword(ChangePasswordRequestDto changePasswordRequestDto) throws AuthProcessingException, ConfirmationTokenProcessingException;
+    UserProfileDetailsResponseDto updateAuthToken(String expiredToken) throws AuthProcessingException;
 
-    void updatePassword(UpdatePasswordRequestDto updatePasswordRequestDto) throws AuthProcessingException, UserProfileProcessingException;
+    ConfirmationToken updateConfirmationToken(String expiredToken) throws UserProfileProcessingException, ConfirmationTokenProcessingException;
 }

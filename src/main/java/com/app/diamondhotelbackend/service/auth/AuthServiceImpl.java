@@ -16,6 +16,7 @@ import com.app.diamondhotelbackend.util.Constant;
 import com.app.diamondhotelbackend.util.UrlUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -113,20 +114,22 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public UserProfile updateAccountEmail(UpdateEmailRequestDto updateEmailRequestDto) {
-        UserProfile userProfile = userProfileService.getUserProfileByEmail(updateEmailRequestDto.getEmail());
-        if (Constant.OAUTH2.equals(userProfile.getAuthProvider())) {
-            throw new AuthProcessingException(Constant.INVALID_AUTH_PROVIDER_EXCEPTION);
-        }
-        if (!userProfileService.isNewEmailUnique(updateEmailRequestDto.getNewEmail())) {
+        try {
+            UserProfile userProfile = userProfileService.getUserProfileByEmail(updateEmailRequestDto.getEmail());
+            if (Constant.OAUTH2.equals(userProfile.getAuthProvider())) {
+                throw new AuthProcessingException(Constant.INVALID_AUTH_PROVIDER_EXCEPTION);
+            }
+
+            userProfile.setEmail(updateEmailRequestDto.getNewEmail());
+            userProfile.setAccountConfirmed(false);
+            ConfirmationToken confirmationToken = confirmationTokenService.createConfirmationToken(userProfile);
+            emailService.sendConfirmationAccountEmail(confirmationToken);
+
+            return userProfileService.updateUserProfile(userProfile);
+
+        } catch (DataIntegrityViolationException e) {
             throw new AuthProcessingException(Constant.EMAIL_EXISTS_EXCEPTION);
         }
-
-        userProfile.setEmail(updateEmailRequestDto.getNewEmail());
-        userProfile.setAccountConfirmed(false);
-        ConfirmationToken confirmationToken = confirmationTokenService.createConfirmationToken(userProfile);
-        emailService.sendConfirmationAccountEmail(confirmationToken);
-
-        return userProfileService.updateUserProfile(userProfile);
     }
 
     @Override
@@ -180,11 +183,12 @@ public class AuthServiceImpl implements AuthService {
         if (Constant.OAUTH2.equals(userProfile.getAuthProvider())) {
             throw new AuthProcessingException(Constant.INVALID_AUTH_PROVIDER_EXCEPTION);
         }
-        if (!userProfileService.isNewPasswordUnique(newPassword)) {
+        if (getUserDetails(userProfile.getEmail(), newPassword).isPresent()) {
             throw new AuthProcessingException(Constant.PASSWORD_EXISTS_EXCEPTION);
         }
 
         userProfile.setPassword(passwordEncoder.encode(newPassword));
+
         return userProfileService.updateUserProfile(userProfile);
     }
 

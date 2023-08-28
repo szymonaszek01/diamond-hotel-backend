@@ -42,11 +42,9 @@ public class UserProfileServiceTests {
 
     private MockMultipartFile file;
 
-    private PasswordEncoder passwordEncoder;
-
     @BeforeEach
     public void init() {
-        passwordEncoder = new BCryptPasswordEncoder();
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
         userProfile = UserProfile.builder()
                 .email("ala-gembala@wp.pl")
@@ -206,25 +204,5 @@ public class UserProfileServiceTests {
 
         Assertions.assertThat(result).isNotNull();
         Assertions.assertThat(result).isEqualTo(false);
-    }
-
-    @Test
-    public void UserProfileService_IsNewEmailUnique_ReturnsBoolean() {
-        when(userProfileRepository.findAll()).thenReturn(userProfileList);
-
-        boolean result = userProfileService.isNewEmailUnique("tomek-bomek@wp.com");
-
-        Assertions.assertThat(result).isNotNull();
-        Assertions.assertThat(result).isEqualTo(true);
-    }
-
-    @Test
-    public void UserProfileService_IsNewPasswordUnique_ReturnsBoolean() {
-        when(userProfileRepository.findAll()).thenReturn(userProfileList);
-
-        boolean result = userProfileService.isNewPasswordUnique(passwordEncoder.encode("#Test3333"));
-
-        Assertions.assertThat(result).isNotNull();
-        Assertions.assertThat(result).isEqualTo(true);
     }
 }

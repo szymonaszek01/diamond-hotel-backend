@@ -30,8 +30,4 @@ public interface UserProfileService {
     UserProfile deleteUserProfile(long id) throws UserProfileProcessingException;
 
     boolean isAdmin(long userProfileId);
-
-    boolean isNewEmailUnique(String email);
-
-    boolean isNewPasswordUnique(String password);
 }

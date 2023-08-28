@@ -9,8 +9,6 @@ import com.app.diamondhotelbackend.util.Constant;
 import com.app.diamondhotelbackend.util.UrlUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,8 +22,6 @@ import java.util.Optional;
 public class UserProfileServiceImpl implements UserProfileService {
 
     private final UserProfileRepository userProfileRepository;
-
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
     public UserProfile createUserProfile(UserProfile userProfile) {
@@ -95,21 +91,5 @@ public class UserProfileServiceImpl implements UserProfileService {
     public boolean isAdmin(long userProfileId) {
         Optional<UserProfile> userProfile = userProfileRepository.findById(userProfileId);
         return userProfile.isPresent() && Constant.ADMIN.equals(userProfile.get().getRole());
-    }
-
-    @Override
-    public boolean isNewEmailUnique(String email) {
-        return userProfileRepository.findAll()
-                .stream()
-                .filter(userProfile -> !Constant.OAUTH2.equals(userProfile.getAuthProvider()))
-                .noneMatch(userProfile -> userProfile.getEmail().equals(email));
-    }
-
-    @Override
-    public boolean isNewPasswordUnique(String password) {
-        return userProfileRepository.findAll()
-                .stream()
-                .filter(userProfile -> !Constant.OAUTH2.equals(userProfile.getAuthProvider()))
-                .noneMatch(userProfile -> passwordEncoder.matches(password, userProfile.getPassword()));
     }
 }

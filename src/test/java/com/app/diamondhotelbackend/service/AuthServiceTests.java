@@ -313,7 +313,6 @@ public class AuthServiceTests {
         updatedUserProfile.setPassword(userProfile.getPassword());
 
         when(userProfileService.getUserProfileByEmail(Mockito.any(String.class))).thenReturn(userProfile);
-        when(userProfileService.isNewEmailUnique(Mockito.any(String.class))).thenReturn(true);
         when(userProfileService.updateUserProfile(Mockito.any(UserProfile.class))).thenReturn(updatedUserProfile);
         when(confirmationTokenService.createConfirmationToken(Mockito.any(UserProfile.class))).thenReturn(confirmationToken);
 
@@ -333,7 +332,6 @@ public class AuthServiceTests {
         updatedUserProfile.setPassword(changePasswordRequestDto.getNewPassword());
         confirmationToken.setConfirmedAt(new Date(System.currentTimeMillis()));
 
-        when(userProfileService.isNewPasswordUnique(Mockito.any(String.class))).thenReturn(true);
         when(userProfileService.updateUserProfile(Mockito.any(UserProfile.class))).thenReturn(updatedUserProfile);
         when(confirmationTokenService.updateConfirmationTokenConfirmedAt(Mockito.any(String.class))).thenReturn(confirmationToken);
 
@@ -351,7 +349,6 @@ public class AuthServiceTests {
         updatedUserProfile.setPassword(updatePasswordRequestDto.getNewPassword());
 
         when(userProfileService.getUserProfileByEmail(Mockito.any(String.class))).thenReturn(userProfile);
-        when(userProfileService.isNewPasswordUnique(Mockito.any(String.class))).thenReturn(true);
         when(userProfileService.updateUserProfile(Mockito.any(UserProfile.class))).thenReturn(updatedUserProfile);
 
         UserProfile savedUserProfile = authService.updateAccountPassword(updatePasswordRequestDto);

@@ -4,10 +4,11 @@ import com.app.diamondhotelbackend.security.jwt.JwtFilter;
 import com.app.diamondhotelbackend.security.oauth2.CustomOAuth2AuthenticationFailureHandler;
 import com.app.diamondhotelbackend.security.oauth2.CustomOAuth2AuthenticationSuccessHandler;
 import com.app.diamondhotelbackend.service.oauth2.OAuth2ServiceImpl;
-import com.app.diamondhotelbackend.util.Constant;
+import com.app.diamondhotelbackend.util.ConstantUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -36,32 +37,32 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests()
                 .requestMatchers("/").permitAll()
                 .requestMatchers("/error").permitAll()
-                .requestMatchers("/api/v1/auth/login").permitAll()
-                .requestMatchers("/api/v1/auth/register").permitAll()
-                .requestMatchers("/api/v1/auth/refresh/access-token/{token}").permitAll()
-                .requestMatchers("/api/v1/auth/confirm/account/confirmation-token/{token}").permitAll()
-                .requestMatchers("/api/v1/auth/refresh/confirmation-token/{token}").permitAll()
-                .requestMatchers("/api/v1/auth/forgot/password/email/{email}").permitAll()
-                .requestMatchers("/api/v1/auth/forgot/password/new").permitAll()
-                .requestMatchers("/api/v1/auth/update/email").hasAnyAuthority(Constant.ADMIN, Constant.USER)
-                .requestMatchers("/api/v1/auth/update/password").hasAnyAuthority(Constant.ADMIN, Constant.USER)
+                .requestMatchers("/api/v1/auth/account/login").permitAll()
+                .requestMatchers("/api/v1/auth/account/registration").permitAll()
+                .requestMatchers("/api/v1/auth/confirmation-token/{token}/account/confirmation").permitAll()
+                .requestMatchers("/api/v1/auth/email/{email}/account/forgotten/password").permitAll()
+                .requestMatchers("/api/v1/auth/account/forgotten/password").permitAll()
+                .requestMatchers("/api/v1/auth/auth-token/{token}").permitAll()
+                .requestMatchers("/api/v1/auth/confirmation-token/{token}").permitAll()
+                .requestMatchers("/api/v1/auth/account/email").hasAnyAuthority(ConstantUtil.ADMIN, ConstantUtil.USER)
+                .requestMatchers("/api/v1/auth/account/password").hasAnyAuthority(ConstantUtil.ADMIN, ConstantUtil.USER)
+                .requestMatchers(HttpMethod.GET, "/api/v1/user-profile/id/{id}").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)
+                .requestMatchers(HttpMethod.DELETE, "/api/v1/user-profile/id/{id}").hasAuthority(ConstantUtil.ADMIN)
+                .requestMatchers("/api/v1/user-profile/email/{email}").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)
+                .requestMatchers("/api/v1/user-profile/all").hasAuthority(ConstantUtil.ADMIN)
+                .requestMatchers("/api/v1/user-profile/email/{email}/picture").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)
+                .requestMatchers("/api/v1/user-profile/email/{email}/details").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)
+                .requestMatchers("/api/v1/weather/all").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)
                 .requestMatchers("/api/v1/room-type/all/info").permitAll()
-                .requestMatchers("/api/v1/user-profile/all/info").hasAuthority(Constant.ADMIN)
-                .requestMatchers("/api/v1/user-profile/id/{id}/details/info").hasAnyAuthority(Constant.USER, Constant.ADMIN)
-                .requestMatchers("/api/v1/user-profile/id/{id}/delete").hasAuthority(Constant.ADMIN)
-                .requestMatchers("/api/v1/user-profile/email/{email}/details/info").hasAnyAuthority(Constant.USER, Constant.ADMIN)
-                .requestMatchers("/api/v1/user-profile/email/{email}/image").hasAnyAuthority(Constant.USER, Constant.ADMIN)
-                .requestMatchers("/api/v1/user-profile/email/{email}/update/image").hasAnyAuthority(Constant.USER, Constant.ADMIN)
-                .requestMatchers("/api/v1/user-profile/email/{email}/update/details").hasAnyAuthority(Constant.USER, Constant.ADMIN)
-                .requestMatchers("/api/v1/room-type/configuration/info").hasAnyAuthority(Constant.USER, Constant.ADMIN)
-                .requestMatchers("/api/v1/room-type/available/info").hasAuthority(Constant.USER)
-                .requestMatchers("/api/v1/room-type/summary/shopping/cart").hasAuthority(Constant.USER)
-                .requestMatchers("/api/v1/room-type/summary/shopping/cart/cost/with/car").hasAuthority(Constant.USER)
-                .requestMatchers("/api/v1/reservation/all/info").hasAnyAuthority(Constant.USER, Constant.ADMIN)
-                .requestMatchers("/api/v1/reservation/create/new").hasAuthority(Constant.USER)
-                .requestMatchers("/api/v1/reservation/details/info").hasAnyAuthority(Constant.USER, Constant.ADMIN)
-                .requestMatchers("/api/v1/reservation/id/{id}/cancel").hasAnyAuthority(Constant.USER, Constant.ADMIN)
-                .requestMatchers("/api/v1/transaction/change/status").hasAuthority(Constant.USER)
+                .requestMatchers("/api/v1/room-type/configuration/info").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)
+                .requestMatchers("/api/v1/room-type/available/info").hasAuthority(ConstantUtil.USER)
+                .requestMatchers("/api/v1/room-type/summary/shopping/cart").hasAuthority(ConstantUtil.USER)
+                .requestMatchers("/api/v1/room-type/summary/shopping/cart/cost/with/car").hasAuthority(ConstantUtil.USER)
+                .requestMatchers("/api/v1/reservation/all/info").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)
+                .requestMatchers("/api/v1/reservation/create/new").hasAuthority(ConstantUtil.USER)
+                .requestMatchers("/api/v1/reservation/details/info").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)
+                .requestMatchers("/api/v1/reservation/id/{id}/cancel").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)
+                .requestMatchers("/api/v1/transaction/change/status").hasAuthority(ConstantUtil.USER)
                 .anyRequest().authenticated()
                 .and()
                 .oauth2Login()

@@ -1,6 +1,7 @@
 package com.app.diamondhotelbackend.service.auth;
 
-import com.app.diamondhotelbackend.dto.auth.*;
+import com.app.diamondhotelbackend.dto.auth.request.*;
+import com.app.diamondhotelbackend.dto.auth.response.AccountDetailsResponseDto;
 import com.app.diamondhotelbackend.entity.AuthToken;
 import com.app.diamondhotelbackend.entity.ConfirmationToken;
 import com.app.diamondhotelbackend.entity.UserProfile;
@@ -12,7 +13,7 @@ import com.app.diamondhotelbackend.service.authtoken.AuthTokenServiceImpl;
 import com.app.diamondhotelbackend.service.confirmationtoken.ConfirmationTokenServiceImpl;
 import com.app.diamondhotelbackend.service.email.EmailServiceImpl;
 import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
-import com.app.diamondhotelbackend.util.Constant;
+import com.app.diamondhotelbackend.util.ConstantUtil;
 import com.app.diamondhotelbackend.util.UrlUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,36 +49,36 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
-    public UserProfileDetailsResponseDto loginAccount(LoginRequestDto loginRequestDto) throws AuthProcessingException, UserProfileProcessingException {
-        Optional<UserDetails> optionalUserDetails = getUserDetails(loginRequestDto.getEmail(), loginRequestDto.getPassword());
+    public AccountDetailsResponseDto loginAccount(AccountLoginRequestDto accountLoginRequestDto) throws AuthProcessingException, UserProfileProcessingException {
+        Optional<UserDetails> optionalUserDetails = getUserDetails(accountLoginRequestDto.getEmail(), accountLoginRequestDto.getPassword());
         if (optionalUserDetails.isEmpty()) {
-            throw new AuthProcessingException(Constant.USER_PROFILE_NOT_FOUND_EXCEPTION);
+            throw new AuthProcessingException(ConstantUtil.USER_PROFILE_NOT_FOUND_EXCEPTION);
         }
 
         return createUserProfileDetailsResponseDto(optionalUserDetails.get());
     }
 
     @Override
-    public UserProfileDetailsResponseDto registerAccount(RegisterRequestDto registerRequestDto) throws AuthProcessingException, UserProfileProcessingException {
-        Optional<UserDetails> optionalUserDetails = getUserDetails(registerRequestDto.getEmail(), registerRequestDto.getPassword());
+    public AccountDetailsResponseDto registerAccount(AccountRegistrationRequestDto accountRegistrationRequestDto) throws AuthProcessingException, UserProfileProcessingException {
+        Optional<UserDetails> optionalUserDetails = getUserDetails(accountRegistrationRequestDto.getEmail(), accountRegistrationRequestDto.getPassword());
         if (optionalUserDetails.isPresent()) {
-            throw new AuthProcessingException(Constant.USER_PROFILE_EXISTS_EXCEPTION);
+            throw new AuthProcessingException(ConstantUtil.USER_PROFILE_EXISTS_EXCEPTION);
         }
 
         UserProfile userProfile = UserProfile.builder()
-                .email(registerRequestDto.getEmail())
-                .password(passwordEncoder.encode(registerRequestDto.getPassword()))
-                .firstname(registerRequestDto.getFirstname())
-                .lastname(registerRequestDto.getLastname())
-                .age(registerRequestDto.getAge())
-                .country(registerRequestDto.getCountry())
-                .passportNumber(registerRequestDto.getPassportNumber())
-                .phoneNumber(registerRequestDto.getPhoneNumber())
-                .city(registerRequestDto.getCity())
-                .street(registerRequestDto.getStreet())
-                .postalCode(registerRequestDto.getPostalCode())
-                .role(Constant.USER)
-                .authProvider(Constant.LOCAL)
+                .email(accountRegistrationRequestDto.getEmail())
+                .password(passwordEncoder.encode(accountRegistrationRequestDto.getPassword()))
+                .firstname(accountRegistrationRequestDto.getFirstname())
+                .lastname(accountRegistrationRequestDto.getLastname())
+                .age(accountRegistrationRequestDto.getAge())
+                .country(accountRegistrationRequestDto.getCountry())
+                .passportNumber(accountRegistrationRequestDto.getPassportNumber())
+                .phoneNumber(accountRegistrationRequestDto.getPhoneNumber())
+                .city(accountRegistrationRequestDto.getCity())
+                .street(accountRegistrationRequestDto.getStreet())
+                .postalCode(accountRegistrationRequestDto.getPostalCode())
+                .role(ConstantUtil.USER)
+                .authProvider(ConstantUtil.LOCAL)
                 .accountConfirmed(false)
                 .build();
 
@@ -90,7 +91,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public UserProfileDetailsResponseDto confirmAccount(String token) throws ConfirmationTokenProcessingException {
+    public AccountDetailsResponseDto confirmAccount(String token) throws ConfirmationTokenProcessingException {
         String decodedToken = UrlUtil.decode(token);
         UserProfile userProfile = confirmationTokenService.updateConfirmationTokenConfirmedAt(decodedToken).getUserProfile();
         userProfile.setAccountConfirmed(true);
@@ -113,14 +114,14 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public UserProfile updateAccountEmail(UpdateEmailRequestDto updateEmailRequestDto) {
+    public UserProfile updateAccountEmail(AccountEmailUpdateRequestDto accountEmailUpdateRequestDto) {
         try {
-            UserProfile userProfile = userProfileService.getUserProfileByEmail(updateEmailRequestDto.getEmail());
-            if (Constant.OAUTH2.equals(userProfile.getAuthProvider())) {
-                throw new AuthProcessingException(Constant.INVALID_AUTH_PROVIDER_EXCEPTION);
+            UserProfile userProfile = userProfileService.getUserProfileByEmail(accountEmailUpdateRequestDto.getEmail());
+            if (ConstantUtil.OAUTH2.equals(userProfile.getAuthProvider())) {
+                throw new AuthProcessingException(ConstantUtil.INVALID_AUTH_PROVIDER_EXCEPTION);
             }
 
-            userProfile.setEmail(updateEmailRequestDto.getNewEmail());
+            userProfile.setEmail(accountEmailUpdateRequestDto.getNewEmail());
             userProfile.setAccountConfirmed(false);
             ConfirmationToken confirmationToken = confirmationTokenService.createConfirmationToken(userProfile);
             emailService.sendConfirmationAccountEmail(confirmationToken);
@@ -128,26 +129,26 @@ public class AuthServiceImpl implements AuthService {
             return userProfileService.updateUserProfile(userProfile);
 
         } catch (DataIntegrityViolationException e) {
-            throw new AuthProcessingException(Constant.EMAIL_EXISTS_EXCEPTION);
+            throw new AuthProcessingException(ConstantUtil.EMAIL_EXISTS_EXCEPTION);
         }
     }
 
     @Override
-    public UserProfile updateAccountPassword(ChangePasswordRequestDto changePasswordRequestDto) throws AuthProcessingException, ConfirmationTokenProcessingException {
-        UserProfile userProfile = confirmationTokenService.updateConfirmationTokenConfirmedAt(changePasswordRequestDto.getToken()).getUserProfile();
-        return verifyAndChangePassword(userProfile, changePasswordRequestDto.getNewPassword());
+    public UserProfile updateAccountPassword(AccountForgottenPasswordRequestDto accountForgottenPasswordRequestDto) throws AuthProcessingException, ConfirmationTokenProcessingException {
+        UserProfile userProfile = confirmationTokenService.updateConfirmationTokenConfirmedAt(accountForgottenPasswordRequestDto.getToken()).getUserProfile();
+        return verifyAndChangePassword(userProfile, accountForgottenPasswordRequestDto.getNewPassword());
     }
 
     @Override
-    public UserProfile updateAccountPassword(UpdatePasswordRequestDto updatePasswordRequestDto) throws AuthProcessingException, UserProfileProcessingException {
-        UserProfile userProfile = userProfileService.getUserProfileByEmail(updatePasswordRequestDto.getEmail());
-        return verifyAndChangePassword(userProfile, updatePasswordRequestDto.getNewPassword());
+    public UserProfile updateAccountPassword(AccountPasswordUpdateRequestDto accountPasswordUpdateRequestDto) throws AuthProcessingException, UserProfileProcessingException {
+        UserProfile userProfile = userProfileService.getUserProfileByEmail(accountPasswordUpdateRequestDto.getEmail());
+        return verifyAndChangePassword(userProfile, accountPasswordUpdateRequestDto.getNewPassword());
     }
 
     @Override
-    public UserProfileDetailsResponseDto updateAuthToken(String expiredToken) throws AuthProcessingException {
+    public AccountDetailsResponseDto updateAuthToken(String expiredToken) throws AuthProcessingException {
         return authTokenService.updateAuthTokenAccessValue(UrlUtil.decode(expiredToken))
-                .map(token -> UserProfileDetailsResponseDto.builder()
+                .map(token -> AccountDetailsResponseDto.builder()
                         .accessToken(token.getAccessValue())
                         .refreshToken(token.getRefreshValue())
                         .email(token.getUserProfile().getEmail())
@@ -155,7 +156,7 @@ public class AuthServiceImpl implements AuthService {
                         .confirmed(token.getUserProfile().isAccountConfirmed())
                         .build()
                 )
-                .orElseThrow(() -> new AuthProcessingException(Constant.INVALID_TOKEN_EXCEPTION));
+                .orElseThrow(() -> new AuthProcessingException(ConstantUtil.INVALID_TOKEN_EXCEPTION));
     }
 
     @Override
@@ -168,9 +169,9 @@ public class AuthServiceImpl implements AuthService {
         return confirmationToken;
     }
 
-    private UserProfileDetailsResponseDto createUserProfileDetailsResponseDto(UserDetails userDetails) throws UserProfileProcessingException {
+    private AccountDetailsResponseDto createUserProfileDetailsResponseDto(UserDetails userDetails) throws UserProfileProcessingException {
         AuthToken authToken = authTokenService.createAuthToken(userDetails);
-        return UserProfileDetailsResponseDto.builder()
+        return AccountDetailsResponseDto.builder()
                 .accessToken(authToken.getAccessValue())
                 .refreshToken(authToken.getRefreshValue())
                 .email(authToken.getUserProfile().getEmail())
@@ -180,11 +181,11 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private UserProfile verifyAndChangePassword(UserProfile userProfile, String newPassword) throws AuthProcessingException {
-        if (Constant.OAUTH2.equals(userProfile.getAuthProvider())) {
-            throw new AuthProcessingException(Constant.INVALID_AUTH_PROVIDER_EXCEPTION);
+        if (ConstantUtil.OAUTH2.equals(userProfile.getAuthProvider())) {
+            throw new AuthProcessingException(ConstantUtil.INVALID_AUTH_PROVIDER_EXCEPTION);
         }
         if (getUserDetails(userProfile.getEmail(), newPassword).isPresent()) {
-            throw new AuthProcessingException(Constant.PASSWORD_EXISTS_EXCEPTION);
+            throw new AuthProcessingException(ConstantUtil.PASSWORD_EXISTS_EXCEPTION);
         }
 
         userProfile.setPassword(passwordEncoder.encode(newPassword));

@@ -2,7 +2,7 @@ package com.app.diamondhotelbackend.repository;
 
 import com.app.diamondhotelbackend.entity.AuthToken;
 import com.app.diamondhotelbackend.entity.UserProfile;
-import com.app.diamondhotelbackend.util.Constant;
+import com.app.diamondhotelbackend.util.ConstantUtil;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,8 +35,8 @@ public class AuthTokenRepositoryTests {
         UserProfile userProfile = UserProfile.builder()
                 .email("ala-gembala@wp.pl")
                 .passportNumber("ZF005401499")
-                .role(Constant.USER)
-                .authProvider(Constant.LOCAL)
+                .role(ConstantUtil.USER)
+                .authProvider(ConstantUtil.LOCAL)
                 .accountConfirmed(false)
                 .build();
 
@@ -63,7 +63,7 @@ public class AuthTokenRepositoryTests {
     }
 
     @Test
-    public void AuthTokenRepository_SaveAll_ReturnSavedAuthToken() {
+    public void AuthTokenRepository_Save_ReturnsAuthToken() {
         AuthToken savedAuthToken = authTokenRepository.save(authToken);
 
         Assertions.assertThat(savedAuthToken).isNotNull();
@@ -71,7 +71,7 @@ public class AuthTokenRepositoryTests {
     }
 
     @Test
-    public void AuthTokenRepository_FindAll_ReturnMoreThenOneAuthToken() {
+    public void AuthTokenRepository_FindAll_ReturnsAuthTokenList() {
         authTokenRepository.saveAll(authTokenList);
         List<AuthToken> foundAuthTokenList = authTokenRepository.findAll();
 
@@ -80,7 +80,7 @@ public class AuthTokenRepositoryTests {
     }
 
     @Test
-    public void AuthTokenRepository_FindById_ReturnAuthToken() {
+    public void AuthTokenRepository_FindById_ReturnsOptionalAuthToken() {
         AuthToken savedAuthToken = authTokenRepository.save(authToken);
         Optional<AuthToken> authTokenOptional = authTokenRepository.findById((savedAuthToken.getId()));
 
@@ -89,7 +89,7 @@ public class AuthTokenRepositoryTests {
     }
 
     @Test
-    public void AuthTokenRepository_FindByRefreshValue_ReturnAuthToken() {
+    public void AuthTokenRepository_FindByRefreshValue_ReturnsOptionalAuthToken() {
         AuthToken savedAuthToken = authTokenRepository.save(authToken);
         Optional<AuthToken> authTokenOptional = authTokenRepository.findByRefreshValue((savedAuthToken.getRefreshValue()));
 
@@ -98,7 +98,7 @@ public class AuthTokenRepositoryTests {
     }
 
     @Test
-    public void AuthTokenRepository_FindByUserProfile_ReturnAuthToken() {
+    public void AuthTokenRepository_FindByUserProfile_ReturnsOptionalAuthToken() {
         AuthToken savedAuthToken = authTokenRepository.save(authToken);
         Optional<AuthToken> optionalAuthToken = authTokenRepository.findByUserProfile(savedUserProfile);
 
@@ -108,7 +108,7 @@ public class AuthTokenRepositoryTests {
     }
 
     @Test
-    public void AuthTokenRepository_Update_ReturnAuthTokenNotNull() {
+    public void AuthTokenRepository_Update_ReturnsAuthToken() {
         AuthToken savedAuthToken = authTokenRepository.save(authToken);
         Optional<AuthToken> authTokenOptional = authTokenRepository.findById((savedAuthToken.getId()));
 
@@ -124,7 +124,7 @@ public class AuthTokenRepositoryTests {
     }
 
     @Test
-    public void AuthTokenRepository_Delete_ReturnAuthTokenIsEmpty() {
+    public void AuthTokenRepository_Delete_ReturnsNothing() {
         AuthToken savedAuthToken = authTokenRepository.save(authToken);
         authTokenRepository.deleteById(savedAuthToken.getId());
         Optional<AuthToken> authTokenOptional = authTokenRepository.findById(savedAuthToken.getId());

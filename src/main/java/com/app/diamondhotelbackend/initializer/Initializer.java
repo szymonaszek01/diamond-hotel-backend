@@ -2,7 +2,7 @@ package com.app.diamondhotelbackend.initializer;
 
 import com.app.diamondhotelbackend.entity.*;
 import com.app.diamondhotelbackend.repository.*;
-import com.app.diamondhotelbackend.util.Constant;
+import com.app.diamondhotelbackend.util.ConstantUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -122,14 +122,14 @@ public class Initializer implements CommandLineRunner {
                         .tax(new BigDecimal("180.0"))
                         .carPickUp(new BigDecimal("50"))
                         .carRent(new BigDecimal("150.0"))
-                        .status(Constant.APPROVED)
+                        .status(ConstantUtil.APPROVED)
                         .build(),
                 Transaction.builder()
                         .totalWithoutTax(new BigDecimal("600.0"))
                         .tax(new BigDecimal("60.0"))
                         .carPickUp(new BigDecimal("0"))
                         .carRent(new BigDecimal("100.0"))
-                        .status(Constant.APPROVED)
+                        .status(ConstantUtil.APPROVED)
                         .code("#87654321")
                         .build(),
                 Transaction.builder()
@@ -137,7 +137,7 @@ public class Initializer implements CommandLineRunner {
                         .tax(new BigDecimal("96.0"))
                         .carPickUp(new BigDecimal("50"))
                         .carRent(new BigDecimal("200.0"))
-                        .status(Constant.APPROVED)
+                        .status(ConstantUtil.APPROVED)
                         .code("#43218765")
                         .build()
         ));
@@ -192,8 +192,8 @@ public class Initializer implements CommandLineRunner {
                         city("Warszawa").
                         street("Tadeusza Rechniewskiego 13/4").
                         postalCode("09-404").
-                        role(Constant.USER).
-                        authProvider(Constant.LOCAL).
+                        role(ConstantUtil.USER).
+                        authProvider(ConstantUtil.LOCAL).
                         accountConfirmed(true).
                         build(),
                 UserProfile.builder().
@@ -201,8 +201,8 @@ public class Initializer implements CommandLineRunner {
                         firstname("Szymon").
                         lastname("Czopek").
                         picture(null).
-                        role(Constant.USER).
-                        authProvider(Constant.OAUTH2).
+                        role(ConstantUtil.USER).
+                        authProvider(ConstantUtil.OAUTH2).
                         accountConfirmed(true).
                         build(),
                 UserProfile.builder().
@@ -218,8 +218,8 @@ public class Initializer implements CommandLineRunner {
                         city("Warszawa").
                         street("Bogusławskiego 1/4").
                         postalCode("09-304").
-                        role(Constant.USER).
-                        authProvider(Constant.LOCAL).
+                        role(ConstantUtil.USER).
+                        authProvider(ConstantUtil.LOCAL).
                         accountConfirmed(true).
                         build(),
                 UserProfile.builder()
@@ -234,8 +234,8 @@ public class Initializer implements CommandLineRunner {
                         .city("Miami")
                         .street("1212 Ocean Dr")
                         .postalCode("33-139")
-                        .role(Constant.USER)
-                        .authProvider(Constant.LOCAL)
+                        .role(ConstantUtil.USER)
+                        .authProvider(ConstantUtil.LOCAL)
                         .accountConfirmed(true)
                         .build(),
                 UserProfile.builder()
@@ -250,8 +250,8 @@ public class Initializer implements CommandLineRunner {
                         .city("Chicago")
                         .street("1414 W Jackson Blvd")
                         .postalCode("60-607")
-                        .role(Constant.ADMIN)
-                        .authProvider(Constant.LOCAL)
+                        .role(ConstantUtil.ADMIN)
+                        .authProvider(ConstantUtil.LOCAL)
                         .accountConfirmed(true)
                         .build(),
                 UserProfile.builder()
@@ -266,8 +266,8 @@ public class Initializer implements CommandLineRunner {
                         .city("Garwolin")
                         .street("Adamska 12/23")
                         .postalCode("90-607")
-                        .role(Constant.USER)
-                        .authProvider(Constant.LOCAL)
+                        .role(ConstantUtil.USER)
+                        .authProvider(ConstantUtil.LOCAL)
                         .accountConfirmed(true)
                         .build()
         ));

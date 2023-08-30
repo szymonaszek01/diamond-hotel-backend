@@ -1,7 +1,5 @@
 package com.app.diamondhotelbackend.util;
 
-import org.springframework.stereotype.Component;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +16,7 @@ public class ImageUtil {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
             InputStream inputStream = url.openStream();
-            byte[] buffer = new byte[Constant.MAX_IMAGE_SIZE];
+            byte[] buffer = new byte[ConstantUtil.MAX_IMAGE_SIZE];
             for (int size = 0; size != -1; size = inputStream.read(buffer)) {
                 outputStream.write(buffer, 0, size);
             }
@@ -38,7 +36,7 @@ public class ImageUtil {
             deflater.finish();
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
-            byte[] buffer = new byte[Constant.MAX_IMAGE_SIZE];
+            byte[] buffer = new byte[ConstantUtil.MAX_IMAGE_SIZE];
             while (!deflater.finished()) {
                 int size = deflater.deflate(buffer);
                 outputStream.write(buffer, 0, size);
@@ -58,7 +56,7 @@ public class ImageUtil {
             inflater.setInput(data);
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
-            byte[] buffer = new byte[Constant.MAX_IMAGE_SIZE];
+            byte[] buffer = new byte[ConstantUtil.MAX_IMAGE_SIZE];
             while (!inflater.finished()) {
                 int count = inflater.inflate(buffer);
                 outputStream.write(buffer, 0, count);

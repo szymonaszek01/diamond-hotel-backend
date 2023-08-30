@@ -38,7 +38,7 @@ public class EmailUtil {
             mimeBodyPart.setHeader("Content-ID", "<image>");
             mimeMultipart.addBodyPart(mimeBodyPart);
 
-            mimeMessage.setFrom(Constant.EMAIL_SENDER);
+            mimeMessage.setFrom(ConstantUtil.EMAIL_SENDER);
             mimeMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
             mimeMessage.setSubject(subject);
             mimeMessage.setContent(mimeMultipart);

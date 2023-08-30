@@ -1,6 +1,6 @@
 package com.app.diamondhotelbackend.security.oauth2;
 
-import com.app.diamondhotelbackend.util.Constant;
+import com.app.diamondhotelbackend.util.ConstantUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -29,22 +29,22 @@ public class CustomOAuth2User implements OAuth2User {
 
     @Override
     public String getName() {
-        return oauth2User.getAttribute(Constant.OAUTH2_ATTR_NAME);
+        return oauth2User.getAttribute(ConstantUtil.OAUTH2_ATTR_NAME);
     }
 
     public String getGivenName() {
-        return oauth2User.getAttribute(Constant.OAUTH2_ATTR_GIVEN_NAME);
+        return oauth2User.getAttribute(ConstantUtil.OAUTH2_ATTR_GIVEN_NAME);
     }
 
     public String getFamilyName() {
-        return oauth2User.getAttribute(Constant.OAUTH2_ATTR_FAMILY_NAME);
+        return oauth2User.getAttribute(ConstantUtil.OAUTH2_ATTR_FAMILY_NAME);
     }
 
     public String getPicture() {
-        return oauth2User.getAttribute(Constant.OAUTH2_ATTR_PICTURE);
+        return oauth2User.getAttribute(ConstantUtil.OAUTH2_ATTR_PICTURE);
     }
 
     public String getEmail() {
-        return oauth2User.getAttribute(Constant.OAUTH2_ATTR_EMAIL);
+        return oauth2User.getAttribute(ConstantUtil.OAUTH2_ATTR_EMAIL);
     }
 }

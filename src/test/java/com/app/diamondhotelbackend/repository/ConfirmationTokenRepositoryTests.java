@@ -2,7 +2,7 @@ package com.app.diamondhotelbackend.repository;
 
 import com.app.diamondhotelbackend.entity.ConfirmationToken;
 import com.app.diamondhotelbackend.entity.UserProfile;
-import com.app.diamondhotelbackend.util.Constant;
+import com.app.diamondhotelbackend.util.ConstantUtil;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,8 +36,8 @@ public class ConfirmationTokenRepositoryTests {
         UserProfile userProfile = UserProfile.builder()
                 .email("ala-gembala@wp.pl")
                 .passportNumber("ZF005401499")
-                .role(Constant.USER)
-                .authProvider(Constant.LOCAL)
+                .role(ConstantUtil.USER)
+                .authProvider(ConstantUtil.LOCAL)
                 .accountConfirmed(false)
                 .build();
 
@@ -67,7 +67,7 @@ public class ConfirmationTokenRepositoryTests {
     }
 
     @Test
-    public void ConfirmationTokenRepository_SaveAll_ReturnSavedConfirmationToken() {
+    public void ConfirmationTokenRepository_Save_ReturnsConfirmationToken() {
         ConfirmationToken savedConfirmationToken = confirmationTokenRepository.save(confirmationToken);
 
         Assertions.assertThat(savedConfirmationToken).isNotNull();
@@ -75,7 +75,7 @@ public class ConfirmationTokenRepositoryTests {
     }
 
     @Test
-    public void ConfirmationTokenRepository_FindAll_ReturnMoreThenOneConfirmationToken() {
+    public void ConfirmationTokenRepository_FindAll_ReturnsConfirmationTokenList() {
         confirmationTokenRepository.saveAll(confirmationTokenList);
         List<ConfirmationToken> foundConfirmationTokenList = confirmationTokenRepository.findAll();
 
@@ -84,7 +84,7 @@ public class ConfirmationTokenRepositoryTests {
     }
 
     @Test
-    public void ConfirmationTokenRepository_FindById_ReturnConfirmationToken() {
+    public void ConfirmationTokenRepository_FindById_ReturnsOptionalConfirmationToken() {
         ConfirmationToken savedConfirmationToken = confirmationTokenRepository.save(confirmationToken);
         Optional<ConfirmationToken> confirmationTokenOptional = confirmationTokenRepository.findById((savedConfirmationToken.getId()));
 
@@ -93,7 +93,7 @@ public class ConfirmationTokenRepositoryTests {
     }
 
     @Test
-    public void ConfirmationTokenRepository_FindByAccessValue_ReturnConfirmationToken() {
+    public void ConfirmationTokenRepository_FindByAccessValue_ReturnsOptionalConfirmationToken() {
         ConfirmationToken savedConfirmationToken = confirmationTokenRepository.save(confirmationToken);
         Optional<ConfirmationToken> confirmationTokenOptional = confirmationTokenRepository.findByAccessValue((savedConfirmationToken.getAccessValue()));
 
@@ -102,7 +102,7 @@ public class ConfirmationTokenRepositoryTests {
     }
 
     @Test
-    public void ConfirmationTokenRepository_Update_ReturnConfirmationTokenNotNull() {
+    public void ConfirmationTokenRepository_Update_ReturnsConfirmationToken() {
         ConfirmationToken savedConfirmationToken = confirmationTokenRepository.save(confirmationToken);
         Optional<ConfirmationToken> confirmationTokenOptional = confirmationTokenRepository.findById((savedConfirmationToken.getId()));
 
@@ -118,7 +118,7 @@ public class ConfirmationTokenRepositoryTests {
     }
 
     @Test
-    public void ConfirmationTokenRepository_Delete_ReturnConfirmationTokenIsEmpty() {
+    public void ConfirmationTokenRepository_Delete_ReturnsNothing() {
         ConfirmationToken savedConfirmationToken = confirmationTokenRepository.save(confirmationToken);
         confirmationTokenRepository.deleteById(savedConfirmationToken.getId());
         Optional<ConfirmationToken> ConfirmationTokenOptional = confirmationTokenRepository.findById(savedConfirmationToken.getId());

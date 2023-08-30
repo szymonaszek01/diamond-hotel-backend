@@ -3,8 +3,8 @@ package com.app.diamondhotelbackend.service;
 import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.security.jwt.CustomUserDetails;
 import com.app.diamondhotelbackend.service.jwt.JwtServiceImpl;
-import com.app.diamondhotelbackend.util.Constant;
-import com.app.diamondhotelbackend.util.JwtPropertiesProvider;
+import com.app.diamondhotelbackend.util.ApplicationPropertiesUtil;
+import com.app.diamondhotelbackend.util.ConstantUtil;
 import io.jsonwebtoken.Claims;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,7 +35,7 @@ public class JwtServiceTests {
     private UserDetailsService userDetailsService;
 
     @Mock
-    private JwtPropertiesProvider jwtPropertiesProvider;
+    private ApplicationPropertiesUtil applicationPropertiesUtil;
 
     private UserDetails userDetails;
 
@@ -54,8 +54,8 @@ public class JwtServiceTests {
                 .email("ala-gembala@wp.pl")
                 .password(passwordEncoder.encode("#Test1111"))
                 .passportNumber("ZF005401499")
-                .role(Constant.USER)
-                .authProvider(Constant.LOCAL)
+                .role(ConstantUtil.USER)
+                .authProvider(ConstantUtil.LOCAL)
                 .accountConfirmed(false)
                 .build();
 
@@ -69,7 +69,7 @@ public class JwtServiceTests {
 
     @Test
     public void JwtService_CreateToken_ReturnsString() {
-        when(jwtPropertiesProvider.getSecretKey()).thenReturn(SECRET_KEY);
+        when(applicationPropertiesUtil.getSecretKey()).thenReturn(SECRET_KEY);
 
         String createdToken = jwtService.createToken(userDetails, ACCESS_TOKEN_EXPIRATION);
 
@@ -78,7 +78,7 @@ public class JwtServiceTests {
 
     @Test
     public void JwtService_ExtractUsername_ReturnsString() {
-        when(jwtPropertiesProvider.getSecretKey()).thenReturn(SECRET_KEY);
+        when(applicationPropertiesUtil.getSecretKey()).thenReturn(SECRET_KEY);
 
         String createdToken = jwtService.createToken(userDetails, ACCESS_TOKEN_EXPIRATION);
         String extractedUsername = jwtService.extractUsername(createdToken);
@@ -89,7 +89,7 @@ public class JwtServiceTests {
 
     @Test
     public void JwtService_ExtractClaim_ReturnsT() {
-        when(jwtPropertiesProvider.getSecretKey()).thenReturn(SECRET_KEY);
+        when(applicationPropertiesUtil.getSecretKey()).thenReturn(SECRET_KEY);
 
         String createdToken = jwtService.createToken(userDetails, ACCESS_TOKEN_EXPIRATION);
         String extractedId = jwtService.extractClaim(createdToken, Claims::getId);
@@ -99,7 +99,7 @@ public class JwtServiceTests {
 
     @Test
     public void JwtService_ValidateToken_ReturnsOptionalUserDetails() {
-        when(jwtPropertiesProvider.getSecretKey()).thenReturn(SECRET_KEY);
+        when(applicationPropertiesUtil.getSecretKey()).thenReturn(SECRET_KEY);
         when(userDetailsService.loadUserByUsername(Mockito.any(String.class))).thenReturn(userDetails);
 
         String createdToken = jwtService.createToken(userDetails, ACCESS_TOKEN_EXPIRATION);
@@ -113,7 +113,7 @@ public class JwtServiceTests {
 
     @Test
     public void JwtService_GetAccessTokenExpiration_ReturnsLong() {
-        when(jwtPropertiesProvider.getAccessTokenExpiration()).thenReturn(String.valueOf(ACCESS_TOKEN_EXPIRATION));
+        when(applicationPropertiesUtil.getAccessTokenExpiration()).thenReturn(String.valueOf(ACCESS_TOKEN_EXPIRATION));
 
         long expiration = jwtService.getAccessTokenExpiration();
 
@@ -123,7 +123,7 @@ public class JwtServiceTests {
 
     @Test
     public void JwtService_getRefreshTokenExpiration_ReturnsLong() {
-        when(jwtPropertiesProvider.getRefreshTokenExpiration()).thenReturn(String.valueOf(REFRESH_TOKEN_EXPIRATION));
+        when(applicationPropertiesUtil.getRefreshTokenExpiration()).thenReturn(String.valueOf(REFRESH_TOKEN_EXPIRATION));
 
         long expiration = jwtService.getRefreshTokenExpiration();
 

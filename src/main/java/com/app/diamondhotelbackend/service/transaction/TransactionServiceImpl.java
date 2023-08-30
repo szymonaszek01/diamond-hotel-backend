@@ -9,7 +9,7 @@ import com.app.diamondhotelbackend.entity.Transaction;
 import com.app.diamondhotelbackend.exception.InvalidTransactionStatusException;
 import com.app.diamondhotelbackend.exception.TransactionNotFoundException;
 import com.app.diamondhotelbackend.repository.TransactionRepository;
-import com.app.diamondhotelbackend.util.Constant;
+import com.app.diamondhotelbackend.util.ConstantUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -72,7 +72,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .carPickUp(costSummaryDto.getCarPickUp())
                 .carRent(costSummaryDto.getCarRent())
                 .tax(costSummaryDto.getTax())
-                .status(Constant.WAITING_FOR_PAYMENT)
+                .status(ConstantUtil.WAITING_FOR_PAYMENT)
                 .build());
     }
 
@@ -92,6 +92,6 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     private boolean isValidTransactionStatus(String status) {
-        return Constant.APPROVED.equals(status) || Constant.WAITING_FOR_PAYMENT.equals(status) || Constant.CANCELLED.equals(status);
+        return ConstantUtil.APPROVED.equals(status) || ConstantUtil.WAITING_FOR_PAYMENT.equals(status) || ConstantUtil.CANCELLED.equals(status);
     }
 }

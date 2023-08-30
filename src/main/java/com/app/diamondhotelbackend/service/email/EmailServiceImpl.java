@@ -1,8 +1,8 @@
 package com.app.diamondhotelbackend.service.email;
 
 import com.app.diamondhotelbackend.entity.ConfirmationToken;
-import com.app.diamondhotelbackend.util.BaseUriPropertiesProvider;
-import com.app.diamondhotelbackend.util.Constant;
+import com.app.diamondhotelbackend.util.ApplicationPropertiesUtil;
+import com.app.diamondhotelbackend.util.ConstantUtil;
 import com.app.diamondhotelbackend.util.EmailUtil;
 import com.app.diamondhotelbackend.util.UrlUtil;
 import lombok.AllArgsConstructor;
@@ -15,45 +15,45 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Slf4j
 public class EmailServiceImpl implements EmailService {
 
-    private final BaseUriPropertiesProvider baseUriPropertiesProvider;
+    private final ApplicationPropertiesUtil applicationPropertiesUtil;
 
     private final EmailUtil emailUtil;
 
     @Override
     public void sendConfirmationAccountEmail(ConfirmationToken confirmationToken) {
-        String link = UriComponentsBuilder.fromUriString(baseUriPropertiesProvider.getClient() + Constant.EMAIL_CONFIRM_ACCOUNT_CALLBACK_URI)
-                .queryParam(Constant.EMAIL_ATTR_CONFIRMATION_TOKEN, UrlUtil.encode(confirmationToken.getAccessValue()))
+        String link = UriComponentsBuilder.fromUriString(applicationPropertiesUtil.getClientUri() + ConstantUtil.EMAIL_CONFIRM_ACCOUNT_CALLBACK_URI)
+                .queryParam(ConstantUtil.EMAIL_ATTR_CONFIRMATION_TOKEN, UrlUtil.encode(confirmationToken.getAccessValue()))
                 .build()
                 .toUriString();
 
         emailUtil.send(
                 confirmationToken.getUserProfile().getEmail(),
-                Constant.buildEmail(confirmationToken.getUserProfile().getFirstname(),
-                        Constant.EMAIL_CONFIRM_ACCOUNT_CONTENT_TITLE,
-                        Constant.EMAIL_CONFIRM_ACCOUNT_CONTENT_DESCRIPTION,
-                        Constant.EMAIL_CONFIRM_ACCOUNT_LINK_DESCRIPTION,
+                ConstantUtil.buildEmail(confirmationToken.getUserProfile().getFirstname(),
+                        ConstantUtil.EMAIL_CONFIRM_ACCOUNT_CONTENT_TITLE,
+                        ConstantUtil.EMAIL_CONFIRM_ACCOUNT_CONTENT_DESCRIPTION,
+                        ConstantUtil.EMAIL_CONFIRM_ACCOUNT_LINK_DESCRIPTION,
                         link
                 ),
-                Constant.EMAIL_CONFIRM_ACCOUNT_SUBJECT
+                ConstantUtil.EMAIL_CONFIRM_ACCOUNT_SUBJECT
         );
     }
 
     @Override
     public void sendConfirmationPasswordChangingEmail(ConfirmationToken confirmationToken) {
-        String link = UriComponentsBuilder.fromUriString(baseUriPropertiesProvider.getClient() + Constant.EMAIL_CHANGE_PASSWORD_CALLBACK_URI)
-                .queryParam(Constant.EMAIL_ATTR_CONFIRMATION_TOKEN, UrlUtil.encode(confirmationToken.getAccessValue()))
+        String link = UriComponentsBuilder.fromUriString(applicationPropertiesUtil.getClientUri() + ConstantUtil.EMAIL_CHANGE_PASSWORD_CALLBACK_URI)
+                .queryParam(ConstantUtil.EMAIL_ATTR_CONFIRMATION_TOKEN, UrlUtil.encode(confirmationToken.getAccessValue()))
                 .build()
                 .toUriString();
 
         emailUtil.send(
                 confirmationToken.getUserProfile().getEmail(),
-                Constant.buildEmail(confirmationToken.getUserProfile().getFirstname(),
-                        Constant.EMAIL_CHANGE_PASSWORD_CONTENT_TITLE,
-                        Constant.EMAIL_CHANGE_PASSWORD_CONTENT_DESCRIPTION,
-                        Constant.EMAIL_CHANGE_PASSWORD_LINK_DESCRIPTION,
+                ConstantUtil.buildEmail(confirmationToken.getUserProfile().getFirstname(),
+                        ConstantUtil.EMAIL_CHANGE_PASSWORD_CONTENT_TITLE,
+                        ConstantUtil.EMAIL_CHANGE_PASSWORD_CONTENT_DESCRIPTION,
+                        ConstantUtil.EMAIL_CHANGE_PASSWORD_LINK_DESCRIPTION,
                         link
                 ),
-                Constant.EMAIL_CHANGE_PASSWORD_SUBJECT
+                ConstantUtil.EMAIL_CHANGE_PASSWORD_SUBJECT
         );
     }
 }

@@ -1,11 +1,11 @@
 package com.app.diamondhotelbackend.service;
 
-import com.app.diamondhotelbackend.dto.userprofile.UpdateUserDetailsRequestDto;
-import com.app.diamondhotelbackend.dto.userprofile.UserImageResponseDto;
+import com.app.diamondhotelbackend.dto.userprofile.request.UserProfileDetailsUpdateRequestDto;
+import com.app.diamondhotelbackend.dto.userprofile.response.UserProfilePictureDetailsResponseDto;
 import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.repository.UserProfileRepository;
 import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
-import com.app.diamondhotelbackend.util.Constant;
+import com.app.diamondhotelbackend.util.ConstantUtil;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,7 +38,7 @@ public class UserProfileServiceTests {
 
     private List<UserProfile> userProfileList;
 
-    private UpdateUserDetailsRequestDto updateUserDetailsRequestDto;
+    private UserProfileDetailsUpdateRequestDto userProfileDetailsUpdateRequestDto;
 
     private MockMultipartFile file;
 
@@ -49,8 +49,8 @@ public class UserProfileServiceTests {
         userProfile = UserProfile.builder()
                 .email("ala-gembala@wp.pl")
                 .passportNumber("ZF005401499")
-                .role(Constant.USER)
-                .authProvider(Constant.LOCAL)
+                .role(ConstantUtil.USER)
+                .authProvider(ConstantUtil.LOCAL)
                 .accountConfirmed(false)
                 .picture(HexFormat.of().parseHex("e04fd020ea3a6910a2d808002b30309d"))
                 .build();
@@ -60,21 +60,21 @@ public class UserProfileServiceTests {
                         .email("ala-gembala@wp.pl")
                         .password(passwordEncoder.encode("#Test1111"))
                         .passportNumber("DF115499499")
-                        .role(Constant.USER)
-                        .authProvider(Constant.LOCAL)
+                        .role(ConstantUtil.USER)
+                        .authProvider(ConstantUtil.LOCAL)
                         .accountConfirmed(false)
                         .build(),
                 UserProfile.builder()
                         .email("beata-pacanek@wp.pl")
                         .password(passwordEncoder.encode("#Test2222"))
                         .passportNumber("DF115499499")
-                        .role(Constant.USER)
-                        .authProvider(Constant.LOCAL)
+                        .role(ConstantUtil.USER)
+                        .authProvider(ConstantUtil.LOCAL)
                         .accountConfirmed(false)
                         .build()
         );
 
-        updateUserDetailsRequestDto = UpdateUserDetailsRequestDto.builder()
+        userProfileDetailsUpdateRequestDto = UserProfileDetailsUpdateRequestDto.builder()
                 .firstname("Ala")
                 .lastname("Gembala")
                 .age(21)
@@ -134,14 +134,14 @@ public class UserProfileServiceTests {
     }
 
     @Test
-    public void UserProfileService_GetUserProfileImageByEmail_ReturnsUserImageResponseDto() {
+    public void UserProfileService_GetUserProfileImageByEmail_UserProfilePictureDetailsResponseDto() {
         when(userProfileRepository.findByEmail(Mockito.any(String.class))).thenReturn(Optional.of(userProfile));
 
-        UserImageResponseDto foundUserImageResponseDto = userProfileService.getUserProfilePictureByEmail(userProfile.getEmail());
+        UserProfilePictureDetailsResponseDto foundUserProfilePictureDetailsResponseDto = userProfileService.getUserProfilePictureByEmail(userProfile.getEmail());
 
-        Assertions.assertThat(foundUserImageResponseDto).isNotNull();
-        Assertions.assertThat(foundUserImageResponseDto.getImage()).isNotNull();
-        Assertions.assertThat(foundUserImageResponseDto.getEmail()).isEqualTo(userProfile.getEmail());
+        Assertions.assertThat(foundUserProfilePictureDetailsResponseDto).isNotNull();
+        Assertions.assertThat(foundUserProfilePictureDetailsResponseDto.getImage()).isNotNull();
+        Assertions.assertThat(foundUserProfilePictureDetailsResponseDto.getEmail()).isEqualTo(userProfile.getEmail());
     }
 
     @Test
@@ -155,13 +155,13 @@ public class UserProfileServiceTests {
     }
 
     @Test
-    public void UserProfileService_UpdateUserProfile_ReturnsUserProfile_AcceptsUpdateUserDetailsRequestDto() {
+    public void UserProfileService_UpdateUserProfile_ReturnsUserProfile_AcceptsUserProfileDetailsUpdateRequestDto() {
         String email = "ala-gembala@wp.pl";
 
         when(userProfileRepository.findByEmail(Mockito.any(String.class))).thenReturn(Optional.of(userProfile));
         when(userProfileRepository.save(Mockito.any(UserProfile.class))).thenReturn(userProfile);
 
-        UserProfile updatedUserProfile = userProfileService.updateUserProfile(email, updateUserDetailsRequestDto);
+        UserProfile updatedUserProfile = userProfileService.updateUserProfile(email, userProfileDetailsUpdateRequestDto);
 
         Assertions.assertThat(updatedUserProfile).isNotNull();
         Assertions.assertThat(updatedUserProfile.getEmail()).isEqualTo(email);
@@ -169,17 +169,17 @@ public class UserProfileServiceTests {
     }
 
     @Test
-    public void UserProfileService_UpdateUserProfilePicture_ReturnsUserImageResponseDto() {
+    public void UserProfileService_UpdateUserProfilePicture_UserProfilePictureDetailsResponseDto() {
         try {
             String email = "ala-gembala@wp.pl";
 
             when(userProfileRepository.findByEmail(Mockito.any(String.class))).thenReturn(Optional.of(userProfile));
 
-            UserImageResponseDto updatedUserImageResponseDto = userProfileService.updateUserProfilePicture(file, email);
+            UserProfilePictureDetailsResponseDto updatedUserProfilePictureDetailsResponseDto = userProfileService.updateUserProfilePicture(file, email);
 
-            Assertions.assertThat(updatedUserImageResponseDto).isNotNull();
-            Assertions.assertThat(updatedUserImageResponseDto.getImage()).isNotNull();
-            Assertions.assertThat(updatedUserImageResponseDto.getEmail()).isEqualTo(userProfile.getEmail());
+            Assertions.assertThat(updatedUserProfilePictureDetailsResponseDto).isNotNull();
+            Assertions.assertThat(updatedUserProfilePictureDetailsResponseDto.getImage()).isNotNull();
+            Assertions.assertThat(updatedUserProfilePictureDetailsResponseDto.getEmail()).isEqualTo(userProfile.getEmail());
 
         } catch (IOException e) {
             Assertions.fail(e.getMessage());

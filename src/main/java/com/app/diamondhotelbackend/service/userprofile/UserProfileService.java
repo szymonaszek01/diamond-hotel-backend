@@ -1,7 +1,7 @@
 package com.app.diamondhotelbackend.service.userprofile;
 
-import com.app.diamondhotelbackend.dto.userprofile.UpdateUserDetailsRequestDto;
-import com.app.diamondhotelbackend.dto.userprofile.UserImageResponseDto;
+import com.app.diamondhotelbackend.dto.userprofile.request.UserProfileDetailsUpdateRequestDto;
+import com.app.diamondhotelbackend.dto.userprofile.response.UserProfilePictureDetailsResponseDto;
 import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,13 +19,13 @@ public interface UserProfileService {
 
     List<UserProfile> getUserProfileList();
 
-    UserImageResponseDto getUserProfilePictureByEmail(String email) throws UserProfileProcessingException;
+    UserProfilePictureDetailsResponseDto getUserProfilePictureByEmail(String email) throws UserProfileProcessingException;
 
     UserProfile updateUserProfile(UserProfile userProfile);
 
-    UserProfile updateUserProfile(String email, UpdateUserDetailsRequestDto userProfileRequestDto) throws UserProfileProcessingException;
+    UserProfile updateUserProfile(String email, UserProfileDetailsUpdateRequestDto userProfileRequestDto) throws UserProfileProcessingException;
 
-    UserImageResponseDto updateUserProfilePicture(MultipartFile file, String email) throws UserProfileProcessingException, IOException;
+    UserProfilePictureDetailsResponseDto updateUserProfilePicture(MultipartFile file, String email) throws UserProfileProcessingException, IOException;
 
     UserProfile deleteUserProfile(long id) throws UserProfileProcessingException;
 

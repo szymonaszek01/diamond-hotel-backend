@@ -4,8 +4,8 @@ import com.app.diamondhotelbackend.entity.ConfirmationToken;
 import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.repository.ConfirmationTokenRepository;
 import com.app.diamondhotelbackend.service.confirmationtoken.ConfirmationTokenServiceImpl;
-import com.app.diamondhotelbackend.util.Constant;
-import com.app.diamondhotelbackend.util.JwtPropertiesProvider;
+import com.app.diamondhotelbackend.util.ApplicationPropertiesUtil;
+import com.app.diamondhotelbackend.util.ConstantUtil;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,7 +30,7 @@ public class ConfirmationTokenServiceTests {
     private ConfirmationTokenRepository confirmationTokenRepository;
 
     @Mock
-    private JwtPropertiesProvider jwtPropertiesProvider;
+    private ApplicationPropertiesUtil applicationPropertiesUtil;
 
     private UserProfile userProfile;
 
@@ -48,8 +48,8 @@ public class ConfirmationTokenServiceTests {
                 .id(1)
                 .email("ala-gembala@wp.pl")
                 .passportNumber("ZF005401499")
-                .role(Constant.USER)
-                .authProvider(Constant.LOCAL)
+                .role(ConstantUtil.USER)
+                .authProvider(ConstantUtil.LOCAL)
                 .accountConfirmed(false)
                 .build();
 
@@ -81,7 +81,7 @@ public class ConfirmationTokenServiceTests {
 
     @Test
     public void ConfirmationTokenService_CreateConfirmationToken_ReturnsConfirmationToken() {
-        when(jwtPropertiesProvider.getConfirmationTokenExpiration()).thenReturn(String.valueOf(CONFIRMATION_TOKEN_EXPIRATION));
+        when(applicationPropertiesUtil.getConfirmationTokenExpiration()).thenReturn(String.valueOf(CONFIRMATION_TOKEN_EXPIRATION));
         when(confirmationTokenRepository.save(Mockito.any(ConfirmationToken.class))).thenReturn(confirmationToken);
 
         ConfirmationToken savedConfirmationToken = confirmationTokenService.createConfirmationToken(userProfile);
@@ -92,7 +92,7 @@ public class ConfirmationTokenServiceTests {
 
     @Test
     public void ConfirmationTokenService_UpdateConfirmationTokenConfirmedAt_ReturnsConfirmationToken() {
-        when(jwtPropertiesProvider.getConfirmationTokenExpiration()).thenReturn(String.valueOf(CONFIRMATION_TOKEN_EXPIRATION));
+        when(applicationPropertiesUtil.getConfirmationTokenExpiration()).thenReturn(String.valueOf(CONFIRMATION_TOKEN_EXPIRATION));
         when(confirmationTokenRepository.findByAccessValue(Mockito.any(String.class))).thenReturn(Optional.of(confirmationToken));
         when(confirmationTokenRepository.save(Mockito.any(ConfirmationToken.class))).thenReturn(updatedConfirmationToken);
 
@@ -104,7 +104,7 @@ public class ConfirmationTokenServiceTests {
 
     @Test
     public void ConfirmationTokenService_UpdateConfirmationTokenExpiredAt_ReturnsConfirmationToken() {
-        when(jwtPropertiesProvider.getConfirmationTokenExpiration()).thenReturn(String.valueOf(CONFIRMATION_TOKEN_EXPIRATION));
+        when(applicationPropertiesUtil.getConfirmationTokenExpiration()).thenReturn(String.valueOf(CONFIRMATION_TOKEN_EXPIRATION));
         when(confirmationTokenRepository.findByAccessValue(Mockito.any(String.class))).thenReturn(Optional.of(confirmationToken));
         when(confirmationTokenRepository.save(Mockito.any(ConfirmationToken.class))).thenReturn(confirmedConfirmationToken);
 

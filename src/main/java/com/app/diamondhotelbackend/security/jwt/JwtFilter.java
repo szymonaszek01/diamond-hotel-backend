@@ -1,7 +1,7 @@
 package com.app.diamondhotelbackend.security.jwt;
 
 import com.app.diamondhotelbackend.service.jwt.JwtServiceImpl;
-import com.app.diamondhotelbackend.util.Constant;
+import com.app.diamondhotelbackend.util.ConstantUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,7 +42,7 @@ public class JwtFilter extends OncePerRequestFilter {
             // 3) Update the SecurityContextHolder
             Optional<UserDetails> userDetails = jwtService.validateToken(jwt);
             if (userDetails.isEmpty()) {
-                response.sendError(HttpStatus.UNAUTHORIZED.value(), Constant.INVALID_TOKEN_EXCEPTION);
+                response.sendError(HttpStatus.UNAUTHORIZED.value(), ConstantUtil.INVALID_TOKEN_EXCEPTION);
                 return;
             }
 

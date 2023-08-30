@@ -1,12 +1,13 @@
 package com.app.diamondhotelbackend.controller;
 
-import com.app.diamondhotelbackend.dto.auth.*;
+import com.app.diamondhotelbackend.dto.auth.request.*;
+import com.app.diamondhotelbackend.dto.auth.response.AccountDetailsResponseDto;
 import com.app.diamondhotelbackend.entity.AuthToken;
 import com.app.diamondhotelbackend.entity.ConfirmationToken;
 import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.security.jwt.JwtFilter;
 import com.app.diamondhotelbackend.service.auth.AuthServiceImpl;
-import com.app.diamondhotelbackend.util.Constant;
+import com.app.diamondhotelbackend.util.ConstantUtil;
 import com.app.diamondhotelbackend.util.UrlUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.CoreMatchers;
@@ -58,17 +59,17 @@ public class AuthControllerTests {
 
     private ConfirmationToken confirmationToken;
 
-    private UserProfileDetailsResponseDto userProfileDetailsResponseDto;
+    private AccountDetailsResponseDto accountDetailsResponseDto;
 
-    private LoginRequestDto loginRequestDto;
+    private AccountLoginRequestDto accountLoginRequestDto;
 
-    private RegisterRequestDto registerRequestDto;
+    private AccountRegistrationRequestDto accountRegistrationRequestDto;
 
-    private UpdateEmailRequestDto updateEmailRequestDto;
+    private AccountEmailUpdateRequestDto accountEmailUpdateRequestDto;
 
-    private UpdatePasswordRequestDto updatePasswordRequestDto;
+    private AccountPasswordUpdateRequestDto accountPasswordUpdateRequestDto;
 
-    private ChangePasswordRequestDto changePasswordRequestDto;
+    private AccountForgottenPasswordRequestDto accountForgottenPasswordRequestDto;
 
     private static final long CONFIRMATION_TOKEN_EXPIRATION = 1000 * 60 * 15;
 
@@ -83,8 +84,8 @@ public class AuthControllerTests {
                 .email("ala-gembala@wp.pl")
                 .password(passwordEncoder.encode("#Test1111"))
                 .passportNumber("ZF005401499")
-                .role(Constant.USER)
-                .authProvider(Constant.LOCAL)
+                .role(ConstantUtil.USER)
+                .authProvider(ConstantUtil.LOCAL)
                 .accountConfirmed(false)
                 .build();
 
@@ -103,7 +104,7 @@ public class AuthControllerTests {
                 .expiresAt(new Date(System.currentTimeMillis() + CONFIRMATION_TOKEN_EXPIRATION))
                 .build();
 
-        userProfileDetailsResponseDto = UserProfileDetailsResponseDto.builder()
+        accountDetailsResponseDto = AccountDetailsResponseDto.builder()
                 .id(1)
                 .email(userProfile.getEmail())
                 .accessToken(authToken.getAccessValue())
@@ -111,28 +112,28 @@ public class AuthControllerTests {
                 .confirmed(true)
                 .build();
 
-        loginRequestDto = LoginRequestDto.builder()
+        accountLoginRequestDto = AccountLoginRequestDto.builder()
                 .email(userProfile.getEmail())
                 .password(userProfile.getPassword())
                 .build();
 
-        registerRequestDto = RegisterRequestDto.builder()
+        accountRegistrationRequestDto = AccountRegistrationRequestDto.builder()
                 .email(userProfile.getEmail())
                 .password(userProfile.getPassword())
                 .passportNumber(userProfile.getPassportNumber())
                 .build();
 
-        updateEmailRequestDto = UpdateEmailRequestDto.builder()
+        accountEmailUpdateRequestDto = AccountEmailUpdateRequestDto.builder()
                 .email(userProfile.getEmail())
                 .newEmail("tomek-bomek@gmail.com")
                 .build();
 
-        updatePasswordRequestDto = UpdatePasswordRequestDto.builder()
+        accountPasswordUpdateRequestDto = AccountPasswordUpdateRequestDto.builder()
                 .email(userProfile.getEmail())
                 .newPassword(passwordEncoder.encode("#Test2222"))
                 .build();
 
-        changePasswordRequestDto = ChangePasswordRequestDto.builder()
+        accountForgottenPasswordRequestDto = AccountForgottenPasswordRequestDto.builder()
                 .token(confirmationToken.getAccessValue())
                 .newPassword(passwordEncoder.encode("#Test2222"))
                 .build();
@@ -145,8 +146,8 @@ public class AuthControllerTests {
                 .email("ala-gembala@wp.pl")
                 .password(passwordEncoder.encode("#Test1111"))
                 .passportNumber("ZF005401499")
-                .role(Constant.USER)
-                .authProvider(Constant.LOCAL)
+                .role(ConstantUtil.USER)
+                .authProvider(ConstantUtil.LOCAL)
                 .accountConfirmed(false)
                 .build();
 
@@ -167,70 +168,70 @@ public class AuthControllerTests {
     }
 
     @Test
-    public void AuthController_LoginAccount_ReturnsUserProfileDetailsResponseDto() throws Exception {
+    public void AuthController_LoginAccount_ReturnsAccountDetailsResponseDto() throws Exception {
         userProfile.setAccountConfirmed(true);
 
-        when(authService.loginAccount(Mockito.any(LoginRequestDto.class))).thenReturn(userProfileDetailsResponseDto);
+        when(authService.loginAccount(Mockito.any(AccountLoginRequestDto.class))).thenReturn(accountDetailsResponseDto);
 
-        MockHttpServletRequestBuilder request = post(url + "/login")
+        MockHttpServletRequestBuilder request = post(url + "/account/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(loginRequestDto));
+                .content(objectMapper.writeValueAsString(accountLoginRequestDto));
 
         mockMvc
                 .perform(request)
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id", CoreMatchers.is((int) userProfileDetailsResponseDto.getId())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.email", CoreMatchers.is(userProfileDetailsResponseDto.getEmail())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.access_token", CoreMatchers.is(userProfileDetailsResponseDto.getAccessToken())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.refresh_token", CoreMatchers.is(userProfileDetailsResponseDto.getRefreshToken())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.confirmed", CoreMatchers.is(userProfileDetailsResponseDto.isConfirmed())));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", CoreMatchers.is((int) accountDetailsResponseDto.getId())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.email", CoreMatchers.is(accountDetailsResponseDto.getEmail())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.access_token", CoreMatchers.is(accountDetailsResponseDto.getAccessToken())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.refresh_token", CoreMatchers.is(accountDetailsResponseDto.getRefreshToken())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.confirmed", CoreMatchers.is(accountDetailsResponseDto.isConfirmed())));
     }
 
     @Test
-    public void AuthController_RegisterAccount_ReturnsUserProfileDetailsResponseDto() throws Exception {
-        userProfileDetailsResponseDto.setConfirmed(false);
+    public void AuthController_RegisterAccount_ReturnsAccountDetailsResponseDto() throws Exception {
+        accountDetailsResponseDto.setConfirmed(false);
 
-        when(authService.registerAccount(Mockito.any(RegisterRequestDto.class))).thenReturn(userProfileDetailsResponseDto);
+        when(authService.registerAccount(Mockito.any(AccountRegistrationRequestDto.class))).thenReturn(accountDetailsResponseDto);
 
-        MockHttpServletRequestBuilder request = post(url + "/register")
+        MockHttpServletRequestBuilder request = post(url + "/account/registration")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(registerRequestDto));
+                .content(objectMapper.writeValueAsString(accountRegistrationRequestDto));
 
         mockMvc
                 .perform(request)
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id", CoreMatchers.is((int) userProfileDetailsResponseDto.getId())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.email", CoreMatchers.is(userProfileDetailsResponseDto.getEmail())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.access_token", CoreMatchers.is(userProfileDetailsResponseDto.getAccessToken())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.refresh_token", CoreMatchers.is(userProfileDetailsResponseDto.getRefreshToken())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.confirmed", CoreMatchers.is(userProfileDetailsResponseDto.isConfirmed())));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", CoreMatchers.is((int) accountDetailsResponseDto.getId())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.email", CoreMatchers.is(accountDetailsResponseDto.getEmail())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.access_token", CoreMatchers.is(accountDetailsResponseDto.getAccessToken())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.refresh_token", CoreMatchers.is(accountDetailsResponseDto.getRefreshToken())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.confirmed", CoreMatchers.is(accountDetailsResponseDto.isConfirmed())));
     }
 
     @Test
-    public void AuthController_ConfirmAccount_ReturnsUserProfileDetailsResponseDto() throws Exception {
-        when(authService.confirmAccount(Mockito.any(String.class))).thenReturn(userProfileDetailsResponseDto);
+    public void AuthController_ConfirmAccount_ReturnsAccountDetailsResponseDto() throws Exception {
+        when(authService.confirmAccount(Mockito.any(String.class))).thenReturn(accountDetailsResponseDto);
 
-        MockHttpServletRequestBuilder request = get(url + "/confirm/account/confirmation-token/" + UrlUtil.encode(confirmationToken.getAccessValue()))
+        MockHttpServletRequestBuilder request = put(url + "/confirmation-token/" + UrlUtil.encode(confirmationToken.getAccessValue()) + "/account/confirmation")
                 .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc
                 .perform(request)
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id", CoreMatchers.is((int) userProfileDetailsResponseDto.getId())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.email", CoreMatchers.is(userProfileDetailsResponseDto.getEmail())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.access_token", CoreMatchers.is(userProfileDetailsResponseDto.getAccessToken())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.refresh_token", CoreMatchers.is(userProfileDetailsResponseDto.getRefreshToken())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.confirmed", CoreMatchers.is(userProfileDetailsResponseDto.isConfirmed())));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", CoreMatchers.is((int) accountDetailsResponseDto.getId())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.email", CoreMatchers.is(accountDetailsResponseDto.getEmail())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.access_token", CoreMatchers.is(accountDetailsResponseDto.getAccessToken())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.refresh_token", CoreMatchers.is(accountDetailsResponseDto.getRefreshToken())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.confirmed", CoreMatchers.is(accountDetailsResponseDto.isConfirmed())));
     }
 
     @Test
     public void AuthController_ForgotAccountPassword_ReturnsConfirmationToken() throws Exception {
         when(authService.forgotAccountPassword(Mockito.any(String.class))).thenReturn(confirmationToken);
 
-        MockHttpServletRequestBuilder request = get(url + "/forgot/password/email/" + UrlUtil.encode(userProfile.getEmail()))
+        MockHttpServletRequestBuilder request = get(url + "/email/" + UrlUtil.encode(userProfile.getEmail()) + "/account/forgotten/password")
                 .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc
@@ -244,13 +245,13 @@ public class AuthControllerTests {
     @Test
     public void AuthController_UpdateAccountEmail_ReturnsUserProfile() throws Exception {
         userProfile.setAccountConfirmed(true);
-        userProfile.setEmail(updateEmailRequestDto.getNewEmail());
+        userProfile.setEmail(accountEmailUpdateRequestDto.getNewEmail());
 
-        when(authService.updateAccountEmail(Mockito.any(UpdateEmailRequestDto.class))).thenReturn(userProfile);
+        when(authService.updateAccountEmail(Mockito.any(AccountEmailUpdateRequestDto.class))).thenReturn(userProfile);
 
-        MockHttpServletRequestBuilder request = put(url + "/update/email")
+        MockHttpServletRequestBuilder request = put(url + "/account/email")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updateEmailRequestDto));
+                .content(objectMapper.writeValueAsString(accountEmailUpdateRequestDto));
 
         mockMvc
                 .perform(request)
@@ -262,14 +263,14 @@ public class AuthControllerTests {
     }
 
     @Test
-    public void AuthController_UpdateAccountPassword_ReturnsUserProfileDetailsResponseDto_AcceptsChangePasswordRequestDto() throws Exception {
-        userProfile.setPassword(changePasswordRequestDto.getNewPassword());
+    public void AuthController_UpdateAccountPassword_ReturnsAccountDetailsResponseDto_AcceptsForgotAccountPasswordRequestDto() throws Exception {
+        userProfile.setPassword(accountForgottenPasswordRequestDto.getNewPassword());
 
-        when(authService.updateAccountPassword(Mockito.any(ChangePasswordRequestDto.class))).thenReturn(userProfile);
+        when(authService.updateAccountPassword(Mockito.any(AccountForgottenPasswordRequestDto.class))).thenReturn(userProfile);
 
-        MockHttpServletRequestBuilder request = put(url + "/forgot/password/new")
+        MockHttpServletRequestBuilder request = put(url + "/account/forgotten/password")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(changePasswordRequestDto));
+                .content(objectMapper.writeValueAsString(accountForgottenPasswordRequestDto));
 
         mockMvc
                 .perform(request)
@@ -280,15 +281,15 @@ public class AuthControllerTests {
     }
 
     @Test
-    public void AuthController_UpdateAccountPassword_ReturnsUserProfileDetailsResponseDto_AcceptsUpdatePasswordRequestDto() throws Exception {
+    public void AuthController_UpdateAccountPassword_ReturnsAccountDetailsResponseDto_AcceptsUpdateAccountPasswordRequestDto() throws Exception {
         userProfile.setAccountConfirmed(true);
-        userProfile.setPassword(updatePasswordRequestDto.getNewPassword());
+        userProfile.setPassword(accountPasswordUpdateRequestDto.getNewPassword());
 
-        when(authService.updateAccountPassword(Mockito.any(UpdatePasswordRequestDto.class))).thenReturn(userProfile);
+        when(authService.updateAccountPassword(Mockito.any(AccountPasswordUpdateRequestDto.class))).thenReturn(userProfile);
 
-        MockHttpServletRequestBuilder request = put(url + "/update/password")
+        MockHttpServletRequestBuilder request = put(url + "/account/password")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updatePasswordRequestDto));
+                .content(objectMapper.writeValueAsString(accountPasswordUpdateRequestDto));
 
         mockMvc
                 .perform(request)
@@ -299,24 +300,24 @@ public class AuthControllerTests {
     }
 
     @Test
-    public void AuthController_UpdateAuthToken_ReturnsUserProfileDetailsResponseDto() throws Exception {
+    public void AuthController_UpdateAuthToken_ReturnsAccountDetailsResponseDto() throws Exception {
         userProfile.setAccountConfirmed(true);
-        userProfileDetailsResponseDto.setAccessToken("accessValue2");
+        accountDetailsResponseDto.setAccessToken("accessValue2");
 
-        when(authService.updateAuthToken(Mockito.any(String.class))).thenReturn(userProfileDetailsResponseDto);
+        when(authService.updateAuthToken(Mockito.any(String.class))).thenReturn(accountDetailsResponseDto);
 
-        MockHttpServletRequestBuilder request = get(url + "/refresh/access-token/" + UrlUtil.encode(authToken.getAccessValue()))
+        MockHttpServletRequestBuilder request = put(url + "/auth-token/" + UrlUtil.encode(authToken.getAccessValue()))
                 .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc
                 .perform(request)
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id", CoreMatchers.is((int) userProfileDetailsResponseDto.getId())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.email", CoreMatchers.is(userProfileDetailsResponseDto.getEmail())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.access_token", CoreMatchers.is(userProfileDetailsResponseDto.getAccessToken())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.refresh_token", CoreMatchers.is(userProfileDetailsResponseDto.getRefreshToken())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.confirmed", CoreMatchers.is(userProfileDetailsResponseDto.isConfirmed())));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", CoreMatchers.is((int) accountDetailsResponseDto.getId())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.email", CoreMatchers.is(accountDetailsResponseDto.getEmail())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.access_token", CoreMatchers.is(accountDetailsResponseDto.getAccessToken())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.refresh_token", CoreMatchers.is(accountDetailsResponseDto.getRefreshToken())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.confirmed", CoreMatchers.is(accountDetailsResponseDto.isConfirmed())));
     }
 
     @Test
@@ -326,7 +327,7 @@ public class AuthControllerTests {
 
         when(authService.updateConfirmationToken(Mockito.any(String.class))).thenReturn(confirmationToken);
 
-        MockHttpServletRequestBuilder request = get(url + "/refresh/confirmation-token/" + UrlUtil.encode(token))
+        MockHttpServletRequestBuilder request = put(url + "/confirmation-token/" + UrlUtil.encode(token))
                 .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc

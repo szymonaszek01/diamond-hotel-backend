@@ -1,6 +1,6 @@
 package com.app.diamondhotelbackend.util;
 
-public class Constant {
+public class ConstantUtil {
 
     /**
      * ----- IMAGE -----
@@ -109,6 +109,30 @@ public class Constant {
 
 
     /**
+     * ----- OPEN WEATHER -----
+     **/
+    public static final String OPEN_WEATHER_BASE_URI = "https://api.openweathermap.org";
+
+    public static final String OPEN_WEATHER_VALUE_LAT = "4.195762812224563";
+
+    public static final String OPEN_WEATHER_ATTR_LAT = "lat";
+
+    public static final String OPEN_WEATHER_ATTR_LON = "lon";
+
+    public static final String OPEN_WEATHER_ATTR_EXCLUDE = "exclude";
+
+    public static final String OPEN_WEATHER_ATTR_APPID = "appid";
+
+    public static final String OPEN_WEATHER_ATTR_UNITS = "units";
+
+    public static final String OPEN_WEATHER_VALUE_UNITS = "metric";
+
+    public static final String OPEN_WEATHER_VALUE_EXCLUDE = "minutely,hourly,alerts";
+
+    public static final String OPEN_WEATHER_VALUE_LON = "73.52610223044698";
+
+
+    /**
      * ----- EMAIL -----
      **/
     public static final String EMAIL_SENDER = "diamond.hotel.contact@gmail.com";
@@ -125,7 +149,7 @@ public class Constant {
 
     public static final String EMAIL_CONFIRM_ACCOUNT_CONTENT_TITLE = "Confirm your email";
 
-    public static final String EMAIL_CHANGE_PASSWORD_CALLBACK_URI = "/change/password";
+    public static final String EMAIL_CHANGE_PASSWORD_CALLBACK_URI = "/forgot/password";
 
     public static final String EMAIL_CHANGE_PASSWORD_CONTENT_TITLE = "Change your password";
 

@@ -3,8 +3,8 @@ package com.app.diamondhotelbackend.service;
 import com.app.diamondhotelbackend.entity.ConfirmationToken;
 import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.service.email.EmailServiceImpl;
-import com.app.diamondhotelbackend.util.BaseUriPropertiesProvider;
-import com.app.diamondhotelbackend.util.Constant;
+import com.app.diamondhotelbackend.util.ApplicationPropertiesUtil;
+import com.app.diamondhotelbackend.util.ConstantUtil;
 import com.app.diamondhotelbackend.util.EmailUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ public class EmailServiceTests {
     private EmailServiceImpl emailService;
 
     @Mock
-    private BaseUriPropertiesProvider baseUriPropertiesProvider;
+    private ApplicationPropertiesUtil applicationPropertiesUtil;
 
     @Mock
     private EmailUtil emailUtil;
@@ -39,8 +39,8 @@ public class EmailServiceTests {
         UserProfile userProfile = UserProfile.builder()
                 .email("ala-gembala@wp.pl")
                 .passportNumber("ZF005401499")
-                .role(Constant.USER)
-                .authProvider(Constant.LOCAL)
+                .role(ConstantUtil.USER)
+                .authProvider(ConstantUtil.LOCAL)
                 .accountConfirmed(false)
                 .build();
 
@@ -54,7 +54,7 @@ public class EmailServiceTests {
 
     @Test
     public void EmailService_SendConfirmationAccountEmail_ReturnsNothing() {
-        when(baseUriPropertiesProvider.getClient()).thenReturn("http://localhost:3000");
+        when(applicationPropertiesUtil.getClientUri()).thenReturn("http://localhost:3000");
 
         emailService.sendConfirmationAccountEmail(confirmationToken);
 
@@ -63,7 +63,7 @@ public class EmailServiceTests {
 
     @Test
     public void EmailService_SendChangingPasswordEmail_ReturnsNothing() {
-        when(baseUriPropertiesProvider.getClient()).thenReturn("http://localhost:3000");
+        when(applicationPropertiesUtil.getClientUri()).thenReturn("http://localhost:3000");
 
         emailService.sendConfirmationPasswordChangingEmail(confirmationToken);
 

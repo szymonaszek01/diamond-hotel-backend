@@ -1,11 +1,11 @@
 package com.app.diamondhotelbackend.controller;
 
-import com.app.diamondhotelbackend.dto.userprofile.UpdateUserDetailsRequestDto;
-import com.app.diamondhotelbackend.dto.userprofile.UserImageResponseDto;
+import com.app.diamondhotelbackend.dto.userprofile.request.UserProfileDetailsUpdateRequestDto;
+import com.app.diamondhotelbackend.dto.userprofile.response.UserProfilePictureDetailsResponseDto;
 import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.security.jwt.JwtFilter;
 import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
-import com.app.diamondhotelbackend.util.Constant;
+import com.app.diamondhotelbackend.util.ConstantUtil;
 import com.app.diamondhotelbackend.util.UrlUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.CoreMatchers;
@@ -55,11 +55,11 @@ public class UserProfileControllerTests {
 
     private List<UserProfile> userProfileList;
 
-    private UpdateUserDetailsRequestDto updateUserDetailsRequestDto;
+    private UserProfileDetailsUpdateRequestDto userProfileDetailsUpdateRequestDto;
 
-    private UserImageResponseDto userImageResponseDto;
+    private UserProfilePictureDetailsResponseDto userProfilePictureDetailsResponseDto;
 
-    private UserImageResponseDto userImageResponseDtoAfterUpdate;
+    private UserProfilePictureDetailsResponseDto userProfilePictureDetailsResponseDtoAfterUpdate;
 
     private MockMultipartFile file;
 
@@ -71,8 +71,8 @@ public class UserProfileControllerTests {
                 .id(1)
                 .email("ala-gembala@wp.pl")
                 .passportNumber("ZF005401499")
-                .role(Constant.USER)
-                .authProvider(Constant.LOCAL)
+                .role(ConstantUtil.USER)
+                .authProvider(ConstantUtil.LOCAL)
                 .accountConfirmed(false)
                 .picture(HexFormat.of().parseHex("e04fd020ea3a6910a2d808002b30309d"))
                 .build();
@@ -80,8 +80,8 @@ public class UserProfileControllerTests {
         updatedUserProfile = UserProfile.builder()
                 .id(1)
                 .email("ala-gembala@wp.pl")
-                .role(Constant.USER)
-                .authProvider(Constant.LOCAL)
+                .role(ConstantUtil.USER)
+                .authProvider(ConstantUtil.LOCAL)
                 .accountConfirmed(false)
                 .picture(HexFormat.of().parseHex("e04fd020ea3a6910a2d808002b30309d"))
                 .firstname("Ala")
@@ -100,21 +100,21 @@ public class UserProfileControllerTests {
                         .id(1)
                         .email("ala-gembala@wp.pl")
                         .passportNumber("DF115499499")
-                        .role(Constant.USER)
-                        .authProvider(Constant.LOCAL)
+                        .role(ConstantUtil.USER)
+                        .authProvider(ConstantUtil.LOCAL)
                         .accountConfirmed(false)
                         .build(),
                 UserProfile.builder()
                         .id(2)
                         .email("beata-pacanek@wp.pl")
                         .passportNumber("DF115499499")
-                        .role(Constant.USER)
-                        .authProvider(Constant.LOCAL)
+                        .role(ConstantUtil.USER)
+                        .authProvider(ConstantUtil.LOCAL)
                         .accountConfirmed(false)
                         .build()
         );
 
-        updateUserDetailsRequestDto = UpdateUserDetailsRequestDto.builder()
+        userProfileDetailsUpdateRequestDto = UserProfileDetailsUpdateRequestDto.builder()
                 .firstname("Ala")
                 .lastname("Gembala")
                 .age(21)
@@ -126,12 +126,12 @@ public class UserProfileControllerTests {
                 .postalCode("09-783")
                 .build();
 
-        userImageResponseDto = UserImageResponseDto.builder()
+        userProfilePictureDetailsResponseDto = UserProfilePictureDetailsResponseDto.builder()
                 .email(userProfile.getEmail())
                 .image(userProfile.getPicture())
                 .build();
 
-        userImageResponseDtoAfterUpdate = UserImageResponseDto.builder()
+        userProfilePictureDetailsResponseDtoAfterUpdate = UserProfilePictureDetailsResponseDto.builder()
                 .email(userProfile.getEmail())
                 .image(HexFormat.of().parseHex("a04fd020ea3a6910a2d808002b30309d"))
                 .build();
@@ -148,7 +148,7 @@ public class UserProfileControllerTests {
     public void UserProfileController_GetUserProfileById_ReturnsUserProfile() throws Exception {
         when(userProfileService.getUserProfileById(Mockito.any(long.class))).thenReturn(userProfile);
 
-        MockHttpServletRequestBuilder request = get(url + "/id/" + userProfile.getId() + "/details/info")
+        MockHttpServletRequestBuilder request = get(url + "/id/" + userProfile.getId())
                 .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc
@@ -163,7 +163,7 @@ public class UserProfileControllerTests {
     public void UserProfileController_GetUserProfileByEmail_ReturnsUserProfile() throws Exception {
         when(userProfileService.getUserProfileByEmail(Mockito.any(String.class))).thenReturn(userProfile);
 
-        MockHttpServletRequestBuilder request = get(url + "/email/" + UrlUtil.encode(userProfile.getEmail()) + "/details/info")
+        MockHttpServletRequestBuilder request = get(url + "/email/" + UrlUtil.encode(userProfile.getEmail()))
                 .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc
@@ -178,7 +178,7 @@ public class UserProfileControllerTests {
     public void UserProfileController_GetUserProfileList_ReturnsUserProfileList() throws Exception {
         when(userProfileService.getUserProfileList()).thenReturn(userProfileList);
 
-        MockHttpServletRequestBuilder request = get(url + "/all/info")
+        MockHttpServletRequestBuilder request = get(url + "/all")
                 .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc
@@ -188,41 +188,41 @@ public class UserProfileControllerTests {
     }
 
     @Test
-    public void UserProfileController_GetUserProfilePictureByEmail_ReturnsUserProfileList() throws Exception {
-        when(userProfileService.getUserProfilePictureByEmail(Mockito.any(String.class))).thenReturn(userImageResponseDto);
+    public void UserProfileController_GetUserProfilePictureByEmail_ReturnsUserProfilePictureDetailsResponseDto() throws Exception {
+        when(userProfileService.getUserProfilePictureByEmail(Mockito.any(String.class))).thenReturn(userProfilePictureDetailsResponseDto);
 
-        MockHttpServletRequestBuilder request = get(url + "/email/" + UrlUtil.encode(userProfile.getEmail()) + "/image")
+        MockHttpServletRequestBuilder request = get(url + "/email/" + UrlUtil.encode(userProfile.getEmail()) + "/picture")
                 .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc
                 .perform(request)
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.email", CoreMatchers.is(userImageResponseDto.getEmail())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.image", CoreMatchers.is(objectMapper.writeValueAsString(userImageResponseDto.getImage()).replace("\"", ""))));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.email", CoreMatchers.is(userProfilePictureDetailsResponseDto.getEmail())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.image", CoreMatchers.is(objectMapper.writeValueAsString(userProfilePictureDetailsResponseDto.getImage()).replace("\"", ""))));
     }
 
     @Test
-    public void UserProfileController_UpdateUserProfile_ReturnsUserProfileList() throws Exception {
-        when(userProfileService.updateUserProfile(Mockito.any(String.class), Mockito.any(UpdateUserDetailsRequestDto.class))).thenReturn(updatedUserProfile);
+    public void UserProfileController_UpdateUserProfile_ReturnsUserProfile() throws Exception {
+        when(userProfileService.updateUserProfile(Mockito.any(String.class), Mockito.any(UserProfileDetailsUpdateRequestDto.class))).thenReturn(updatedUserProfile);
 
-        MockHttpServletRequestBuilder request = put(url + "/email/" + UrlUtil.encode(userProfile.getEmail()) + "/update/details")
+        MockHttpServletRequestBuilder request = put(url + "/email/" + UrlUtil.encode(userProfile.getEmail()) + "/details")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updateUserDetailsRequestDto));
+                .content(objectMapper.writeValueAsString(userProfileDetailsUpdateRequestDto));
 
         mockMvc
                 .perform(request)
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.email", CoreMatchers.is(userImageResponseDto.getEmail())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.firstname", CoreMatchers.is(updateUserDetailsRequestDto.getFirstname())));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.email", CoreMatchers.is(userProfilePictureDetailsResponseDto.getEmail())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.firstname", CoreMatchers.is(userProfileDetailsUpdateRequestDto.getFirstname())));
     }
 
     @Test
-    public void UserProfileController_UpdateUserProfilePicture_ReturnsUserProfileList() throws Exception {
-        when(userProfileService.updateUserProfilePicture(Mockito.any(MultipartFile.class), Mockito.any(String.class))).thenReturn(userImageResponseDtoAfterUpdate);
+    public void UserProfileController_UpdateUserProfilePicture_ReturnsUserProfilePictureDetailsResponseDto() throws Exception {
+        when(userProfileService.updateUserProfilePicture(Mockito.any(MultipartFile.class), Mockito.any(String.class))).thenReturn(userProfilePictureDetailsResponseDtoAfterUpdate);
 
-        MockHttpServletRequestBuilder request = multipart(url + "/email/" + UrlUtil.encode(userProfile.getEmail()) + "/update/image")
+        MockHttpServletRequestBuilder request = multipart(url + "/email/" + UrlUtil.encode(userProfile.getEmail()) + "/picture")
                 .file(file);
 
         mockMvc
@@ -235,7 +235,7 @@ public class UserProfileControllerTests {
     public void UserProfileController_DeleteUserProfile_ReturnsUserProfile() throws Exception {
         when(userProfileService.deleteUserProfile(Mockito.any(long.class))).thenReturn(userProfile);
 
-        MockHttpServletRequestBuilder request = delete(url + "/id/" + userProfile.getId() + "/delete")
+        MockHttpServletRequestBuilder request = delete(url + "/id/" + userProfile.getId())
                 .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc

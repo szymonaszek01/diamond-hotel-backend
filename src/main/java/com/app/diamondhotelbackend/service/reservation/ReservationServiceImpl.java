@@ -13,7 +13,7 @@ import com.app.diamondhotelbackend.service.roomtype.RoomTypeServiceImpl;
 import com.app.diamondhotelbackend.service.transaction.TransactionServiceImpl;
 import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
 import com.app.diamondhotelbackend.service.flight.FlightServiceImpl;
-import com.app.diamondhotelbackend.util.Constant;
+import com.app.diamondhotelbackend.util.ConstantUtil;
 import com.app.diamondhotelbackend.util.DateUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -88,10 +88,10 @@ public class ReservationServiceImpl implements ReservationService {
         Optional<LocalDateTime> checkIn = DateUtil.isValidCheckInOrCheckOut(userReservationNewRequestDto.getCheckIn());
         Optional<LocalDateTime> checkOut = DateUtil.isValidCheckInOrCheckOut(userReservationNewRequestDto.getCheckOut());
         if (checkIn.isEmpty() || checkOut.isEmpty()) {
-            throw new CheckInOutFormatException(Constant.INCORRECT_CHECK_IN_OR_CHECK_OUT_FORMAT_EXCEPTION);
+            throw new CheckInOutFormatException(ConstantUtil.INCORRECT_CHECK_IN_OR_CHECK_OUT_FORMAT_EXCEPTION);
         }
         if (roomService.isMismatchBetweenSelectedAndAvailableRooms(userReservationNewRequestDto.getRoomTypeInfoDtoList(), checkIn.get(), checkOut.get())) {
-            throw new NotAllSelectedRoomsAvailableException(Constant.NUMBER_OF_AVAILABLE_ROOMS_HAS_CHANGED_EXCEPTION);
+            throw new NotAllSelectedRoomsAvailableException(ConstantUtil.NUMBER_OF_AVAILABLE_ROOMS_HAS_CHANGED_EXCEPTION);
         }
 
         UserProfile userProfile = userProfileService.getUserProfileById(userReservationNewRequestDto.getUserProfileId());
@@ -115,7 +115,7 @@ public class ReservationServiceImpl implements ReservationService {
         return UserReservationCancellationResponseDto
                 .builder()
                 .reservationId(reservationId)
-                .status(Constant.CANCELLED)
+                .status(ConstantUtil.CANCELLED)
                 .build();
     }
 
@@ -126,13 +126,13 @@ public class ReservationServiceImpl implements ReservationService {
     private List<Reservation> getReservationListForUser(long userProfileId) {
         return reservationRepository.findAllByUserProfileId(userProfileId)
                 .stream()
-                .filter(reservation -> !Constant.CANCELLED.equals(reservation.getTransaction().getStatus()))
+                .filter(reservation -> !ConstantUtil.CANCELLED.equals(reservation.getTransaction().getStatus()))
                 .collect(Collectors.toList());
     }
 
     private UserReservationNewResponseDto createUserReservationNewResponseDto(Transaction transaction) {
         return UserReservationNewResponseDto.builder()
-                .status(Constant.WAITING_FOR_PAYMENT)
+                .status(ConstantUtil.WAITING_FOR_PAYMENT)
                 .transactionCode(transaction.getCode())
                 .reservationCost(transactionService.getTotalCost(transaction))
                 .build();

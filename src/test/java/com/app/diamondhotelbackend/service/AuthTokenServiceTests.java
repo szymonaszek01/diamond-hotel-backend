@@ -7,7 +7,7 @@ import com.app.diamondhotelbackend.security.jwt.CustomUserDetails;
 import com.app.diamondhotelbackend.service.authtoken.AuthTokenServiceImpl;
 import com.app.diamondhotelbackend.service.jwt.JwtServiceImpl;
 import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
-import com.app.diamondhotelbackend.util.Constant;
+import com.app.diamondhotelbackend.util.ConstantUtil;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,8 +60,8 @@ public class AuthTokenServiceTests {
                 .email("ala-gembala@wp.pl")
                 .password(passwordEncoder.encode("#Test1111"))
                 .passportNumber("ZF005401499")
-                .role(Constant.USER)
-                .authProvider(Constant.LOCAL)
+                .role(ConstantUtil.USER)
+                .authProvider(ConstantUtil.LOCAL)
                 .accountConfirmed(true)
                 .build();
 

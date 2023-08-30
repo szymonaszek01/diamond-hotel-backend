@@ -1,6 +1,7 @@
 package com.app.diamondhotelbackend.service;
 
-import com.app.diamondhotelbackend.dto.auth.*;
+import com.app.diamondhotelbackend.dto.auth.request.*;
+import com.app.diamondhotelbackend.dto.auth.response.AccountDetailsResponseDto;
 import com.app.diamondhotelbackend.entity.AuthToken;
 import com.app.diamondhotelbackend.entity.ConfirmationToken;
 import com.app.diamondhotelbackend.entity.UserProfile;
@@ -10,7 +11,7 @@ import com.app.diamondhotelbackend.service.authtoken.AuthTokenServiceImpl;
 import com.app.diamondhotelbackend.service.confirmationtoken.ConfirmationTokenServiceImpl;
 import com.app.diamondhotelbackend.service.email.EmailServiceImpl;
 import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
-import com.app.diamondhotelbackend.util.Constant;
+import com.app.diamondhotelbackend.util.ConstantUtil;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -113,15 +114,15 @@ public class AuthServiceTests {
 
     private ConfirmationToken confirmationToken;
 
-    private LoginRequestDto loginRequestDto;
+    private AccountLoginRequestDto accountLoginRequestDto;
 
-    private RegisterRequestDto registerRequestDto;
+    private AccountRegistrationRequestDto accountRegistrationRequestDto;
 
-    private UpdateEmailRequestDto updateEmailRequestDto;
+    private AccountEmailUpdateRequestDto accountEmailUpdateRequestDto;
 
-    private UpdatePasswordRequestDto updatePasswordRequestDto;
+    private AccountPasswordUpdateRequestDto accountPasswordUpdateRequestDto;
 
-    private ChangePasswordRequestDto changePasswordRequestDto;
+    private AccountForgottenPasswordRequestDto accountForgottenPasswordRequestDto;
 
     private static final long CONFIRMATION_TOKEN_EXPIRATION = 1000 * 60 * 15;
 
@@ -134,16 +135,16 @@ public class AuthServiceTests {
                 .email("ala-gembala@wp.pl")
                 .password(passwordEncoder.encode("#Test1111"))
                 .passportNumber("ZF005401499")
-                .role(Constant.USER)
-                .authProvider(Constant.LOCAL)
+                .role(ConstantUtil.USER)
+                .authProvider(ConstantUtil.LOCAL)
                 .accountConfirmed(false)
                 .build();
 
         updatedUserProfile = UserProfile.builder()
                 .id(1)
                 .passportNumber("ZF005401499")
-                .role(Constant.USER)
-                .authProvider(Constant.LOCAL)
+                .role(ConstantUtil.USER)
+                .authProvider(ConstantUtil.LOCAL)
                 .build();
 
         userDetails = new CustomUserDetails(
@@ -168,28 +169,28 @@ public class AuthServiceTests {
                 .expiresAt(new Date(System.currentTimeMillis() + CONFIRMATION_TOKEN_EXPIRATION))
                 .build();
 
-        loginRequestDto = LoginRequestDto.builder()
+        accountLoginRequestDto = AccountLoginRequestDto.builder()
                 .email(userProfile.getEmail())
                 .password(userProfile.getPassword())
                 .build();
 
-        registerRequestDto = RegisterRequestDto.builder()
+        accountRegistrationRequestDto = AccountRegistrationRequestDto.builder()
                 .email(userProfile.getEmail())
                 .password(userProfile.getPassword())
                 .passportNumber(userProfile.getPassportNumber())
                 .build();
 
-        updateEmailRequestDto = UpdateEmailRequestDto.builder()
+        accountEmailUpdateRequestDto = AccountEmailUpdateRequestDto.builder()
                 .email(userProfile.getEmail())
                 .newEmail("tomek-bomek@gmail.com")
                 .build();
 
-        updatePasswordRequestDto = UpdatePasswordRequestDto.builder()
+        accountPasswordUpdateRequestDto = AccountPasswordUpdateRequestDto.builder()
                 .email(userProfile.getEmail())
                 .newPassword(passwordEncoder.encode("#Test2222"))
                 .build();
 
-        changePasswordRequestDto = ChangePasswordRequestDto.builder()
+        accountForgottenPasswordRequestDto = AccountForgottenPasswordRequestDto.builder()
                 .token(confirmationToken.getAccessValue())
                 .newPassword(passwordEncoder.encode("#Test2222"))
                 .build();
@@ -204,16 +205,16 @@ public class AuthServiceTests {
                 .email("ala-gembala@wp.pl")
                 .password(passwordEncoder.encode("#Test1111"))
                 .passportNumber("ZF005401499")
-                .role(Constant.USER)
-                .authProvider(Constant.LOCAL)
+                .role(ConstantUtil.USER)
+                .authProvider(ConstantUtil.LOCAL)
                 .accountConfirmed(false)
                 .build();
 
         updatedUserProfile = UserProfile.builder()
                 .id(1)
                 .passportNumber("ZF005401499")
-                .role(Constant.USER)
-                .authProvider(Constant.LOCAL)
+                .role(ConstantUtil.USER)
+                .authProvider(ConstantUtil.LOCAL)
                 .build();
 
         authToken = AuthToken.builder()
@@ -242,13 +243,13 @@ public class AuthServiceTests {
         when(authenticationManager.authenticate(Mockito.any(org.springframework.security.core.Authentication.class))).thenReturn(authentication);
         when(authTokenService.createAuthToken(Mockito.any(UserDetails.class))).thenReturn(authToken);
 
-        UserProfileDetailsResponseDto createdUserProfileDetailsResponseDto = authService.loginAccount(loginRequestDto);
+        AccountDetailsResponseDto createdAccountDetailsResponseDto = authService.loginAccount(accountLoginRequestDto);
 
-        Assertions.assertThat(createdUserProfileDetailsResponseDto).isNotNull();
-        Assertions.assertThat(createdUserProfileDetailsResponseDto.getAccessToken()).isEqualTo(authToken.getAccessValue());
-        Assertions.assertThat(createdUserProfileDetailsResponseDto.getRefreshToken()).isEqualTo(authToken.getRefreshValue());
-        Assertions.assertThat(createdUserProfileDetailsResponseDto.getEmail()).isEqualTo(authToken.getUserProfile().getEmail());
-        Assertions.assertThat(createdUserProfileDetailsResponseDto.isConfirmed()).isEqualTo(true);
+        Assertions.assertThat(createdAccountDetailsResponseDto).isNotNull();
+        Assertions.assertThat(createdAccountDetailsResponseDto.getAccessToken()).isEqualTo(authToken.getAccessValue());
+        Assertions.assertThat(createdAccountDetailsResponseDto.getRefreshToken()).isEqualTo(authToken.getRefreshValue());
+        Assertions.assertThat(createdAccountDetailsResponseDto.getEmail()).isEqualTo(authToken.getUserProfile().getEmail());
+        Assertions.assertThat(createdAccountDetailsResponseDto.isConfirmed()).isEqualTo(true);
     }
 
     @Test
@@ -258,15 +259,15 @@ public class AuthServiceTests {
         when(confirmationTokenService.createConfirmationToken(Mockito.any(UserProfile.class))).thenReturn(confirmationToken);
         when(authTokenService.createAuthToken(Mockito.any(UserDetails.class))).thenReturn(authToken);
 
-        UserProfileDetailsResponseDto createdUserProfileDetailsResponseDto = authService.registerAccount(registerRequestDto);
+        AccountDetailsResponseDto createdAccountDetailsResponseDto = authService.registerAccount(accountRegistrationRequestDto);
 
         verify(emailService).sendConfirmationAccountEmail(Mockito.any(ConfirmationToken.class));
 
-        Assertions.assertThat(createdUserProfileDetailsResponseDto).isNotNull();
-        Assertions.assertThat(createdUserProfileDetailsResponseDto.getAccessToken()).isEqualTo(authToken.getAccessValue());
-        Assertions.assertThat(createdUserProfileDetailsResponseDto.getRefreshToken()).isEqualTo(authToken.getRefreshValue());
-        Assertions.assertThat(createdUserProfileDetailsResponseDto.getEmail()).isEqualTo(authToken.getUserProfile().getEmail());
-        Assertions.assertThat(createdUserProfileDetailsResponseDto.isConfirmed()).isEqualTo(false);
+        Assertions.assertThat(createdAccountDetailsResponseDto).isNotNull();
+        Assertions.assertThat(createdAccountDetailsResponseDto.getAccessToken()).isEqualTo(authToken.getAccessValue());
+        Assertions.assertThat(createdAccountDetailsResponseDto.getRefreshToken()).isEqualTo(authToken.getRefreshValue());
+        Assertions.assertThat(createdAccountDetailsResponseDto.getEmail()).isEqualTo(authToken.getUserProfile().getEmail());
+        Assertions.assertThat(createdAccountDetailsResponseDto.isConfirmed()).isEqualTo(false);
     }
 
     @Test
@@ -280,14 +281,14 @@ public class AuthServiceTests {
         when(userProfileService.updateUserProfile(Mockito.any(UserProfile.class))).thenReturn(userProfile);
         when(authTokenService.createAuthToken(Mockito.any(UserDetails.class))).thenReturn(authToken);
 
-        UserProfileDetailsResponseDto createdUserProfileDetailsResponseDto = authService.confirmAccount(confirmationToken.getAccessValue());
+        AccountDetailsResponseDto createdAccountDetailsResponseDto = authService.confirmAccount(confirmationToken.getAccessValue());
 
-        Assertions.assertThat(createdUserProfileDetailsResponseDto).isNotNull();
-        Assertions.assertThat(createdUserProfileDetailsResponseDto.getAccessToken()).isEqualTo(authToken.getAccessValue());
-        Assertions.assertThat(createdUserProfileDetailsResponseDto.getRefreshToken()).isEqualTo(authToken.getRefreshValue());
-        Assertions.assertThat(createdUserProfileDetailsResponseDto.getEmail()).isEqualTo(authToken.getUserProfile().getEmail());
+        Assertions.assertThat(createdAccountDetailsResponseDto).isNotNull();
+        Assertions.assertThat(createdAccountDetailsResponseDto.getAccessToken()).isEqualTo(authToken.getAccessValue());
+        Assertions.assertThat(createdAccountDetailsResponseDto.getRefreshToken()).isEqualTo(authToken.getRefreshValue());
+        Assertions.assertThat(createdAccountDetailsResponseDto.getEmail()).isEqualTo(authToken.getUserProfile().getEmail());
         Assertions.assertThat(confirmationToken.getConfirmedAt()).isNotNull();
-        Assertions.assertThat(createdUserProfileDetailsResponseDto.isConfirmed()).isEqualTo(true);
+        Assertions.assertThat(createdAccountDetailsResponseDto.isConfirmed()).isEqualTo(true);
     }
 
     @Test
@@ -309,53 +310,55 @@ public class AuthServiceTests {
     @Test
     public void AuthService_UpdateAccountEmail_ReturnsUserProfile() {
         userProfile.setAccountConfirmed(true);
-        updatedUserProfile.setEmail(updateEmailRequestDto.getNewEmail());
+        updatedUserProfile.setEmail(accountEmailUpdateRequestDto.getNewEmail());
         updatedUserProfile.setPassword(userProfile.getPassword());
 
         when(userProfileService.getUserProfileByEmail(Mockito.any(String.class))).thenReturn(userProfile);
         when(userProfileService.updateUserProfile(Mockito.any(UserProfile.class))).thenReturn(updatedUserProfile);
         when(confirmationTokenService.createConfirmationToken(Mockito.any(UserProfile.class))).thenReturn(confirmationToken);
 
-        UserProfile savedUserProfile = authService.updateAccountEmail(updateEmailRequestDto);
+        UserProfile savedUserProfile = authService.updateAccountEmail(accountEmailUpdateRequestDto);
 
         verify(emailService).sendConfirmationAccountEmail(Mockito.any(ConfirmationToken.class));
 
         Assertions.assertThat(savedUserProfile).isNotNull();
         Assertions.assertThat(savedUserProfile.getId()).isEqualTo(userProfile.getId());
-        Assertions.assertThat(savedUserProfile.getEmail()).isEqualTo(updateEmailRequestDto.getNewEmail());
+        Assertions.assertThat(savedUserProfile.getEmail()).isEqualTo(accountEmailUpdateRequestDto.getNewEmail());
     }
 
     @Test
-    public void AuthService_UpdateAccountPassword_ReturnsUserProfile_AcceptsChangePasswordRequestDto() {
+    public void AuthService_UpdateAccountPassword_ReturnsUserProfile_AcceptsForgotAccountPasswordRequestDto() {
         userProfile.setAccountConfirmed(true);
         updatedUserProfile.setEmail(userProfile.getEmail());
-        updatedUserProfile.setPassword(changePasswordRequestDto.getNewPassword());
+        updatedUserProfile.setPassword(accountForgottenPasswordRequestDto.getNewPassword());
         confirmationToken.setConfirmedAt(new Date(System.currentTimeMillis()));
 
+        when(authenticationManager.authenticate(Mockito.any(org.springframework.security.core.Authentication.class))).thenReturn(authentication);
         when(userProfileService.updateUserProfile(Mockito.any(UserProfile.class))).thenReturn(updatedUserProfile);
         when(confirmationTokenService.updateConfirmationTokenConfirmedAt(Mockito.any(String.class))).thenReturn(confirmationToken);
 
-        UserProfile savedUserProfile = authService.updateAccountPassword(changePasswordRequestDto);
+        UserProfile savedUserProfile = authService.updateAccountPassword(accountForgottenPasswordRequestDto);
 
         Assertions.assertThat(savedUserProfile).isNotNull();
         Assertions.assertThat(savedUserProfile.getId()).isEqualTo(userProfile.getId());
-        Assertions.assertThat(savedUserProfile.getPassword()).isEqualTo(changePasswordRequestDto.getNewPassword());
+        Assertions.assertThat(savedUserProfile.getPassword()).isEqualTo(accountForgottenPasswordRequestDto.getNewPassword());
     }
 
     @Test
-    public void AuthService_UpdateAccountPassword_ReturnsUserProfile_AcceptsUpdatePasswordRequestDto() {
+    public void AuthService_UpdateAccountPassword_ReturnsUserProfile_AcceptsUpdateAccountPasswordRequestDto() {
         userProfile.setAccountConfirmed(true);
         updatedUserProfile.setEmail(userProfile.getEmail());
-        updatedUserProfile.setPassword(updatePasswordRequestDto.getNewPassword());
+        updatedUserProfile.setPassword(accountPasswordUpdateRequestDto.getNewPassword());
 
+        when(authenticationManager.authenticate(Mockito.any(org.springframework.security.core.Authentication.class))).thenReturn(authentication);
         when(userProfileService.getUserProfileByEmail(Mockito.any(String.class))).thenReturn(userProfile);
         when(userProfileService.updateUserProfile(Mockito.any(UserProfile.class))).thenReturn(updatedUserProfile);
 
-        UserProfile savedUserProfile = authService.updateAccountPassword(updatePasswordRequestDto);
+        UserProfile savedUserProfile = authService.updateAccountPassword(accountPasswordUpdateRequestDto);
 
         Assertions.assertThat(savedUserProfile).isNotNull();
         Assertions.assertThat(savedUserProfile.getId()).isEqualTo(userProfile.getId());
-        Assertions.assertThat(savedUserProfile.getPassword()).isEqualTo(updatePasswordRequestDto.getNewPassword());
+        Assertions.assertThat(savedUserProfile.getPassword()).isEqualTo(accountPasswordUpdateRequestDto.getNewPassword());
     }
 
     @Test
@@ -365,11 +368,11 @@ public class AuthServiceTests {
 
         when(authTokenService.updateAuthTokenAccessValue(Mockito.any(String.class))).thenReturn(Optional.of(authToken));
 
-        UserProfileDetailsResponseDto createdUserProfileDetailsResponseDto = authService.updateAuthToken(token);
+        AccountDetailsResponseDto createdAccountDetailsResponseDto = authService.updateAuthToken(token);
 
-        Assertions.assertThat(createdUserProfileDetailsResponseDto).isNotNull();
-        Assertions.assertThat(createdUserProfileDetailsResponseDto.getAccessToken()).isEqualTo(authToken.getAccessValue());
-        Assertions.assertThat(createdUserProfileDetailsResponseDto.getRefreshToken()).isEqualTo(authToken.getRefreshValue());
+        Assertions.assertThat(createdAccountDetailsResponseDto).isNotNull();
+        Assertions.assertThat(createdAccountDetailsResponseDto.getAccessToken()).isEqualTo(authToken.getAccessValue());
+        Assertions.assertThat(createdAccountDetailsResponseDto.getRefreshToken()).isEqualTo(authToken.getRefreshValue());
     }
 
     @Test

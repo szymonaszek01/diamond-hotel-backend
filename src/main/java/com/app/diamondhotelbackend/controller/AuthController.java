@@ -1,6 +1,7 @@
 package com.app.diamondhotelbackend.controller;
 
-import com.app.diamondhotelbackend.dto.auth.*;
+import com.app.diamondhotelbackend.dto.auth.request.*;
+import com.app.diamondhotelbackend.dto.auth.response.AccountDetailsResponseDto;
 import com.app.diamondhotelbackend.entity.ConfirmationToken;
 import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.exception.AuthProcessingException;
@@ -16,31 +17,42 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping("/api/v1/auth")
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"https://diamond-hotel-frontend.vercel.app", "http://localhost:4200", "http://localhost:3000"}, allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:3000"}, allowCredentials = "true")
 public class AuthController {
+
+    /**
+     * TODO
+     * Checking and renaming all methods in (controller, service and repository) tests
+     * Finishing Weather tests
+     * Testing whole application
+     * Creating weather view on client side
+     * Adding meal plan to dashboard page
+     * User without reservations - steps to make reservation
+     * User with reservations - short description upcoming reservations
+     * **/
 
     private final AuthServiceImpl authService;
 
-    @PostMapping("/login")
-    public ResponseEntity<UserProfileDetailsResponseDto> loginAccount(@RequestBody LoginRequestDto loginRequestDto) {
+    @PostMapping("/account/login")
+    public ResponseEntity<AccountDetailsResponseDto> loginAccount(@RequestBody AccountLoginRequestDto accountLoginRequestDto) {
         try {
-            return ResponseEntity.ok(authService.loginAccount(loginRequestDto));
+            return ResponseEntity.ok(authService.loginAccount(accountLoginRequestDto));
         } catch (AuthProcessingException | UserProfileProcessingException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<UserProfileDetailsResponseDto> registerAccount(@RequestBody RegisterRequestDto registerRequestDto) {
+    @PostMapping("/account/registration")
+    public ResponseEntity<AccountDetailsResponseDto> registerAccount(@RequestBody AccountRegistrationRequestDto accountRegistrationRequestDto) {
         try {
-            return ResponseEntity.ok(authService.registerAccount(registerRequestDto));
+            return ResponseEntity.ok(authService.registerAccount(accountRegistrationRequestDto));
         } catch (AuthProcessingException | UserProfileProcessingException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 
-    @GetMapping("/confirm/account/confirmation-token/{token}")
-    public ResponseEntity<UserProfileDetailsResponseDto> confirmAccount(@PathVariable String token) {
+    @PutMapping("/confirmation-token/{token}/account/confirmation")
+    public ResponseEntity<AccountDetailsResponseDto> confirmAccount(@PathVariable String token) {
         try {
             return ResponseEntity.ok(authService.confirmAccount(token));
         } catch (ConfirmationTokenProcessingException e) {
@@ -48,7 +60,7 @@ public class AuthController {
         }
     }
 
-    @GetMapping("/forgot/password/email/{email}")
+    @GetMapping("/email/{email}/account/forgotten/password")
     public ResponseEntity<ConfirmationToken> forgotAccountPassword(@PathVariable String email) {
         try {
             return ResponseEntity.ok(authService.forgotAccountPassword(email));
@@ -57,8 +69,8 @@ public class AuthController {
         }
     }
 
-    @PutMapping("/update/email")
-    public ResponseEntity<UserProfile> updateAccountEmail(@RequestBody UpdateEmailRequestDto changeEmailRequestDto) {
+    @PutMapping("/account/email")
+    public ResponseEntity<UserProfile> updateAccountEmail(@RequestBody AccountEmailUpdateRequestDto changeEmailRequestDto) {
         try {
             return ResponseEntity.ok(authService.updateAccountEmail(changeEmailRequestDto));
         } catch (AuthProcessingException | ConfirmationTokenProcessingException e) {
@@ -66,26 +78,26 @@ public class AuthController {
         }
     }
 
-    @PutMapping("/forgot/password/new")
-    public ResponseEntity<UserProfile> updateAccountPassword(@RequestBody ChangePasswordRequestDto changePasswordRequestDto) {
+    @PutMapping("/account/forgotten/password")
+    public ResponseEntity<UserProfile> updateAccountPassword(@RequestBody AccountForgottenPasswordRequestDto accountForgottenPasswordRequestDto) {
         try {
-            return ResponseEntity.ok(authService.updateAccountPassword(changePasswordRequestDto));
+            return ResponseEntity.ok(authService.updateAccountPassword(accountForgottenPasswordRequestDto));
         } catch (AuthProcessingException | ConfirmationTokenProcessingException e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
         }
     }
 
-    @PutMapping("/update/password")
-    public ResponseEntity<UserProfile> updateAccountPassword(@RequestBody UpdatePasswordRequestDto updatePasswordRequestDto) {
+    @PutMapping("/account/password")
+    public ResponseEntity<UserProfile> updateAccountPassword(@RequestBody AccountPasswordUpdateRequestDto accountPasswordUpdateRequestDto) {
         try {
-            return ResponseEntity.ok(authService.updateAccountPassword(updatePasswordRequestDto));
+            return ResponseEntity.ok(authService.updateAccountPassword(accountPasswordUpdateRequestDto));
         } catch (AuthProcessingException | ConfirmationTokenProcessingException e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
         }
     }
 
-    @GetMapping("/refresh/access-token/{token}")
-    public ResponseEntity<UserProfileDetailsResponseDto> updateAuthToken(@PathVariable String token) {
+    @PutMapping("/auth-token/{token}")
+    public ResponseEntity<AccountDetailsResponseDto> updateAuthToken(@PathVariable String token) {
         try {
             return ResponseEntity.ok(authService.updateAuthToken(token));
         } catch (AuthProcessingException | UserProfileProcessingException e) {
@@ -93,7 +105,7 @@ public class AuthController {
         }
     }
 
-    @GetMapping("/refresh/confirmation-token/{token}")
+    @PutMapping("/confirmation-token/{token}")
     public ResponseEntity<ConfirmationToken> updateConfirmationToken(@PathVariable String token) {
         try {
             return ResponseEntity.ok(authService.updateConfirmationToken(token));

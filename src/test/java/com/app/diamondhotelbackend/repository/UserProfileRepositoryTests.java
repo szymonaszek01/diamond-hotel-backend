@@ -1,7 +1,7 @@
 package com.app.diamondhotelbackend.repository;
 
 import com.app.diamondhotelbackend.entity.UserProfile;
-import com.app.diamondhotelbackend.util.Constant;
+import com.app.diamondhotelbackend.util.ConstantUtil;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,8 +28,8 @@ public class UserProfileRepositoryTests {
         userProfile = UserProfile.builder()
                 .email("ala-gembala@wp.pl")
                 .passportNumber("ZF005401499")
-                .role(Constant.USER)
-                .authProvider(Constant.LOCAL)
+                .role(ConstantUtil.USER)
+                .authProvider(ConstantUtil.LOCAL)
                 .accountConfirmed(false)
                 .build();
 
@@ -37,22 +37,22 @@ public class UserProfileRepositoryTests {
                 UserProfile.builder()
                         .email("ala-gembala@wp.pl")
                         .passportNumber("ZF005401499")
-                        .role(Constant.USER)
-                        .authProvider(Constant.LOCAL)
+                        .role(ConstantUtil.USER)
+                        .authProvider(ConstantUtil.LOCAL)
                         .accountConfirmed(false)
                         .build(),
                 UserProfile.builder()
                         .email("beata-pacanek@wp.pl")
                         .passportNumber("DF115499499")
-                        .role(Constant.USER)
-                        .authProvider(Constant.LOCAL)
+                        .role(ConstantUtil.USER)
+                        .authProvider(ConstantUtil.LOCAL)
                         .accountConfirmed(false)
                         .build()
         );
     }
 
     @Test
-    public void UserProfileRepository_SaveAll_ReturnSavedUserProfile() {
+    public void UserProfileRepository_Save_ReturnsUserProfile() {
         UserProfile savedUserProfile = userProfileRepository.save(userProfile);
 
         Assertions.assertThat(savedUserProfile).isNotNull();
@@ -60,7 +60,7 @@ public class UserProfileRepositoryTests {
     }
 
     @Test
-    public void UserProfileRepository_FindAll_ReturnMoreThenOneUserProfile() {
+    public void UserProfileRepository_FindAll_ReturnsUserProfileList() {
         userProfileRepository.saveAll(userProfileList);
         List<UserProfile> foundUserProfileList = userProfileRepository.findAll();
 
@@ -69,7 +69,7 @@ public class UserProfileRepositoryTests {
     }
 
     @Test
-    public void UserProfileRepository_FindById_ReturnUserProfile() {
+    public void UserProfileRepository_FindById_ReturnsOptionalUserProfile() {
         UserProfile savedUserProfile = userProfileRepository.save(userProfile);
         Optional<UserProfile> userProfileOptional = userProfileRepository.findById((savedUserProfile.getId()));
 
@@ -78,7 +78,7 @@ public class UserProfileRepositoryTests {
     }
 
     @Test
-    public void UserProfileRepository_FindByEmail_ReturnUserProfile() {
+    public void UserProfileRepository_FindByEmail_ReturnsOptionalUserProfile() {
         UserProfile savedUserProfile = userProfileRepository.save(userProfile);
         Optional<UserProfile> userProfileOptional = userProfileRepository.findByEmail((savedUserProfile.getEmail()));
 
@@ -87,7 +87,7 @@ public class UserProfileRepositoryTests {
     }
 
     @Test
-    public void UserProfileRepository_Update_ReturnUserProfileNotNull() {
+    public void UserProfileRepository_Update_ReturnsUserProfile() {
         UserProfile savedUserProfile = userProfileRepository.save(userProfile);
         Optional<UserProfile> userProfileOptional = userProfileRepository.findById((savedUserProfile.getId()));
 
@@ -103,7 +103,7 @@ public class UserProfileRepositoryTests {
     }
 
     @Test
-    public void UserProfileRepository_Delete_ReturnUserProfileIsEmpty() {
+    public void UserProfileRepository_Delete_ReturnsNothing() {
         UserProfile savedUserProfile = userProfileRepository.save(userProfile);
         userProfileRepository.deleteById(savedUserProfile.getId());
         Optional<UserProfile> userProfileOptional = userProfileRepository.findById(userProfile.getId());

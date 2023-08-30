@@ -1,7 +1,7 @@
 package com.app.diamondhotelbackend.service.jwt;
 
-import com.app.diamondhotelbackend.util.Constant;
-import com.app.diamondhotelbackend.util.JwtPropertiesProvider;
+import com.app.diamondhotelbackend.util.ApplicationPropertiesUtil;
+import com.app.diamondhotelbackend.util.ConstantUtil;
 import io.jsonwebtoken.*;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,14 +20,14 @@ public class JwtServiceImpl implements JwtService {
 
     private final UserDetailsService userDetailsService;
 
-    private final JwtPropertiesProvider jwtPropertiesProvider;
+    private final ApplicationPropertiesUtil applicationPropertiesUtil;
 
     @Override
     public String createToken(UserDetails userDetails, long expirationTime) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put(Constant.JWT_CLAIM_AUTHORITIES, List.of(userDetails.getAuthorities()));
+        claims.put(ConstantUtil.JWT_CLAIM_AUTHORITIES, List.of(userDetails.getAuthorities()));
 
-        return Jwts.builder().setClaims(claims).setSubject(userDetails.getUsername()).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + expirationTime)).signWith(SignatureAlgorithm.HS256, jwtPropertiesProvider.getSecretKey()).compact();
+        return Jwts.builder().setClaims(claims).setSubject(userDetails.getUsername()).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + expirationTime)).signWith(SignatureAlgorithm.HS256, applicationPropertiesUtil.getSecretKey()).compact();
     }
 
     @Override
@@ -52,34 +52,34 @@ public class JwtServiceImpl implements JwtService {
             return Optional.of(userDetails);
 
         } catch (UsernameNotFoundException e) {
-            log.error(Constant.USER_PROFILE_NOT_FOUND_EXCEPTION);
+            log.error(ConstantUtil.USER_PROFILE_NOT_FOUND_EXCEPTION);
             return Optional.empty();
         } catch (SignatureException e) {
-            log.error(Constant.INVALID_TOKEN_SIGNATURE_EXCEPTION);
+            log.error(ConstantUtil.INVALID_TOKEN_SIGNATURE_EXCEPTION);
             return Optional.empty();
         } catch (MalformedJwtException e) {
-            log.error(Constant.INVALID_TOKEN_EXCEPTION);
+            log.error(ConstantUtil.INVALID_TOKEN_EXCEPTION);
             return Optional.empty();
         } catch (ExpiredJwtException e) {
-            log.error(Constant.TOKEN_IS_EXPIRED_EXCEPTION);
+            log.error(ConstantUtil.TOKEN_IS_EXPIRED_EXCEPTION);
             return Optional.empty();
         } catch (UnsupportedJwtException e) {
-            log.error(Constant.TOKEN_IS_UNSUPPORTED_EXCEPTION);
+            log.error(ConstantUtil.TOKEN_IS_UNSUPPORTED_EXCEPTION);
             return Optional.empty();
         } catch (IllegalArgumentException e) {
-            log.error(Constant.TOKEN_CLAIMS_STRING_IS_EMPTY_EXCEPTION);
+            log.error(ConstantUtil.TOKEN_CLAIMS_STRING_IS_EMPTY_EXCEPTION);
             return Optional.empty();
         }
     }
 
     @Override
     public long getAccessTokenExpiration() {
-        return Long.parseLong(jwtPropertiesProvider.getAccessTokenExpiration());
+        return Long.parseLong(applicationPropertiesUtil.getAccessTokenExpiration());
     }
 
     @Override
     public long getRefreshTokenExpiration() {
-        return Long.parseLong(jwtPropertiesProvider.getRefreshTokenExpiration());
+        return Long.parseLong(applicationPropertiesUtil.getRefreshTokenExpiration());
     }
 
     private Boolean isTokenExpired(String token) {
@@ -91,6 +91,6 @@ public class JwtServiceImpl implements JwtService {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parser().setSigningKey(jwtPropertiesProvider.getSecretKey()).parseClaimsJws(token).getBody();
+        return Jwts.parser().setSigningKey(applicationPropertiesUtil.getSecretKey()).parseClaimsJws(token).getBody();
     }
 }

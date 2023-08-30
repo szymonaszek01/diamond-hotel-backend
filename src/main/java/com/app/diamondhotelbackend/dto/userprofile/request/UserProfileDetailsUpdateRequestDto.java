@@ -1,23 +1,12 @@
-package com.app.diamondhotelbackend.dto.auth;
+package com.app.diamondhotelbackend.dto.userprofile.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
-public class RegisterRequestDto {
-
-    private String email;
-
-    private String password;
-
-    @JsonProperty("repeated_password")
-    private String repeatedPassword;
+public class UserProfileDetailsUpdateRequestDto {
 
     private String firstname;
 

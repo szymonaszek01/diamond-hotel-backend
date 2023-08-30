@@ -8,7 +8,7 @@ import com.app.diamondhotelbackend.exception.NotAllSelectedRoomsAvailableExcepti
 import com.app.diamondhotelbackend.repository.RoomTypeRepository;
 import com.app.diamondhotelbackend.service.roomtypeopinion.RoomTypeOpinionServiceImpl;
 import com.app.diamondhotelbackend.service.room.RoomServiceImpl;
-import com.app.diamondhotelbackend.util.Constant;
+import com.app.diamondhotelbackend.util.ConstantUtil;
 import com.app.diamondhotelbackend.util.DateUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -77,10 +77,10 @@ public class RoomTypeServiceImpl implements RoomTypeService {
         Optional<LocalDateTime> checkIn = DateUtil.isValidCheckInOrCheckOut(shoppingCartSummaryRequestDto.getCheckIn());
         Optional<LocalDateTime> checkOut = DateUtil.isValidCheckInOrCheckOut(shoppingCartSummaryRequestDto.getCheckOut());
         if (checkIn.isEmpty() || checkOut.isEmpty()) {
-            throw new CheckInOutFormatException(Constant.INCORRECT_CHECK_IN_OR_CHECK_OUT_FORMAT_EXCEPTION);
+            throw new CheckInOutFormatException(ConstantUtil.INCORRECT_CHECK_IN_OR_CHECK_OUT_FORMAT_EXCEPTION);
         }
         if (roomService.isMismatchBetweenSelectedAndAvailableRooms(shoppingCartSummaryRequestDto.getRoomTypeInfo(), checkIn.get(), checkOut.get())) {
-            throw new NotAllSelectedRoomsAvailableException(Constant.NUMBER_OF_AVAILABLE_ROOMS_HAS_CHANGED_EXCEPTION);
+            throw new NotAllSelectedRoomsAvailableException(ConstantUtil.NUMBER_OF_AVAILABLE_ROOMS_HAS_CHANGED_EXCEPTION);
         }
 
         long totalRoomCost = 0;
@@ -104,7 +104,7 @@ public class RoomTypeServiceImpl implements RoomTypeService {
         Optional<LocalDateTime> checkIn = DateUtil.isValidCheckInOrCheckOut(carDto.getCheckIn());
         Optional<LocalDateTime> checkOut = DateUtil.isValidCheckInOrCheckOut(carDto.getCheckOut());
         if (checkIn.isEmpty() || checkOut.isEmpty()) {
-            throw new CheckInOutFormatException(Constant.INCORRECT_CHECK_IN_OR_CHECK_OUT_FORMAT_EXCEPTION);
+            throw new CheckInOutFormatException(ConstantUtil.INCORRECT_CHECK_IN_OR_CHECK_OUT_FORMAT_EXCEPTION);
         }
 
         return getCostSummaryDto(carDto.getTotalRoomCost().longValue(), carDto.getCarRentDuration(), carDto.isCarRent(), carDto.isCarPickUp());

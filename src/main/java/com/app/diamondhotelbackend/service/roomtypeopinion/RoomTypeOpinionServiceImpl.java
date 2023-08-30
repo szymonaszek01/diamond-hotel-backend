@@ -2,8 +2,7 @@ package com.app.diamondhotelbackend.service.roomtypeopinion;
 
 import com.app.diamondhotelbackend.dto.roomtype.RoomTypeOpinionSummaryDto;
 import com.app.diamondhotelbackend.repository.RoomTypeOpinionRepository;
-import com.app.diamondhotelbackend.service.roomtypeopinion.RoomTypeOpinionService;
-import com.app.diamondhotelbackend.util.Constant;
+import com.app.diamondhotelbackend.util.ConstantUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,11 +25,11 @@ public class RoomTypeOpinionServiceImpl implements RoomTypeOpinionService {
 
     private String getTextRepresentedRate(double rate) {
         if (rate < 5) {
-            return Constant.BAD;
+            return ConstantUtil.BAD;
         } else if (rate < 8) {
-            return Constant.GOOD;
+            return ConstantUtil.GOOD;
         } else {
-            return Constant.EXCELLENT;
+            return ConstantUtil.EXCELLENT;
         }
     }
 }

@@ -43,4 +43,10 @@ public class Weather {
     private double wind;
 
     private int humidity;
+
+    private int clouds;
+
+    private double rain;
+
+    private double uvi;
 }

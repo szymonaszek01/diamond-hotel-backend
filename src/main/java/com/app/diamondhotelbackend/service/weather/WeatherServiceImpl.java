@@ -2,6 +2,9 @@ package com.app.diamondhotelbackend.service.weather;
 
 import com.app.diamondhotelbackend.dto.openweather.model.WeatherDetails;
 import com.app.diamondhotelbackend.dto.openweather.response.OpenWeatherResponseDto;
+import com.app.diamondhotelbackend.dto.weather.model.DailyWeather;
+import com.app.diamondhotelbackend.dto.weather.model.Measurement;
+import com.app.diamondhotelbackend.dto.weather.response.WeatherResponseDto;
 import com.app.diamondhotelbackend.entity.Weather;
 import com.app.diamondhotelbackend.repository.WeatherRepository;
 import com.app.diamondhotelbackend.util.ApplicationPropertiesUtil;
@@ -20,7 +23,6 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,20 +37,15 @@ public class WeatherServiceImpl implements WeatherService {
     private final ApplicationPropertiesUtil applicationPropertiesUtil;
 
     @Override
-    public List<Weather> getWeatherList() {
-        try {
-            List<Weather> weatherList = weatherRepository.findAllByOrderByMeasuredAtAsc();
-            if (weatherList.isEmpty() || isWeatherOutOfDate(weatherList)) {
-                OpenWeatherResponseDto openWeatherResponseDto = getOpenWeatherResponseDto();
-                weatherList = mapOpenWeatherResponseDtoToWeatherList(openWeatherResponseDto);
-                weatherRepository.saveAll(weatherList);
-            }
-
-            return weatherList;
-
-        } catch (IOException e) {
-            return Collections.emptyList();
+    public WeatherResponseDto getWeatherList() throws IOException {
+        List<Weather> weatherList = weatherRepository.findAllByOrderByMeasuredAtAsc();
+        if (weatherList.isEmpty() || isWeatherOutOfDate(weatherList)) {
+            OpenWeatherResponseDto openWeatherResponseDto = getOpenWeatherResponseDto();
+            weatherList = mapOpenWeatherResponseDtoToWeatherList(openWeatherResponseDto);
+            weatherRepository.saveAll(weatherList);
         }
+
+        return mapWeatherListToWeatherResponseDto(weatherList);
     }
 
     private boolean isWeatherOutOfDate(List<Weather> weatherList) {
@@ -58,6 +55,74 @@ public class WeatherServiceImpl implements WeatherService {
 
             return now.getDayOfYear() > createdAt.getDayOfYear();
         });
+    }
+
+    private WeatherResponseDto mapWeatherListToWeatherResponseDto(List<Weather> weatherList) {
+        return WeatherResponseDto.builder()
+                .dailyWeatherList(weatherList.stream().map(this::mapWeatherToDailyWeather).collect(Collectors.toList()))
+                .build();
+    }
+
+    private DailyWeather mapWeatherToDailyWeather(Weather weather) {
+        return DailyWeather.builder()
+                .id(weather.getId())
+                .measuredAt(weather.getMeasuredAt())
+                .main(weather.getMain())
+                .description(weather.getDescription())
+                .icon(weather.getIcon())
+                .measurementList(
+                        List.of(
+                                Measurement.builder()
+                                        .name("temperatureDay")
+                                        .label("Temperature during the day")
+                                        .unit("°")
+                                        .value(weather.getTemperatureDay())
+                                        .build(),
+                                Measurement.builder()
+                                        .name("temperatureNight")
+                                        .label("Temperature at night")
+                                        .unit("°")
+                                        .value(weather.getTemperatureNight())
+                                        .build(),
+                                Measurement.builder()
+                                        .name("pressure")
+                                        .label("Pressure")
+                                        .unit("hPa")
+                                        .value(weather.getPressure())
+                                        .build(),
+                                Measurement.builder()
+                                        .name("wind")
+                                        .label("Wind")
+                                        .unit("m/s")
+                                        .value(weather.getWind())
+                                        .build(),
+                                Measurement.builder()
+                                        .name("humidity")
+                                        .label("Humidity")
+                                        .unit("%")
+                                        .value(weather.getHumidity())
+                                        .build(),
+                                Measurement.builder()
+                                        .name("clouds")
+                                        .label("Clouds")
+                                        .unit("%")
+                                        .value(weather.getClouds())
+                                        .build(),
+                                Measurement.builder()
+                                        .name("rain")
+                                        .label("Rain")
+                                        .unit("mm")
+                                        .value(weather.getRain())
+                                        .build(),
+                                Measurement.builder()
+                                        .name("uvi")
+                                        .label("UV")
+                                        .unit("")
+                                        .value(weather.getUvi())
+                                        .build()
+                        )
+                )
+                .build();
     }
 
     private List<Weather> mapOpenWeatherResponseDtoToWeatherList(OpenWeatherResponseDto openWeatherResponseDto) {
@@ -72,12 +137,15 @@ public class WeatherServiceImpl implements WeatherService {
                             .measuredAt(new Date(daily.getDt() * 1000))
                             .main(weatherDetails.getMain())
                             .description(weatherDetails.getDescription())
-                            .icon(ConstantUtil.OPEN_WEATHER_BASE_URI + "/img/wn/" + weatherDetails.getIcon() + "@4x.png")
+                            .icon(ConstantUtil.OPEN_WEATHER_BASE_URI.replace("api.", "") + "/img/wn/" + weatherDetails.getIcon() + "@4x.png")
                             .temperatureDay(daily.getTemp().getDay())
                             .temperatureNight(daily.getTemp().getNight())
                             .pressure(daily.getPressure())
                             .wind(daily.getWindSpeed())
                             .humidity(daily.getHumidity())
+                            .clouds(daily.getClouds())
+                            .rain(daily.getRain())
+                            .uvi(daily.getUvi())
                             .build();
                 })
                 .collect(Collectors.toList());

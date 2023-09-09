@@ -1,30 +1,19 @@
 package com.app.diamondhotelbackend.service.roomtype;
 
-import com.app.diamondhotelbackend.dto.roomtype.*;
-import com.app.diamondhotelbackend.dto.shoppingcart.CarDto;
-import com.app.diamondhotelbackend.dto.shoppingcart.CostSummaryDto;
-import com.app.diamondhotelbackend.dto.shoppingcart.ShoppingCartSummaryRequestDto;
-import com.app.diamondhotelbackend.dto.shoppingcart.ShoppingCartSummaryResponseDto;
 import com.app.diamondhotelbackend.entity.RoomType;
+import com.app.diamondhotelbackend.exception.RoomTypeProcessingException;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface RoomTypeService {
 
-    RoomTypeOfferDto getRoomTypeInfoList();
+    RoomType getRoomTypeById(long id) throws RoomTypeProcessingException;
 
-    RoomTypeConfigurationInfoResponseDto getRoomTypeConfigurationInfo();
+    List<RoomType> getRoomTypeList();
 
-    List<AvailableRoomTypeDto> getAvailableRoomTypeList(AvailableRoomTypeListRequestDto availableRoomTypeListRequestDto);
+    List<String> getRoomTypeNameList();
 
-    ShoppingCartSummaryResponseDto getShoppingCartSummary(ShoppingCartSummaryRequestDto shoppingCartSummaryRequestDto);
+    List<Long> getRoomTypeIdList();
 
-    CostSummaryDto getShoppingCartSummaryCostWithCar(CarDto carDto);
-
-    Optional<String> isValidRoomTypeName(String roomTypeName);
-
-    Optional<Integer> isValidCapacity(String capacityAsString);
-
-    RoomTypeDto toRoomTypeDtoMapper(RoomType roomType);
+    List<String> getRoomTypeEquipmentById(long id);
 }

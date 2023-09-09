@@ -1,18 +1,4 @@
 package com.app.diamondhotelbackend.service.reservation;
 
-import com.app.diamondhotelbackend.dto.reservation.*;
-import com.app.diamondhotelbackend.exception.CheckInOutFormatException;
-import com.app.diamondhotelbackend.exception.NotAllSelectedRoomsAvailableException;
-import com.app.diamondhotelbackend.exception.ReservationNotFoundException;
-import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
-
 public interface ReservationService {
-
-    UserReservationAllResponseDto getUserReservationInfoList(UserReservationAllRequestDto userReservationAllRequestDto);
-
-    UserReservationDetailsInfoResponseDto getUserReservationDetailsInfo(UserReservationDetailsInfoRequestDto userReservationDetailsInfoRequestDto) throws ReservationNotFoundException;
-
-    UserReservationNewResponseDto createNewReservation(UserReservationNewRequestDto userReservationNewRequestDto) throws CheckInOutFormatException, NotAllSelectedRoomsAvailableException, UserProfileProcessingException;
-
-    UserReservationCancellationResponseDto deleteReservationDetails(long reservationId);
 }

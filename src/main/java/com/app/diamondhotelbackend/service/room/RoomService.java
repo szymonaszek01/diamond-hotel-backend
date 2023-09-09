@@ -1,19 +1,11 @@
 package com.app.diamondhotelbackend.service.room;
 
-import com.app.diamondhotelbackend.dto.room.RoomDto;
-import com.app.diamondhotelbackend.dto.shoppingcart.RoomTypeInfoDto;
-import com.app.diamondhotelbackend.entity.Room;
+import com.app.diamondhotelbackend.dto.room.response.RoomAvailableResponseDto;
+import com.app.diamondhotelbackend.exception.RoomProcessingException;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface RoomService {
 
-    List<Room> getRoomListByRoomTypeNameCheckInAndCheckOut(String roomTypeName, LocalDateTime checkIn, LocalDateTime checkOut);
-
-    List<Room> getRoomListByRoomTypeName(String roomTypeName);
-
-    RoomDto toRoomDtoMapper(Room room);
-
-    boolean isMismatchBetweenSelectedAndAvailableRooms(List<RoomTypeInfoDto> roomTypeInfoDtoList, LocalDateTime checkIn, LocalDateTime checkOut);
+    RoomAvailableResponseDto getRoomAvailableList(String checkIn, String checkOut, int rooms, int adults, int children, List<Long> roomTypeIdList, double pricePerHotelNight) throws RoomProcessingException;
 }

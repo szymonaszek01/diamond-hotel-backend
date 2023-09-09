@@ -2,14 +2,17 @@ package com.app.diamondhotelbackend.repository;
 
 import com.app.diamondhotelbackend.entity.Room;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
 public interface RoomRepository extends JpaRepository<Room, Long> {
 
-    @Query("SELECT r FROM Room r WHERE r.roomType.name = :roomTypeName")
-    List<Room> findAllByRoomTypeName(String roomTypeName);
+    List<Room> findAllByRoomTypeIdIn(List<Long> roomTypeIdList);
+
+    List<Room> findAllByRoomTypePricePerHotelNightLessThanEqual(BigDecimal pricePerHotelNight);
+
+    List<Room> findAllByRoomTypeIdInAndRoomTypePricePerHotelNightLessThanEqual(List<Long> roomTypeIdList, BigDecimal pricePerHotelNight);
 }

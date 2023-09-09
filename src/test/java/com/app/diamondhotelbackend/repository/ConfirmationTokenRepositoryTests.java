@@ -113,6 +113,7 @@ public class ConfirmationTokenRepositoryTests {
         confirmationTokenOptional.get().setConfirmedAt(new Date(System.currentTimeMillis()));
         ConfirmationToken updatedConfirmationToken = confirmationTokenRepository.save(confirmationTokenOptional.get());
 
+        Assertions.assertThat(updatedConfirmationToken).isNotNull();
         Assertions.assertThat(updatedConfirmationToken.getAccessValue()).isEqualTo("updatedAccessValue");
         Assertions.assertThat(updatedConfirmationToken.getConfirmedAt()).isNotNull();
     }

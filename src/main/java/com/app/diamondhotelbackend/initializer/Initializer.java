@@ -10,9 +10,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -33,6 +33,8 @@ public class Initializer implements CommandLineRunner {
 
     private final ReservationRepository reservationRepository;
 
+    private final ReservedRoomRepository reservedRoomRepository;
+
     private final List<RoomType> roomTypeList = new ArrayList<>();
 
     private final List<Flight> flightList = new ArrayList<>();
@@ -47,6 +49,8 @@ public class Initializer implements CommandLineRunner {
 
     private final List<Reservation> reservationList = new ArrayList<>();
 
+    private final List<ReservedRoom> reservedRoomList = new ArrayList<>();
+
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
@@ -58,6 +62,7 @@ public class Initializer implements CommandLineRunner {
         initializeUserProfileList();
         initializeRoomTypeOpinionList();
         initializeReservationList();
+        initializeReservedRoomList();
 
         roomTypeRepository.saveAll(roomTypeList);
         flightRepository.saveAll(flightList);
@@ -66,30 +71,34 @@ public class Initializer implements CommandLineRunner {
         userProfileRepository.saveAll(userProfileList);
         roomTypeOpinionRepository.saveAll(roomTypeOpinionList);
         reservationRepository.saveAll(reservationList);
+        reservedRoomRepository.saveAll(reservedRoomList);
     }
 
     private void initializeRoomTypeList() {
         roomTypeList.addAll(Arrays.asList(
                 RoomType.builder()
                         .name("Deluxe Suite")
-                        .capacity(2)
+                        .adults(2)
+                        .children(0)
                         .pricePerHotelNight(BigDecimal.valueOf(350))
                         .image("https://publish.purewow.net/wp-content/uploads/sites/2/2019/08/grand-velas.jpeg?fit=1360%2C906")
-                        .equipmentList(Arrays.asList("King size bed", "Sofa bed", "Personalized Climate Control", "Minibar", "Balcony"))
+                        .equipment(Arrays.asList("King size bed", "Sofa bed", "Personalized Climate Control", "Minibar", "Balcony"))
                         .build(),
                 RoomType.builder()
                         .name("Family Room")
-                        .capacity(4)
+                        .adults(2)
+                        .children(2)
                         .pricePerHotelNight(BigDecimal.valueOf(200))
                         .image("https://images.unsplash.com/photo-1578683010236-d716f9a3f461?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bHV4dXJ5JTIwYmVkcm9vbXxlbnwwfHwwfHw%3D&w=1000&q=80")
-                        .equipmentList(Arrays.asList("2 queen size beds", "Coffee maker", "Mini fridge", "Bathtub", "Personalized Climate Control"))
+                        .equipment(Arrays.asList("2 queen size beds", "Coffee maker", "Mini fridge", "Bathtub", "Personalized Climate Control"))
                         .build(),
                 RoomType.builder()
                         .name("Standard Room")
-                        .capacity(2)
+                        .adults(2)
+                        .children(0)
                         .pricePerHotelNight(BigDecimal.valueOf(120))
                         .image("https://64.media.tumblr.com/52fd5697912a153efc4fdf057d877ab4/453e1459b5398164-9a/s1280x1920/e6917139b223f2ae9996ed37c11e422f94c316e8.jpg")
-                        .equipmentList(Arrays.asList("King bed", "Desk", "Wardrobe", "Automated Lighting System", "Personalized Climate Control"))
+                        .equipment(Arrays.asList("King bed", "Desk", "Wardrobe", "Automated Lighting System", "Personalized Climate Control"))
                         .build()
         ));
     }
@@ -97,7 +106,7 @@ public class Initializer implements CommandLineRunner {
     private void initializeFlightList() {
         flightList.addAll(Arrays.asList(
                 Flight.builder()
-                        .flightNumber("")
+                        .flightNumber("VB123")
                         .build(),
                 Flight.builder()
                         .flightNumber("UA456")
@@ -117,28 +126,28 @@ public class Initializer implements CommandLineRunner {
     private void initializeTransactionList() {
         transactionList.addAll(Arrays.asList(
                 Transaction.builder()
-                        .code("#12345678")
-                        .totalWithoutTax(new BigDecimal("1800.0"))
-                        .tax(new BigDecimal("180.0"))
-                        .carPickUp(new BigDecimal("50"))
-                        .carRent(new BigDecimal("150.0"))
+                        .createdAt(new Date(System.currentTimeMillis()))
+                        .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
+                        .token("token1")
+                        .cost(new BigDecimal(1800))
+                        .tax(new BigDecimal(180))
                         .status(ConstantUtil.APPROVED)
                         .build(),
                 Transaction.builder()
-                        .totalWithoutTax(new BigDecimal("600.0"))
-                        .tax(new BigDecimal("60.0"))
-                        .carPickUp(new BigDecimal("0"))
-                        .carRent(new BigDecimal("100.0"))
+                        .createdAt(new Date(System.currentTimeMillis()))
+                        .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
+                        .token("token2")
+                        .cost(new BigDecimal(1500))
+                        .tax(new BigDecimal(150))
                         .status(ConstantUtil.APPROVED)
-                        .code("#87654321")
                         .build(),
                 Transaction.builder()
-                        .totalWithoutTax(new BigDecimal("960.0"))
-                        .tax(new BigDecimal("96.0"))
-                        .carPickUp(new BigDecimal("50"))
-                        .carRent(new BigDecimal("200.0"))
+                        .createdAt(new Date(System.currentTimeMillis()))
+                        .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
+                        .token("token3")
+                        .cost(new BigDecimal(1200))
+                        .tax(new BigDecimal(120))
                         .status(ConstantUtil.APPROVED)
-                        .code("#43218765")
                         .build()
         ));
     }
@@ -168,7 +177,7 @@ public class Initializer implements CommandLineRunner {
                 Room.builder()
                         .number(301)
                         .floor(3)
-                        .roomType(roomTypeList.get(2))
+                        .roomType(roomTypeList.get(1))
                         .build(),
                 Room.builder()
                         .number(302)
@@ -326,58 +335,72 @@ public class Initializer implements CommandLineRunner {
     private void initializeReservationList() {
         reservationList.addAll(Arrays.asList(
                 Reservation.builder()
-                        .room(roomList.get(0))
+                        .checkIn(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
+                        .checkOut(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7))
+                        .adults(2)
+                        .children(2)
                         .userProfile(userProfileList.get(0))
                         .flight(flightList.get(0))
                         .transaction(transactionList.get(0))
-                        .checkIn(LocalDateTime.parse("2023-06-20T15:00:00"))
-                        .checkOut(LocalDateTime.parse("2023-06-22T17:00:00"))
-                        .roomCost(new BigDecimal("700.00"))
                         .build(),
                 Reservation.builder()
-                        .room(roomList.get(1))
-                        .userProfile(userProfileList.get(0))
-                        .flight(flightList.get(0))
-                        .transaction(transactionList.get(0))
-                        .checkIn(LocalDateTime.parse("2023-06-20T15:00:00"))
-                        .checkOut(LocalDateTime.parse("2023-06-22T17:00:00"))
-                        .roomCost(new BigDecimal("700.00"))
-                        .build(),
-                Reservation.builder()
-                        .room(roomList.get(2))
-                        .userProfile(userProfileList.get(0))
-                        .flight(flightList.get(0))
-                        .transaction(transactionList.get(0))
-                        .checkIn(LocalDateTime.parse("2023-06-20T15:00:00"))
-                        .checkOut(LocalDateTime.parse("2023-06-22T17:00:00"))
-                        .roomCost(new BigDecimal("400.00"))
-                        .build(),
-                Reservation.builder()
-                        .room(roomList.get(4))
+                        .checkIn(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
+                        .checkOut(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7))
+                        .adults(2)
+                        .children(2)
                         .userProfile(userProfileList.get(1))
                         .flight(flightList.get(1))
                         .transaction(transactionList.get(1))
-                        .checkIn(LocalDateTime.parse("2023-07-20T15:00:00"))
-                        .checkOut(LocalDateTime.parse("2023-07-25T17:00:00"))
-                        .roomCost(new BigDecimal("600.00"))
                         .build(),
                 Reservation.builder()
+                        .checkIn(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
+                        .checkOut(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7))
+                        .adults(2)
+                        .children(2)
+                        .userProfile(userProfileList.get(2))
+                        .flight(flightList.get(2))
+                        .transaction(transactionList.get(2))
+                        .build()
+        ));
+    }
+
+    private void initializeReservedRoomList() {
+        reservedRoomList.addAll(Arrays.asList(
+                ReservedRoom.builder()
+                        .occupied(0)
+                        .cost(new BigDecimal(roomList.get(0).getRoomType().getPricePerHotelNight().longValue() * 7))
+                        .reservation(reservationList.get(0))
+                        .room(roomList.get(0))
+                        .build(),
+                ReservedRoom.builder()
+                        .occupied(0)
+                        .cost(new BigDecimal(roomList.get(2).getRoomType().getPricePerHotelNight().longValue() * 7))
+                        .reservation(reservationList.get(0))
+                        .room(roomList.get(2))
+                        .build(),
+                ReservedRoom.builder()
+                        .occupied(0)
+                        .cost(new BigDecimal(roomList.get(1).getRoomType().getPricePerHotelNight().longValue() * 7))
+                        .reservation(reservationList.get(1))
+                        .room(roomList.get(1))
+                        .build(),
+                ReservedRoom.builder()
+                        .occupied(0)
+                        .cost(new BigDecimal(roomList.get(3).getRoomType().getPricePerHotelNight().longValue() * 7))
+                        .reservation(reservationList.get(1))
                         .room(roomList.get(3))
-                        .userProfile(userProfileList.get(2))
-                        .flight(flightList.get(2))
-                        .transaction(transactionList.get(2))
-                        .checkIn(LocalDateTime.parse("2023-08-10T15:00:00"))
-                        .checkOut(LocalDateTime.parse("2023-08-13T17:00:00"))
-                        .roomCost(new BigDecimal("600.00"))
                         .build(),
-                Reservation.builder()
+                ReservedRoom.builder()
+                        .occupied(0)
+                        .cost(new BigDecimal(roomList.get(4).getRoomType().getPricePerHotelNight().longValue() * 7))
+                        .reservation(reservationList.get(2))
+                        .room(roomList.get(4))
+                        .build(),
+                ReservedRoom.builder()
+                        .occupied(0)
+                        .cost(new BigDecimal(roomList.get(5).getRoomType().getPricePerHotelNight().longValue() * 7))
+                        .reservation(reservationList.get(2))
                         .room(roomList.get(5))
-                        .userProfile(userProfileList.get(2))
-                        .flight(flightList.get(2))
-                        .transaction(transactionList.get(2))
-                        .checkIn(LocalDateTime.parse("2023-08-10T15:00:00"))
-                        .checkOut(LocalDateTime.parse("2023-08-13T17:00:00"))
-                        .roomCost(new BigDecimal("360.00"))
                         .build()
         ));
     }

@@ -97,6 +97,12 @@ public class ConstantUtil {
 
     public static final String CONFIRMATION_TOKEN_ALREADY_EXPIRED = "Confirmation token already expired";
 
+    public static final String INVALID_PARAMETERS_EXCEPTION = "Invalid parameters";
+
+    public static final String ROOM_TYPE_NOT_FOUND_EXCEPTION = "Room type not found";
+
+    public static final String AVAILABLE_ROOM_NOT_FOUND = "Available room not found";
+
 
     /**
      * ----- OPINION -----

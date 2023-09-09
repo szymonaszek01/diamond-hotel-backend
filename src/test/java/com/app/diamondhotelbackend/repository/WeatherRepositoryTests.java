@@ -68,7 +68,7 @@ public class WeatherRepositoryTests {
     }
 
     @Test
-    public void WeatherRepository_Save_ReturnSavedUserProfile() {
+    public void WeatherRepository_Save_ReturnsSavedWeather() {
         Weather savedWeather = weatherRepository.save(weather);
 
         Assertions.assertThat(savedWeather).isNotNull();
@@ -76,7 +76,7 @@ public class WeatherRepositoryTests {
     }
 
     @Test
-    public void WeatherRepository_FindAll_ReturnMoreThenOneUserProfile() {
+    public void WeatherRepository_FindAll_ReturnsWeatherList() {
         weatherRepository.saveAll(weatherList);
         List<Weather> foundWeatherList = weatherRepository.findAll();
 
@@ -85,7 +85,7 @@ public class WeatherRepositoryTests {
     }
 
     @Test
-    public void WeatherRepository_FindAllByOrderByDayAsc_ReturnUserProfile() {
+    public void WeatherRepository_FindAllByOrderByDayAsc_ReturnsWeatherList() {
         weatherRepository.saveAll(weatherList);
         List<Weather> foundWeatherList = weatherRepository.findAllByOrderByMeasuredAtAsc();
         Optional<Date> optionalMinDate = foundWeatherList.stream()
@@ -102,7 +102,7 @@ public class WeatherRepositoryTests {
     }
 
     @Test
-    public void WeatherRepository_FindById_ReturnUserProfile() {
+    public void WeatherRepository_FindById_ReturnsOptionalWeather() {
         Weather savedWeather = weatherRepository.save(weather);
         Optional<Weather> weatherOptional = weatherRepository.findById((savedWeather.getId()));
 
@@ -122,6 +122,7 @@ public class WeatherRepositoryTests {
         weatherOptional.get().setTemperatureNight(28);
         Weather updatedWeather = weatherRepository.save(weatherOptional.get());
 
+        Assertions.assertThat(updatedWeather).isNotNull();
         Assertions.assertThat(updatedWeather.getTemperatureDay()).isEqualTo(32);
         Assertions.assertThat(updatedWeather.getTemperatureNight()).isEqualTo(28);
     }

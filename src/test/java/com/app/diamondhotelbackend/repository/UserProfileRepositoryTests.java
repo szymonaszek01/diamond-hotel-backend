@@ -98,6 +98,7 @@ public class UserProfileRepositoryTests {
         userProfileOptional.get().setRole("ADMIN");
         UserProfile updatedUserProfile = userProfileRepository.save(userProfileOptional.get());
 
+        Assertions.assertThat(updatedUserProfile).isNotNull();
         Assertions.assertThat(updatedUserProfile.getEmail()).isEqualTo("magda-lampa@gmail.com");
         Assertions.assertThat(updatedUserProfile.getRole()).isEqualTo("ADMIN");
     }

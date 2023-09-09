@@ -119,6 +119,7 @@ public class AuthTokenRepositoryTests {
         authTokenOptional.get().setRefreshValue("updatedRefreshValue");
         AuthToken updatedAuthToken = authTokenRepository.save(authTokenOptional.get());
 
+        Assertions.assertThat(updatedAuthToken).isNotNull();
         Assertions.assertThat(updatedAuthToken.getAccessValue()).isEqualTo("updatedAccessValue");
         Assertions.assertThat(updatedAuthToken.getRefreshValue()).isEqualTo("updatedRefreshValue");
     }

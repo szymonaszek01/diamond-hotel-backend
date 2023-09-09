@@ -1,10 +1,11 @@
 package com.app.diamondhotelbackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,8 +19,13 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @ManyToOne
-    private Room room;
+    private Date checkIn;
+
+    private Date checkOut;
+
+    private int adults;
+
+    private int children;
 
     @ManyToOne
     private UserProfile userProfile;
@@ -27,12 +33,14 @@ public class Reservation {
     @ManyToOne
     private Flight flight;
 
-    @ManyToOne
+    @OneToOne
     private Transaction transaction;
 
-    private LocalDateTime checkIn;
+    @JsonIgnore
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "reservation", cascade = CascadeType.ALL)
+    private List<ReservedRoom> reservedRoomList;
 
-    private LocalDateTime checkOut;
-
-    private BigDecimal roomCost;
+    @JsonIgnore
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "reservation", cascade = CascadeType.ALL)
+    private List<CarRent> carRentList;
 }

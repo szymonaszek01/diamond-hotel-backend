@@ -1,6 +1,7 @@
 package com.app.diamondhotelbackend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,8 +23,11 @@ public class RoomType {
     @Column(unique = true)
     private String name;
 
-    private int capacity;
+    private int adults;
 
+    private int children;
+
+    @JsonProperty("price_per_hotel_night")
     private BigDecimal pricePerHotelNight;
 
     private String image;
@@ -31,7 +35,8 @@ public class RoomType {
     @ElementCollection
     @CollectionTable(name = "room_equipment", joinColumns = @JoinColumn(name = "room_type_id"))
     @Column(name = "name")
-    private List<String> equipmentList;
+    @JsonIgnore
+    private List<String> equipment;
 
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "roomType", cascade = CascadeType.ALL)

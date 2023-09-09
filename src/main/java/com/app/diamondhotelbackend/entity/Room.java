@@ -1,7 +1,10 @@
 package com.app.diamondhotelbackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,4 +24,8 @@ public class Room {
 
     @ManyToOne()
     private RoomType roomType;
+
+    @JsonIgnore
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "room", cascade = CascadeType.ALL)
+    private List<ReservedRoom> reservedRoomList;
 }

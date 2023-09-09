@@ -1,6 +1,5 @@
 package com.app.diamondhotelbackend.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
@@ -14,7 +13,7 @@ import java.util.Date;
 @Setter
 @Builder
 @Entity
-public class Transaction {
+public class CarRent {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,22 +21,25 @@ public class Transaction {
 
     @JsonProperty("created_at")
     @Column(nullable = false)
-    private Date createdAt;
+    private Date startedAt;
 
     @JsonProperty("expires_at")
     @Column(nullable = false)
     private Date expiresAt;
 
     @Column(unique = true)
-    private String token;
+    private String plate;
+
+    private String brand;
+
+    private String model;
+
+    private byte[] picture;
+
+    private int passengers;
 
     private BigDecimal cost;
 
-    private BigDecimal tax;
-
-    private String status;
-
-    @JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "transaction", cascade = CascadeType.ALL)
+    @ManyToOne
     private Reservation reservation;
 }

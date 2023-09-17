@@ -79,6 +79,20 @@ public class RoomTypeControllerTests {
     }
 
     @Test
+    public void RoomTypeController_GetRoomTypeById_ReturnsRoomType() throws Exception {
+        when(roomTypeService.getRoomTypeById(roomType.getId())).thenReturn(roomType);
+
+        MockHttpServletRequestBuilder request = get(url + "/id/" + roomType.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc
+                .perform(request)
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(roomType.getName()));
+    }
+
+    @Test
     public void RoomTypeController_GetRoomTypeList_ReturnsRoomTypeList() throws Exception {
         when(roomTypeService.getRoomTypeList()).thenReturn(roomTypeList);
 

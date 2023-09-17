@@ -1,7 +1,9 @@
 package com.app.diamondhotelbackend.service.room;
 
 import com.app.diamondhotelbackend.dto.room.model.RoomAvailability;
+import com.app.diamondhotelbackend.dto.room.model.RoomSelectedCost;
 import com.app.diamondhotelbackend.dto.room.response.RoomAvailableResponseDto;
+import com.app.diamondhotelbackend.dto.room.response.RoomSelectedCostResponseDto;
 import com.app.diamondhotelbackend.entity.Room;
 import com.app.diamondhotelbackend.entity.RoomType;
 import com.app.diamondhotelbackend.exception.RoomProcessingException;
@@ -10,6 +12,7 @@ import com.app.diamondhotelbackend.repository.RoomRepository;
 import com.app.diamondhotelbackend.service.reservedroom.ReservedRoomServiceImpl;
 import com.app.diamondhotelbackend.service.roomtype.RoomTypeServiceImpl;
 import com.app.diamondhotelbackend.util.ConstantUtil;
+import com.app.diamondhotelbackend.util.DateUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -31,15 +35,15 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public RoomAvailableResponseDto getRoomAvailableList(String checkIn, String checkOut, int rooms, int adults, int children, List<Long> roomTypeIdList, double pricePerHotelNight) throws RoomProcessingException {
-        if (checkIn == null || checkOut == null || checkIn.isEmpty() || checkOut.isEmpty() || rooms == 0 || adults == 0) {
+        Optional<Date> checkInAsDate = DateUtil.parseDate(checkIn);
+        Optional<Date> checkOutAsDate = DateUtil.parseDate(checkOut);
+
+        if (checkInAsDate.isEmpty() || checkOutAsDate.isEmpty() || rooms == 0 || adults == 0) {
             throw new RoomProcessingException(ConstantUtil.INVALID_PARAMETERS_EXCEPTION);
         }
 
-        Date checkInAsDate = Date.valueOf(checkIn);
-        Date checkOutAsDate = Date.valueOf(checkOut);
-
         List<Room> roomList = getRoomList(roomTypeIdList, pricePerHotelNight).stream()
-                .filter(room -> !isRoomReserved(room.getId(), checkInAsDate, checkOutAsDate))
+                .filter(room -> !isRoomReserved(room.getId(), checkInAsDate.get(), checkOutAsDate.get()))
                 .toList();
 
         List<RoomAvailability> roomAvailableList = toRoomAvailableListMapper(roomList);
@@ -48,9 +52,37 @@ public class RoomServiceImpl implements RoomService {
         }
 
         return RoomAvailableResponseDto.builder()
-                .checkIn(checkInAsDate)
-                .checkOut(checkOutAsDate)
+                .checkIn(checkInAsDate.get())
+                .checkOut(checkOutAsDate.get())
                 .roomAvailabilityList(roomAvailableList)
+                .build();
+    }
+
+    @Override
+    public RoomSelectedCostResponseDto getRoomSelectedCost(String checkIn, String checkOut, long roomTypeId, int rooms) throws RoomTypeProcessingException {
+        Optional<Date> checkInAsDate = DateUtil.parseDate(checkIn);
+        Optional<Date> checkOutAsDate = DateUtil.parseDate(checkOut);
+
+        if (checkInAsDate.isEmpty() || checkOutAsDate.isEmpty()) {
+            throw new RoomProcessingException(ConstantUtil.INVALID_PARAMETERS_EXCEPTION);
+        }
+
+        long duration = DateUtil.getDifferenceBetweenTwoDates(checkInAsDate.get(), checkOutAsDate.get());
+        RoomType roomType = roomTypeService.getRoomTypeById(roomTypeId);
+        long cost = roomType.getPricePerHotelNight().longValue() * duration * rooms;
+        String name = roomType.getName();
+
+        RoomSelectedCost roomSelectedCost = RoomSelectedCost.builder()
+                .roomTypeId(roomTypeId)
+                .name(name)
+                .rooms(rooms)
+                .cost(BigDecimal.valueOf(cost))
+                .build();
+
+        return RoomSelectedCostResponseDto.builder()
+                .checkIn(checkInAsDate.get())
+                .checkOut(checkOutAsDate.get())
+                .roomSelectedCost(roomSelectedCost)
                 .build();
     }
 
@@ -72,9 +104,9 @@ public class RoomServiceImpl implements RoomService {
     }
 
     private List<Room> getRoomList(List<Long> roomTypeIdList, double pricePerHotelNight) {
-        if (roomTypeIdList != null && pricePerHotelNight > 0) {
+        if (roomTypeIdList != null && roomTypeIdList.size() > 0 && pricePerHotelNight > 0) {
             return roomRepository.findAllByRoomTypeIdInAndRoomTypePricePerHotelNightLessThanEqual(roomTypeIdList, BigDecimal.valueOf(pricePerHotelNight));
-        } else if (roomTypeIdList != null) {
+        } else if (roomTypeIdList != null && roomTypeIdList.size() > 0) {
             return roomRepository.findAllByRoomTypeIdIn(roomTypeIdList);
         } else if (pricePerHotelNight > 0) {
             return roomRepository.findAllByRoomTypePricePerHotelNightLessThanEqual(BigDecimal.valueOf(pricePerHotelNight));

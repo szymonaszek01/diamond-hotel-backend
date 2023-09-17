@@ -1,7 +1,9 @@
 package com.app.diamondhotelbackend.controller;
 
 import com.app.diamondhotelbackend.dto.room.model.RoomAvailability;
+import com.app.diamondhotelbackend.dto.room.model.RoomSelectedCost;
 import com.app.diamondhotelbackend.dto.room.response.RoomAvailableResponseDto;
+import com.app.diamondhotelbackend.dto.room.response.RoomSelectedCostResponseDto;
 import com.app.diamondhotelbackend.security.jwt.JwtFilter;
 import com.app.diamondhotelbackend.service.room.RoomServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.List;
 
@@ -41,6 +44,20 @@ public class RoomControllerTests {
 
     private RoomAvailableResponseDto roomAvailableResponseDto;
 
+    private RoomSelectedCostResponseDto roomSelectedCostResponseDto;
+
+    private String checkIn;
+
+    private String checkOut;
+
+    private String rooms;
+
+    private String adults;
+
+    private String children;
+
+    private String roomTypeId;
+
     private static final String url = "/api/v1/room";
 
     @BeforeEach
@@ -56,10 +73,35 @@ public class RoomControllerTests {
                         .build()
         );
 
+        checkIn = "2023-09-20";
+
+        checkOut = "2023-09-21";
+
+        rooms = String.valueOf(2);
+
+        adults = String.valueOf(2);
+
+        children = String.valueOf(2);
+
+        roomTypeId = String.valueOf(1);
+
+        RoomSelectedCost roomSelectedCost = RoomSelectedCost.builder()
+                .roomTypeId(1)
+                .rooms(1)
+                .cost(BigDecimal.valueOf(350))
+                .build();
+
+
         roomAvailableResponseDto = RoomAvailableResponseDto.builder()
-                .checkIn(Date.valueOf("2023-09-20"))
-                .checkOut(Date.valueOf("2023-09-25"))
+                .checkIn(Date.valueOf(checkIn))
+                .checkOut(Date.valueOf(checkOut))
                 .roomAvailabilityList(roomAvailabilityList)
+                .build();
+
+        roomSelectedCostResponseDto = RoomSelectedCostResponseDto.builder()
+                .checkIn(Date.valueOf(checkIn))
+                .checkOut(Date.valueOf(checkOut))
+                .roomSelectedCost(roomSelectedCost)
                 .build();
     }
 
@@ -69,11 +111,28 @@ public class RoomControllerTests {
 
         MockHttpServletRequestBuilder request = get(url + "/all/available")
                 .contentType(MediaType.APPLICATION_JSON)
-                .queryParam("check-in", "2023-09-20")
-                .queryParam("check-out", "2023-09-25")
-                .queryParam("rooms", "2")
-                .queryParam("adults", "2")
-                .queryParam("children", "2");
+                .queryParam("check-in", checkIn)
+                .queryParam("check-out", checkOut)
+                .queryParam("rooms", rooms)
+                .queryParam("adults", adults)
+                .queryParam("children", children);
+
+        mockMvc
+                .perform(request)
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    public void RoomController_GetRoomSelectedCostList_ReturnsRoomSelectedCostResponseDto() throws Exception {
+        when(roomService.getRoomSelectedCost(Mockito.any(String.class), Mockito.any(String.class), Mockito.any(long.class), Mockito.any(int.class))).thenReturn(roomSelectedCostResponseDto);
+
+        MockHttpServletRequestBuilder request = get(url + "/cost")
+                .contentType(MediaType.APPLICATION_JSON)
+                .queryParam("check-in", checkIn)
+                .queryParam("check-out", checkOut)
+                .queryParam("rooms", rooms)
+                .queryParam("room-type-id", roomTypeId);
 
         mockMvc
                 .perform(request)

@@ -1,6 +1,7 @@
 package com.app.diamondhotelbackend.service;
 
 import com.app.diamondhotelbackend.dto.room.response.RoomAvailableResponseDto;
+import com.app.diamondhotelbackend.dto.room.response.RoomSelectedCostResponseDto;
 import com.app.diamondhotelbackend.entity.Reservation;
 import com.app.diamondhotelbackend.entity.ReservedRoom;
 import com.app.diamondhotelbackend.entity.Room;
@@ -156,5 +157,15 @@ public class RoomServiceTests {
 
         Assertions.assertThat(foundRoomAvailableResponseDto).isNotNull();
         Assertions.assertThat(foundRoomAvailableResponseDto.getRoomAvailabilityList().size()).isEqualTo(1);
+    }
+
+    @Test
+    public void RoomService_GetRoomSelectedCostList_ReturnsRoomSelectedCostResponseDto() {
+        when(roomTypeService.getRoomTypeById(Mockito.any(long.class))).thenReturn(roomType);
+
+        RoomSelectedCostResponseDto foundSelectedCostResponseDto = roomService.getRoomSelectedCost(checkIn, checkOut, roomType.getId(), rooms);
+
+        Assertions.assertThat(foundSelectedCostResponseDto).isNotNull();
+        Assertions.assertThat(foundSelectedCostResponseDto.getRoomSelectedCost().getCost()).isEqualTo(BigDecimal.valueOf(500));
     }
 }

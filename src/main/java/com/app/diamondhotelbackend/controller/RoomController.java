@@ -1,6 +1,7 @@
 package com.app.diamondhotelbackend.controller;
 
 import com.app.diamondhotelbackend.dto.room.response.RoomAvailableResponseDto;
+import com.app.diamondhotelbackend.dto.room.response.RoomSelectedCostResponseDto;
 import com.app.diamondhotelbackend.exception.RoomProcessingException;
 import com.app.diamondhotelbackend.service.room.RoomServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,18 @@ public class RoomController {
             return ResponseEntity.ok(roomService.getRoomAvailableList(checkIn, checkOut, rooms, adults, children, roomTypeIdList, pricePerHotelNight));
         } catch (RoomProcessingException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
+    @GetMapping("/cost")
+    public ResponseEntity<RoomSelectedCostResponseDto> getRoomSelectedCost(@RequestParam(value = "check-in") String checkIn,
+                                                                           @RequestParam(value = "check-out") String checkOut,
+                                                                           @RequestParam(value = "rooms") int rooms,
+                                                                           @RequestParam(value = "room-type-id") long roomTypeId) {
+        try {
+            return ResponseEntity.ok(roomService.getRoomSelectedCost(checkIn, checkOut, roomTypeId, rooms));
+        } catch (RoomProcessingException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 }

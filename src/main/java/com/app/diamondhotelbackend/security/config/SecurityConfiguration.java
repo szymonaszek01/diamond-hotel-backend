@@ -54,6 +54,8 @@ public class SecurityConfiguration {
                 .requestMatchers("/api/v1/user-profile/email/{email}/details").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)
                 .requestMatchers("/api/v1/weather/all").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)
                 .requestMatchers("/api/v1/room/all/available").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)
+                .requestMatchers("/api/v1/room/all/selected/cost").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)
+                .requestMatchers("/api/v1/room-type/id/{id}").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)
                 .requestMatchers("/api/v1/room-type/all").permitAll()
                 .requestMatchers("/api/v1/room-type/all/names").permitAll()
                 .requestMatchers("/api/v1/room-type/id/{id}/equipment").permitAll()

@@ -22,10 +22,6 @@ public class AuthController {
 
     /**
      * TODO
-     * Checking and renaming all methods in (controller, service and repository) tests
-     * Finishing Weather tests
-     * Testing whole application
-     * Creating weather view on client side
      * Adding meal plan to dashboard page
      * User without reservations - steps to make reservation
      * User with reservations - short description upcoming reservations

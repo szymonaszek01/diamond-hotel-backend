@@ -1,10 +1,11 @@
 package com.app.diamondhotelbackend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Date;
+import java.sql.Date;
 import java.util.List;
 
 @NoArgsConstructor
@@ -19,14 +20,17 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @JsonProperty("check_in")
     private Date checkIn;
 
+    @JsonProperty("check_out")
     private Date checkOut;
 
     private int adults;
 
     private int children;
 
+    @JsonProperty("user_profile")
     @ManyToOne
     private UserProfile userProfile;
 

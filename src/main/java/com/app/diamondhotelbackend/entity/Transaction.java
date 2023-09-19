@@ -33,7 +33,7 @@ public class Transaction {
 
     private BigDecimal cost;
 
-    private BigDecimal tax;
+    private double tax;
 
     private String status;
 

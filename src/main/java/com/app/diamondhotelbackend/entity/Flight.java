@@ -18,6 +18,7 @@ public class Flight {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @Column(unique = true)
     private String flightNumber;
 
     @JsonIgnore

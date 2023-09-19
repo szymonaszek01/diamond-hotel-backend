@@ -1,5 +1,6 @@
 package com.app.diamondhotelbackend.service;
 
+import com.app.diamondhotelbackend.dto.room.model.RoomSelected;
 import com.app.diamondhotelbackend.dto.room.response.RoomAvailableResponseDto;
 import com.app.diamondhotelbackend.dto.room.response.RoomSelectedCostResponseDto;
 import com.app.diamondhotelbackend.entity.Reservation;
@@ -56,6 +57,8 @@ public class RoomServiceTests {
 
     private double pricePerHotelNight;
 
+    private RoomSelected roomSelected;
+
     @BeforeEach
     public void init() {
         roomType = RoomType.builder()
@@ -105,10 +108,15 @@ public class RoomServiceTests {
         roomTypeIdList = List.of(1L);
 
         pricePerHotelNight = 200;
+
+        roomSelected = RoomSelected.builder()
+                .roomTypeId(1)
+                .rooms(1)
+                .build();
     }
 
     @Test
-    public void RoomService_GetRoomAvailableList_ReturnsRoomList_Case1() {
+    public void RoomService_GetRoomAvailableList_ReturnsRoomAvailableResponseDto_Case1() {
         when(roomRepository.findAllByRoomTypeIdInAndRoomTypePricePerHotelNightLessThanEqual(Mockito.anyList(), Mockito.any(BigDecimal.class))).thenReturn(roomList);
         when(reservedRoomService.getReservedRoomListByReservationCheckInAndReservationCheckOut(Mockito.any(Date.class), Mockito.any(Date.class))).thenReturn(reservedRoomList);
         when(roomTypeService.getRoomTypeIdList()).thenReturn(roomTypeIdList);
@@ -121,7 +129,7 @@ public class RoomServiceTests {
     }
 
     @Test
-    public void RoomService_GetRoomAvailableList_ReturnsRoomList_Case2() {
+    public void RoomService_GetRoomAvailableList_ReturnsRoomAvailableResponseDto_Case2() {
         when(roomRepository.findAllByRoomTypeIdIn(Mockito.anyList())).thenReturn(roomList);
         when(reservedRoomService.getReservedRoomListByReservationCheckInAndReservationCheckOut(Mockito.any(Date.class), Mockito.any(Date.class))).thenReturn(reservedRoomList);
         when(roomTypeService.getRoomTypeIdList()).thenReturn(roomTypeIdList);
@@ -134,7 +142,7 @@ public class RoomServiceTests {
     }
 
     @Test
-    public void RoomService_GetRoomAvailableList_ReturnsRoomList_Case3() {
+    public void RoomService_GetRoomAvailableList_ReturnsRoomAvailableResponseDto_Case3() {
         when(roomRepository.findAllByRoomTypePricePerHotelNightLessThanEqual(Mockito.any(BigDecimal.class))).thenReturn(roomList);
         when(reservedRoomService.getReservedRoomListByReservationCheckInAndReservationCheckOut(Mockito.any(Date.class), Mockito.any(Date.class))).thenReturn(reservedRoomList);
         when(roomTypeService.getRoomTypeIdList()).thenReturn(roomTypeIdList);
@@ -147,7 +155,7 @@ public class RoomServiceTests {
     }
 
     @Test
-    public void RoomService_GetRoomAvailableList_ReturnsRoomList_Case4() {
+    public void RoomService_GetRoomAvailableList_ReturnsRoomAvailableResponseDto_Case4() {
         when(roomRepository.findAll()).thenReturn(roomList);
         when(reservedRoomService.getReservedRoomListByReservationCheckInAndReservationCheckOut(Mockito.any(Date.class), Mockito.any(Date.class))).thenReturn(reservedRoomList);
         when(roomTypeService.getRoomTypeIdList()).thenReturn(roomTypeIdList);
@@ -157,6 +165,17 @@ public class RoomServiceTests {
 
         Assertions.assertThat(foundRoomAvailableResponseDto).isNotNull();
         Assertions.assertThat(foundRoomAvailableResponseDto.getRoomAvailabilityList().size()).isEqualTo(1);
+    }
+
+    @Test
+    public void RoomService_GetRoomAvailableList_ReturnsRoomList() {
+        when(roomRepository.findAllByRoomTypeIdIn(Mockito.anyList())).thenReturn(roomList);
+        when(reservedRoomService.getReservedRoomListByReservationCheckInAndReservationCheckOut(Mockito.any(Date.class), Mockito.any(Date.class))).thenReturn(reservedRoomList);
+
+        List<Room> foundRoomList = roomService.getRoomAvailableList(Date.valueOf(checkIn), Date.valueOf(checkOut), roomSelected);
+
+        Assertions.assertThat(foundRoomList).isNotNull();
+        Assertions.assertThat(foundRoomList.size()).isEqualTo(1);
     }
 
     @Test

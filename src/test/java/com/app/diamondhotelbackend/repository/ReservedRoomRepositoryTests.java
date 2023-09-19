@@ -133,6 +133,15 @@ public class ReservedRoomRepositoryTests {
     }
 
     @Test
+    public void ReservedRoomRepository_FindAllByReservationId_ReturnsReservedRoomList() {
+        reservedRoomRepository.saveAll(reservedRoomList);
+        List<ReservedRoom> foundReservedRoomList = reservedRoomRepository.findAllByReservationId(1);
+
+        Assertions.assertThat(foundReservedRoomList).isNotNull();
+        Assertions.assertThat(foundReservedRoomList.size()).isEqualTo(1);
+    }
+
+    @Test
     public void ReservedRoomRepository_FindById_ReturnsOptionalReservedRoom() {
         ReservedRoom savedReservedRoom = reservedRoomRepository.save(reservedRoom);
         Optional<ReservedRoom> ReservedRoomOptional = reservedRoomRepository.findById((reservedRoom.getId()));

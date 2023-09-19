@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
+import java.sql.Date;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -130,7 +130,7 @@ public class Initializer implements CommandLineRunner {
                         .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
                         .token("token1")
                         .cost(new BigDecimal(1800))
-                        .tax(new BigDecimal(180))
+                        .tax(0.1)
                         .status(ConstantUtil.APPROVED)
                         .build(),
                 Transaction.builder()
@@ -138,7 +138,7 @@ public class Initializer implements CommandLineRunner {
                         .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
                         .token("token2")
                         .cost(new BigDecimal(1500))
-                        .tax(new BigDecimal(150))
+                        .tax(0.1)
                         .status(ConstantUtil.APPROVED)
                         .build(),
                 Transaction.builder()
@@ -146,7 +146,7 @@ public class Initializer implements CommandLineRunner {
                         .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
                         .token("token3")
                         .cost(new BigDecimal(1200))
-                        .tax(new BigDecimal(120))
+                        .tax(0.1)
                         .status(ConstantUtil.APPROVED)
                         .build()
         ));

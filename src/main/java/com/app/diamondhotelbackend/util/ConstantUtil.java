@@ -77,9 +77,7 @@ public class ConstantUtil {
 
     public static final String USER_PROFILE_EXISTS_EXCEPTION = "User profile exists";
 
-    public static final String NUMBER_OF_AVAILABLE_ROOMS_HAS_CHANGED_EXCEPTION = "Number of available rooms has changed";
-
-    public static final String INCORRECT_CHECK_IN_OR_CHECK_OUT_FORMAT_EXCEPTION = "Incorrect check in or check out format";
+    public static final String NOT_ENOUGH_AVAILABLE_ROOMS = "Not enough available rooms";
 
     public static final String INVALID_TOKEN_SIGNATURE_EXCEPTION = "Invalid JWT signature";
 
@@ -91,17 +89,21 @@ public class ConstantUtil {
 
     public static final String TOKEN_CLAIMS_STRING_IS_EMPTY_EXCEPTION = "JWT claims string is empty";
 
-    public static final String CONFIRMATION_TOKEN_NOT_FOUND = "Email token not found";
+    public static final String CONFIRMATION_TOKEN_NOT_FOUND_EXCEPTION = "Email token not found";
 
-    public static final String CONFIRMATION_TOKEN_ALREADY_CONFIRMED = "Confirmation token already confirmed";
+    public static final String CONFIRMATION_TOKEN_ALREADY_CONFIRMED_EXCEPTION = "Confirmation token already confirmed";
 
-    public static final String CONFIRMATION_TOKEN_ALREADY_EXPIRED = "Confirmation token already expired";
+    public static final String CONFIRMATION_TOKEN_ALREADY_EXPIRED_EXCEPTION = "Confirmation token already expired";
 
     public static final String INVALID_PARAMETERS_EXCEPTION = "Invalid parameters";
 
     public static final String ROOM_TYPE_NOT_FOUND_EXCEPTION = "Room type not found";
 
-    public static final String AVAILABLE_ROOM_NOT_FOUND = "Available room not found";
+    public static final String AVAILABLE_ROOM_NOT_FOUND_EXCEPTION = "Available room not found";
+
+    public static final String TRANSACTION_NOT_FOUND_EXCEPTION = "Transaction not found";
+
+    public static final String FLIGHT_NOT_FOUND_EXCEPTION = "Flight not found";
 
 
     /**

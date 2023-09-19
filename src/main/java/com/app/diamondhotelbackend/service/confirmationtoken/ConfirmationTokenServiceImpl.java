@@ -39,9 +39,9 @@ public class ConfirmationTokenServiceImpl implements ConfirmationTokenService {
 
     @Override
     public ConfirmationToken updateConfirmationToken(String expiredToken) throws UserProfileProcessingException, ConfirmationTokenProcessingException {
-        ConfirmationToken confirmationToken = confirmationTokenRepository.findByAccessValue(expiredToken).orElseThrow(() -> new ConfirmationTokenProcessingException(ConstantUtil.CONFIRMATION_TOKEN_NOT_FOUND));
+        ConfirmationToken confirmationToken = confirmationTokenRepository.findByAccessValue(expiredToken).orElseThrow(() -> new ConfirmationTokenProcessingException(ConstantUtil.CONFIRMATION_TOKEN_NOT_FOUND_EXCEPTION));
         if (confirmationToken.getConfirmedAt() != null) {
-            throw new ConfirmationTokenProcessingException(ConstantUtil.CONFIRMATION_TOKEN_ALREADY_CONFIRMED);
+            throw new ConfirmationTokenProcessingException(ConstantUtil.CONFIRMATION_TOKEN_ALREADY_CONFIRMED_EXCEPTION);
         }
 
         confirmationToken.setAccessValue(UUID.randomUUID().toString());
@@ -53,12 +53,12 @@ public class ConfirmationTokenServiceImpl implements ConfirmationTokenService {
 
     @Override
     public ConfirmationToken updateConfirmationTokenConfirmedAt(String token) throws ConfirmationTokenProcessingException {
-        ConfirmationToken confirmationToken = confirmationTokenRepository.findByAccessValue(token).orElseThrow(() -> new ConfirmationTokenProcessingException(ConstantUtil.CONFIRMATION_TOKEN_NOT_FOUND));
+        ConfirmationToken confirmationToken = confirmationTokenRepository.findByAccessValue(token).orElseThrow(() -> new ConfirmationTokenProcessingException(ConstantUtil.CONFIRMATION_TOKEN_NOT_FOUND_EXCEPTION));
         if (confirmationToken.getConfirmedAt() != null) {
-            throw new ConfirmationTokenProcessingException(ConstantUtil.CONFIRMATION_TOKEN_ALREADY_CONFIRMED);
+            throw new ConfirmationTokenProcessingException(ConstantUtil.CONFIRMATION_TOKEN_ALREADY_CONFIRMED_EXCEPTION);
         }
         if (confirmationToken.getExpiresAt().before(new Date(System.currentTimeMillis()))) {
-            throw new ConfirmationTokenProcessingException(ConstantUtil.CONFIRMATION_TOKEN_ALREADY_EXPIRED);
+            throw new ConfirmationTokenProcessingException(ConstantUtil.CONFIRMATION_TOKEN_ALREADY_EXPIRED_EXCEPTION);
         }
 
         confirmationToken.setConfirmedAt(new Date(System.currentTimeMillis()));

@@ -1,6 +1,7 @@
 package com.app.diamondhotelbackend.service.room;
 
 import com.app.diamondhotelbackend.dto.room.model.RoomAvailability;
+import com.app.diamondhotelbackend.dto.room.model.RoomSelected;
 import com.app.diamondhotelbackend.dto.room.model.RoomSelectedCost;
 import com.app.diamondhotelbackend.dto.room.response.RoomAvailableResponseDto;
 import com.app.diamondhotelbackend.dto.room.response.RoomSelectedCostResponseDto;
@@ -21,6 +22,7 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -42,13 +44,10 @@ public class RoomServiceImpl implements RoomService {
             throw new RoomProcessingException(ConstantUtil.INVALID_PARAMETERS_EXCEPTION);
         }
 
-        List<Room> roomList = getRoomList(roomTypeIdList, pricePerHotelNight).stream()
-                .filter(room -> !isRoomReserved(room.getId(), checkInAsDate.get(), checkOutAsDate.get()))
-                .toList();
-
+        List<Room> roomList = filterRoomList(checkInAsDate.get(), checkOutAsDate.get(), roomTypeIdList, pricePerHotelNight);
         List<RoomAvailability> roomAvailableList = toRoomAvailableListMapper(roomList);
         if (!isRoomAvailableListValid(roomAvailableList, rooms, adults, children)) {
-            throw new RoomProcessingException(ConstantUtil.AVAILABLE_ROOM_NOT_FOUND);
+            throw new RoomProcessingException(ConstantUtil.AVAILABLE_ROOM_NOT_FOUND_EXCEPTION);
         }
 
         return RoomAvailableResponseDto.builder()
@@ -56,6 +55,18 @@ public class RoomServiceImpl implements RoomService {
                 .checkOut(checkOutAsDate.get())
                 .roomAvailabilityList(roomAvailableList)
                 .build();
+    }
+
+    @Override
+    public List<Room> getRoomAvailableList(Date checkIn, Date checkOut, RoomSelected roomSelected) throws RoomProcessingException {
+        List<Room> roomList = filterRoomList(checkIn, checkOut, List.of(roomSelected.getRoomTypeId()), 0);
+        if (roomList.size() < roomSelected.getRooms()) {
+            throw new RoomProcessingException(ConstantUtil.NOT_ENOUGH_AVAILABLE_ROOMS);
+        }
+
+        return roomList.stream()
+                .limit(roomSelected.getRooms())
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -67,16 +78,12 @@ public class RoomServiceImpl implements RoomService {
             throw new RoomProcessingException(ConstantUtil.INVALID_PARAMETERS_EXCEPTION);
         }
 
-        long duration = DateUtil.getDifferenceBetweenTwoDates(checkInAsDate.get(), checkOutAsDate.get());
         RoomType roomType = roomTypeService.getRoomTypeById(roomTypeId);
-        long cost = roomType.getPricePerHotelNight().longValue() * duration * rooms;
-        String name = roomType.getName();
-
         RoomSelectedCost roomSelectedCost = RoomSelectedCost.builder()
                 .roomTypeId(roomTypeId)
-                .name(name)
+                .name(roomType.getName())
                 .rooms(rooms)
-                .cost(BigDecimal.valueOf(cost))
+                .cost(getCost(checkInAsDate.get(), checkOutAsDate.get(), roomType.getPricePerHotelNight(), rooms))
                 .build();
 
         return RoomSelectedCostResponseDto.builder()
@@ -101,6 +108,19 @@ public class RoomServiceImpl implements RoomService {
                         .toList()
                         .size()
                 ).build();
+    }
+
+    private List<Room> filterRoomList(Date checkIn, Date checkOut, List<Long> roomTypeIdList, double pricePerHotelNight) {
+        return getRoomList(roomTypeIdList, pricePerHotelNight).stream()
+                .filter(room -> !isRoomReserved(room.getId(), checkIn, checkOut))
+                .toList();
+    }
+
+    private BigDecimal getCost(Date checkIn, Date checkOut, BigDecimal pricePerHotelNight, int rooms) {
+        long duration = DateUtil.getDifferenceBetweenTwoDates(checkIn, checkOut);
+        long cost = pricePerHotelNight.longValue() * duration * rooms;
+
+        return BigDecimal.valueOf(cost);
     }
 
     private List<Room> getRoomList(List<Long> roomTypeIdList, double pricePerHotelNight) {

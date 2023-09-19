@@ -18,4 +18,6 @@ public interface ReservedRoomRepository extends JpaRepository<ReservedRoom, Long
             "((:checkIn BETWEEN rr.reservation.checkIn AND rr.reservation.checkOut) AND " +
             "(:checkOut BETWEEN rr.reservation.checkIn AND rr.reservation.checkOut)))")
     List<ReservedRoom> findAllByReservationCheckInAndReservationCheckOut(Date checkIn, Date checkOut);
+
+    List<ReservedRoom> findAllByReservationId(long reservationId);
 }

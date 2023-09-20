@@ -9,4 +9,6 @@ import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 public interface ReservationService {
 
     Reservation createReservation(ReservationCreateRequestDto reservationCreateRequestDto) throws ReservationProcessingException, UserProfileProcessingException, RoomProcessingException;
+
+    Reservation getReservationById(long id) throws ReservationProcessingException;
 }

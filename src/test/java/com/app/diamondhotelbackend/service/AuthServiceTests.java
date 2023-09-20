@@ -13,7 +13,6 @@ import com.app.diamondhotelbackend.service.email.EmailServiceImpl;
 import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
 import com.app.diamondhotelbackend.util.ConstantUtil;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -100,8 +99,6 @@ public class AuthServiceTests {
     @Mock
     private EmailServiceImpl emailService;
 
-    private PasswordEncoder passwordEncoder;
-
     private UserProfile userProfile;
 
     private UserProfile updatedUserProfile;
@@ -128,7 +125,7 @@ public class AuthServiceTests {
 
     @BeforeEach
     public void init() {
-        passwordEncoder = new BCryptPasswordEncoder();
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
         userProfile = UserProfile.builder()
                 .id(1)
@@ -196,43 +193,6 @@ public class AuthServiceTests {
                 .build();
 
         authentication = new Authentication();
-    }
-
-    @AfterEach
-    public void reinit() {
-        userProfile = UserProfile.builder()
-                .id(1)
-                .email("ala-gembala@wp.pl")
-                .password(passwordEncoder.encode("#Test1111"))
-                .passportNumber("ZF005401499")
-                .role(ConstantUtil.USER)
-                .authProvider(ConstantUtil.LOCAL)
-                .accountConfirmed(false)
-                .build();
-
-        updatedUserProfile = UserProfile.builder()
-                .id(1)
-                .passportNumber("ZF005401499")
-                .role(ConstantUtil.USER)
-                .authProvider(ConstantUtil.LOCAL)
-                .build();
-
-        authToken = AuthToken.builder()
-                .id(1)
-                .userProfile(userProfile)
-                .accessValue("accessValue1")
-                .refreshValue("refreshValue")
-                .build();
-
-        confirmationToken = ConfirmationToken.builder()
-                .id(1)
-                .userProfile(userProfile)
-                .accessValue("accessValue1")
-                .createdAt(new Date(System.currentTimeMillis()))
-                .expiresAt(new Date(System.currentTimeMillis() + CONFIRMATION_TOKEN_EXPIRATION))
-                .build();
-
-        authentication.setPrincipal(null);
     }
 
     @Test

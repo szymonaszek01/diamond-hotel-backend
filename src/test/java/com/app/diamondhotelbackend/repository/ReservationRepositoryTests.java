@@ -2,7 +2,7 @@ package com.app.diamondhotelbackend.repository;
 
 import com.app.diamondhotelbackend.entity.Flight;
 import com.app.diamondhotelbackend.entity.Reservation;
-import com.app.diamondhotelbackend.entity.Transaction;
+import com.app.diamondhotelbackend.entity.Payment;
 import com.app.diamondhotelbackend.entity.UserProfile;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,16 +52,16 @@ public class ReservationRepositoryTests {
                 )
         );
 
-        List<Transaction> savedTransactionList = List.of(
+        List<Payment> savedPaymentList = List.of(
                 testEntityManager.persistAndFlush(
-                        Transaction.builder()
+                        Payment.builder()
                                 .createdAt(new Date(System.currentTimeMillis()))
                                 .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
                                 .token("token1")
                                 .build()
                 ),
                 testEntityManager.persistAndFlush(
-                        Transaction.builder()
+                        Payment.builder()
                                 .createdAt(new Date(System.currentTimeMillis()))
                                 .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
                                 .token("token2")
@@ -76,7 +76,7 @@ public class ReservationRepositoryTests {
                 .children(2)
                 .userProfile(savedUserProfile)
                 .flight(savedFlightList.get(0))
-                .transaction(savedTransactionList.get(0))
+                .payment(savedPaymentList.get(0))
                 .build();
 
         reservationList = List.of(
@@ -87,7 +87,7 @@ public class ReservationRepositoryTests {
                         .children(2)
                         .userProfile(savedUserProfile)
                         .flight(savedFlightList.get(0))
-                        .transaction(savedTransactionList.get(0))
+                        .payment(savedPaymentList.get(0))
                         .build(),
                 Reservation.builder()
                         .checkIn(Date.valueOf("2023-12-24"))
@@ -96,7 +96,7 @@ public class ReservationRepositoryTests {
                         .children(2)
                         .userProfile(savedUserProfile)
                         .flight(savedFlightList.get(1))
-                        .transaction(savedTransactionList.get(1))
+                        .payment(savedPaymentList.get(1))
                         .build()
         );
     }

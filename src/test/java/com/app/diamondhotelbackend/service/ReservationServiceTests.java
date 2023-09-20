@@ -5,10 +5,10 @@ import com.app.diamondhotelbackend.dto.room.model.RoomSelected;
 import com.app.diamondhotelbackend.entity.*;
 import com.app.diamondhotelbackend.repository.ReservationRepository;
 import com.app.diamondhotelbackend.service.flight.FlightServiceImpl;
+import com.app.diamondhotelbackend.service.payment.PaymentServiceImpl;
 import com.app.diamondhotelbackend.service.reservation.ReservationServiceImpl;
 import com.app.diamondhotelbackend.service.reservedroom.ReservedRoomServiceImpl;
 import com.app.diamondhotelbackend.service.room.RoomServiceImpl;
-import com.app.diamondhotelbackend.service.transaction.TransactionServiceImpl;
 import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 
@@ -41,7 +42,7 @@ public class ReservationServiceTests {
     private FlightServiceImpl flightService;
 
     @Mock
-    private TransactionServiceImpl transactionService;
+    private PaymentServiceImpl paymentService;
 
     @Mock
     private RoomServiceImpl roomService;
@@ -53,7 +54,7 @@ public class ReservationServiceTests {
 
     private Flight flight;
 
-    private Transaction transaction;
+    private Payment payment;
 
     private ReservationCreateRequestDto reservationCreateRequestDto;
 
@@ -88,7 +89,7 @@ public class ReservationServiceTests {
                 .flightNumber("flightNumber1")
                 .build();
 
-        transaction = Transaction.builder()
+        payment = Payment.builder()
                 .id(1)
                 .createdAt(new Date(System.currentTimeMillis()))
                 .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
@@ -111,7 +112,7 @@ public class ReservationServiceTests {
                 .checkOut(Date.valueOf("2023-12-27"))
                 .userProfile(userProfile)
                 .flight(flight)
-                .transaction(transaction)
+                .payment(payment)
                 .build();
 
         roomList = List.of(
@@ -138,14 +139,24 @@ public class ReservationServiceTests {
         when(reservationRepository.save(Mockito.any(Reservation.class))).thenReturn(reservation);
         when(userProfileService.getUserProfileById(Mockito.any(long.class))).thenReturn(userProfile);
         when(flightService.getFlightByFlightNumber(Mockito.any(String.class))).thenReturn(flight);
-        when(transactionService.createTransaction(Mockito.any(Transaction.class))).thenReturn(transaction);
+        when(paymentService.createPayment(Mockito.any(Payment.class))).thenReturn(payment);
         when(roomService.getRoomAvailableList(Mockito.any(Date.class), Mockito.any(Date.class), Mockito.any(RoomSelected.class))).thenReturn(roomList);
         when(reservedRoomService.createReservedRoom(Mockito.any(Reservation.class), Mockito.any(Room.class))).thenReturn(reservedRoom);
-        when(transactionService.updateTransactionCost(Mockito.any(long.class), Mockito.any(BigDecimal.class))).thenReturn(transaction);
+        when(paymentService.updatePaymentCost(Mockito.any(long.class), Mockito.any(BigDecimal.class))).thenReturn(payment);
 
         Reservation savedReservation = reservationService.createReservation(reservationCreateRequestDto);
 
         Assertions.assertThat(savedReservation).isNotNull();
         Assertions.assertThat(savedReservation.getId()).isEqualTo(reservation.getId());
+    }
+
+    @Test
+    public void ReservationService_GetReservationById_ReturnsReservation() {
+        when(reservationRepository.findById(Mockito.any(long.class))).thenReturn(Optional.of(reservation));
+
+        Reservation foundReservation = reservationService.getReservationById(reservation.getId());
+
+        Assertions.assertThat(foundReservation).isNotNull();
+        Assertions.assertThat(foundReservation.getId()).isEqualTo(reservation.getId());
     }
 }

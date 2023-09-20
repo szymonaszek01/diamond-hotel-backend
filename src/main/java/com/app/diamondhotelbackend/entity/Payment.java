@@ -14,7 +14,7 @@ import java.util.Date;
 @Setter
 @Builder
 @Entity
-public class Transaction {
+public class Payment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,16 +28,17 @@ public class Transaction {
     @Column(nullable = false)
     private Date expiresAt;
 
-    @Column(unique = true)
-    private String token;
-
     private BigDecimal cost;
-
-    private double tax;
 
     private String status;
 
+    @Column(unique = true)
+    private String token;
+
+    @Column(unique = true)
+    private String charge;
+
     @JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "transaction", cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "payment", cascade = CascadeType.ALL)
     private Reservation reservation;
 }

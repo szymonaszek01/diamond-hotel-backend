@@ -24,4 +24,6 @@ public class ApplicationPropertiesUtil {
     private String serverUri;
 
     private String openWeatherSecretKey;
+
+    private String stripeSecretKey;
 }

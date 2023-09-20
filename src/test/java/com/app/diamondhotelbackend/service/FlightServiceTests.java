@@ -54,4 +54,12 @@ public class FlightServiceTests {
         Assertions.assertThat(savedFlight).isNotNull();
         Assertions.assertThat(savedFlight.getFlightNumber()).isEqualTo(flight.getFlightNumber());
     }
+
+    @Test
+    public void FlightService_IsValidFlightNumber_ReturnsBoolean() {
+        boolean isValidFlightNumber = flightService.isValidFlightNumber(flight.getFlightNumber());
+
+        Assertions.assertThat(isValidFlightNumber).isNotNull();
+        Assertions.assertThat(isValidFlightNumber).isEqualTo(false);
+    }
 }

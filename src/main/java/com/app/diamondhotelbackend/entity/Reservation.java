@@ -38,7 +38,7 @@ public class Reservation {
     private Flight flight;
 
     @OneToOne
-    private Transaction transaction;
+    private Payment payment;
 
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "reservation", cascade = CascadeType.ALL)

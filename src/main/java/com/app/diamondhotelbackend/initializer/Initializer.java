@@ -23,7 +23,7 @@ public class Initializer implements CommandLineRunner {
 
     private final FlightRepository flightRepository;
 
-    private final TransactionRepository transactionRepository;
+    private final PaymentRepository paymentRepository;
 
     private final RoomRepository roomRepository;
 
@@ -39,7 +39,7 @@ public class Initializer implements CommandLineRunner {
 
     private final List<Flight> flightList = new ArrayList<>();
 
-    private final List<Transaction> transactionList = new ArrayList<>();
+    private final List<Payment> paymentList = new ArrayList<>();
 
     private final List<Room> roomList = new ArrayList<>();
 
@@ -57,7 +57,7 @@ public class Initializer implements CommandLineRunner {
     public void run(String... args) {
         initializeRoomTypeList();
         initializeFlightList();
-        initializeTransactionList();
+        initializePaymentList();
         initializeRoomList();
         initializeUserProfileList();
         initializeRoomTypeOpinionList();
@@ -66,7 +66,7 @@ public class Initializer implements CommandLineRunner {
 
         roomTypeRepository.saveAll(roomTypeList);
         flightRepository.saveAll(flightList);
-        transactionRepository.saveAll(transactionList);
+        paymentRepository.saveAll(paymentList);
         roomRepository.saveAll(roomList);
         userProfileRepository.saveAll(userProfileList);
         roomTypeOpinionRepository.saveAll(roomTypeOpinionList);
@@ -123,30 +123,27 @@ public class Initializer implements CommandLineRunner {
         ));
     }
 
-    private void initializeTransactionList() {
-        transactionList.addAll(Arrays.asList(
-                Transaction.builder()
+    private void initializePaymentList() {
+        paymentList.addAll(Arrays.asList(
+                Payment.builder()
                         .createdAt(new Date(System.currentTimeMillis()))
                         .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
                         .token("token1")
                         .cost(new BigDecimal(1800))
-                        .tax(0.1)
                         .status(ConstantUtil.APPROVED)
                         .build(),
-                Transaction.builder()
+                Payment.builder()
                         .createdAt(new Date(System.currentTimeMillis()))
                         .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
                         .token("token2")
                         .cost(new BigDecimal(1500))
-                        .tax(0.1)
                         .status(ConstantUtil.APPROVED)
                         .build(),
-                Transaction.builder()
+                Payment.builder()
                         .createdAt(new Date(System.currentTimeMillis()))
                         .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
                         .token("token3")
                         .cost(new BigDecimal(1200))
-                        .tax(0.1)
                         .status(ConstantUtil.APPROVED)
                         .build()
         ));
@@ -341,7 +338,7 @@ public class Initializer implements CommandLineRunner {
                         .children(2)
                         .userProfile(userProfileList.get(0))
                         .flight(flightList.get(0))
-                        .transaction(transactionList.get(0))
+                        .payment(paymentList.get(0))
                         .build(),
                 Reservation.builder()
                         .checkIn(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
@@ -350,7 +347,7 @@ public class Initializer implements CommandLineRunner {
                         .children(2)
                         .userProfile(userProfileList.get(1))
                         .flight(flightList.get(1))
-                        .transaction(transactionList.get(1))
+                        .payment(paymentList.get(1))
                         .build(),
                 Reservation.builder()
                         .checkIn(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
@@ -359,7 +356,7 @@ public class Initializer implements CommandLineRunner {
                         .children(2)
                         .userProfile(userProfileList.get(2))
                         .flight(flightList.get(2))
-                        .transaction(transactionList.get(2))
+                        .payment(paymentList.get(2))
                         .build()
         ));
     }

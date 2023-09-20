@@ -55,11 +55,15 @@ public class ConstantUtil {
     /**
      * ----- PAYMENT -----
      **/
-    public static final String APPROVED = "APPROVED";
+    public static final String REFUND = "refund";
 
-    public static final String WAITING_FOR_PAYMENT = "WAITING_FOR_PAYMENT";
+    public static final String SUCCEEDED = "succeeded";
 
-    public static final String CANCELLED = "CANCELLED";
+    public static final String APPROVED = "approved";
+
+    public static final String WAITING_FOR_PAYMENT = "waiting-for-payment";
+
+    public static final String CANCELLED = "cancelled";
 
 
     /**
@@ -101,9 +105,15 @@ public class ConstantUtil {
 
     public static final String AVAILABLE_ROOM_NOT_FOUND_EXCEPTION = "Available room not found";
 
-    public static final String TRANSACTION_NOT_FOUND_EXCEPTION = "Transaction not found";
+    public static final String PAYMENT_NOT_FOUND_EXCEPTION = "Payment not found";
 
     public static final String FLIGHT_NOT_FOUND_EXCEPTION = "Flight not found";
+
+    public static final String RESERVATION_NOT_FOUND_EXCEPTION = "Reservation not found exception";
+
+    public static final String PAYMENT_EXPIRED_EXCEPTION = "Payment expired";
+
+    public static final String CHARGE_NOT_FOUND_EXCEPTION = "Charge not found";
 
 
     /**

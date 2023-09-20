@@ -11,7 +11,7 @@ import com.app.diamondhotelbackend.repository.ReservationRepository;
 import com.app.diamondhotelbackend.service.flight.FlightServiceImpl;
 import com.app.diamondhotelbackend.service.reservedroom.ReservedRoomServiceImpl;
 import com.app.diamondhotelbackend.service.room.RoomServiceImpl;
-import com.app.diamondhotelbackend.service.transaction.TransactionServiceImpl;
+import com.app.diamondhotelbackend.service.payment.PaymentServiceImpl;
 import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
 import com.app.diamondhotelbackend.util.ConstantUtil;
 import com.app.diamondhotelbackend.util.DateUtil;
@@ -37,7 +37,7 @@ public class ReservationServiceImpl implements ReservationService {
 
     private final FlightServiceImpl flightService;
 
-    private final TransactionServiceImpl transactionService;
+    private final PaymentServiceImpl paymentService;
 
     private final RoomServiceImpl roomService;
 
@@ -54,9 +54,9 @@ public class ReservationServiceImpl implements ReservationService {
 
         UserProfile userProfile = prepareUserProfile(reservationCreateRequestDto.getUserProfileId());
         Flight flight = prepareFlight(reservationCreateRequestDto.getFlightNumber());
-        Transaction transaction = prepareTransaction();
-        Reservation reservation = prepareReservation(checkInAsDate.get(), checkOutAsDate.get(), reservationCreateRequestDto.getAdults(), reservationCreateRequestDto.getChildren(), userProfile, flight, transaction);
-        List<ReservedRoom> reservedRoomList = prepareReservedRoomList(checkInAsDate.get(), checkOutAsDate.get(), reservation, transaction, reservationCreateRequestDto.getRoomSelectedList());
+        Payment payment = preparePayment();
+        Reservation reservation = prepareReservation(checkInAsDate.get(), checkOutAsDate.get(), reservationCreateRequestDto.getAdults(), reservationCreateRequestDto.getChildren(), userProfile, flight, payment);
+        List<ReservedRoom> reservedRoomList = prepareReservedRoomList(checkInAsDate.get(), checkOutAsDate.get(), reservation, payment, reservationCreateRequestDto.getRoomSelectedList());
 
         if (reservedRoomList.isEmpty()) {
             throw new ReservationProcessingException(ConstantUtil.NOT_ENOUGH_AVAILABLE_ROOMS);
@@ -65,10 +65,15 @@ public class ReservationServiceImpl implements ReservationService {
         BigDecimal cost = BigDecimal.valueOf(reservedRoomList.stream()
                 .map(reservedRoom -> reservedRoom.getCost().longValue())
                 .reduce(0L, Long::sum));
-        transaction = transactionService.updateTransactionCost(transaction.getId(), cost);
-        reservation.setTransaction(transaction);
+        payment = paymentService.updatePaymentCost(payment.getId(), cost);
+        reservation.setPayment(payment);
 
         return reservation;
+    }
+
+    @Override
+    public Reservation getReservationById(long id) throws ReservationProcessingException {
+        return reservationRepository.findById(id).orElseThrow(() -> new ReservationProcessingException(ConstantUtil.RESERVATION_NOT_FOUND_EXCEPTION));
     }
 
     private UserProfile prepareUserProfile(long userProfileId) throws UserProfileProcessingException {
@@ -76,6 +81,10 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     private Flight prepareFlight(String flightNumber) {
+        if (!flightService.isValidFlightNumber(flightNumber)) {
+            return null;
+        }
+
         try {
             return flightService.getFlightByFlightNumber(flightNumber);
         } catch (FlightProcessingException e) {
@@ -83,18 +92,17 @@ public class ReservationServiceImpl implements ReservationService {
         }
     }
 
-    private Transaction prepareTransaction() {
-        Transaction transaction = Transaction.builder()
+    private Payment preparePayment() {
+        Payment payment = Payment.builder()
                 .createdAt(new Date(System.currentTimeMillis()))
-                .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
+                .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
                 .status(ConstantUtil.WAITING_FOR_PAYMENT)
-                .tax(0.1)
                 .build();
 
-        return transactionService.createTransaction(transaction);
+        return paymentService.createPayment(payment);
     }
 
-    private Reservation prepareReservation(Date checkIn, Date checkOut, int adults, int children, UserProfile userProfile, Flight flight, Transaction transaction) {
+    private Reservation prepareReservation(Date checkIn, Date checkOut, int adults, int children, UserProfile userProfile, Flight flight, Payment payment) {
         Reservation reservation = Reservation.builder()
                 .checkIn(checkIn)
                 .checkOut(checkOut)
@@ -102,13 +110,13 @@ public class ReservationServiceImpl implements ReservationService {
                 .children(children)
                 .userProfile(userProfile)
                 .flight(flight)
-                .transaction(transaction)
+                .payment(payment)
                 .build();
 
         return reservationRepository.save(reservation);
     }
 
-    private List<ReservedRoom> prepareReservedRoomList(Date checkIn, Date checkOut, Reservation reservation, Transaction transaction, List<RoomSelected> roomSelectedList) {
+    private List<ReservedRoom> prepareReservedRoomList(Date checkIn, Date checkOut, Reservation reservation, Payment payment, List<RoomSelected> roomSelectedList) {
         try {
             List<ReservedRoom> reservedRoomList = new ArrayList<>();
             for (RoomSelected roomSelected : roomSelectedList) {
@@ -122,7 +130,7 @@ public class ReservationServiceImpl implements ReservationService {
             return reservedRoomList;
 
         } catch (RoomProcessingException e) {
-            transactionService.updateTransactionStatus(transaction.getId(), ConstantUtil.CANCELLED);
+            paymentService.updatePaymentStatus(payment.getId(), ConstantUtil.CANCELLED);
 
             return Collections.emptyList();
         }

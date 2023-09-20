@@ -8,4 +8,6 @@ public interface FlightService {
     Flight createFlight(Flight flight);
 
     Flight getFlightByFlightNumber(String flightNumber) throws FlightProcessingException;
+
+    boolean isValidFlightNumber(String flightNumber);
 }

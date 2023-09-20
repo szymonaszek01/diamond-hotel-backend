@@ -59,14 +59,14 @@ public class ReservedRoomRepositoryTests {
                         .build())
         );
 
-        List<Transaction> transactionList = List.of(
-                testEntityManager.persistAndFlush(Transaction.builder()
+        List<Payment> paymentList = List.of(
+                testEntityManager.persistAndFlush(Payment.builder()
                         .createdAt(new Date(System.currentTimeMillis()))
                         .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
                         .token("token1")
                         .status(ConstantUtil.APPROVED)
                         .build()),
-                testEntityManager.persistAndFlush(Transaction.builder()
+                testEntityManager.persistAndFlush(Payment.builder()
                         .createdAt(new Date(System.currentTimeMillis()))
                         .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
                         .token("token2")
@@ -78,12 +78,12 @@ public class ReservedRoomRepositoryTests {
                 testEntityManager.persistAndFlush(Reservation.builder()
                         .checkIn(Date.valueOf("2023-09-20"))
                         .checkOut(Date.valueOf("2023-09-25"))
-                        .transaction(transactionList.get(0))
+                        .payment(paymentList.get(0))
                         .build()),
                 testEntityManager.persistAndFlush(Reservation.builder()
                         .checkIn(Date.valueOf("2023-12-20"))
                         .checkOut(Date.valueOf("2023-12-25"))
-                        .transaction(transactionList.get(1))
+                        .payment(paymentList.get(1))
                         .build())
         );
 

@@ -12,7 +12,7 @@ import java.util.List;
 public interface ReservedRoomRepository extends JpaRepository<ReservedRoom, Long> {
 
     @Query("SELECT rr FROM ReservedRoom rr WHERE " +
-            "rr.reservation.transaction.status <> 'CANCELLED' AND" +
+            "rr.reservation.payment.status <> 'cancelled' AND" +
             "((rr.reservation.checkIn BETWEEN :checkIn AND :checkOut) OR " +
             "(rr.reservation.checkOut BETWEEN :checkIn AND :checkOut) OR " +
             "((:checkIn BETWEEN rr.reservation.checkIn AND rr.reservation.checkOut) AND " +

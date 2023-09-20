@@ -28,4 +28,13 @@ public class ReservationController {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, e.getMessage());
         }
     }
+
+    @GetMapping("/id/{id}")
+    public ResponseEntity<Reservation> getReservationById(@PathVariable long id) {
+        try {
+            return ResponseEntity.ok(reservationService.getReservationById(id));
+        } catch (ReservationProcessingException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
 }

@@ -3,8 +3,8 @@ package com.app.diamondhotelbackend.controller;
 import com.app.diamondhotelbackend.dto.reservation.request.ReservationCreateRequestDto;
 import com.app.diamondhotelbackend.dto.room.model.RoomSelected;
 import com.app.diamondhotelbackend.entity.Flight;
+import com.app.diamondhotelbackend.entity.Payment;
 import com.app.diamondhotelbackend.entity.Reservation;
-import com.app.diamondhotelbackend.entity.Transaction;
 import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.security.jwt.JwtFilter;
 import com.app.diamondhotelbackend.service.reservation.ReservationServiceImpl;
@@ -29,6 +29,7 @@ import java.sql.Date;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
@@ -89,7 +90,7 @@ public class ReservationControllerTests {
                 .flightNumber(reservationCreateRequestDto.getFlightNumber())
                 .build();
 
-        Transaction transaction = Transaction.builder()
+        Payment payment = Payment.builder()
                 .id(1)
                 .createdAt(new Date(System.currentTimeMillis()))
                 .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
@@ -105,7 +106,7 @@ public class ReservationControllerTests {
                 .children(reservationCreateRequestDto.getChildren())
                 .userProfile(userProfile)
                 .flight(flight)
-                .transaction(transaction)
+                .payment(payment)
                 .build();
     }
 
@@ -126,6 +127,20 @@ public class ReservationControllerTests {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.check_out", CoreMatchers.is(reservation.getCheckOut().toString())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.user_profile.id", CoreMatchers.is((int) reservation.getUserProfile().getId())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.flight.id", CoreMatchers.is((int) reservation.getFlight().getId())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.transaction.id", CoreMatchers.is((int) reservation.getTransaction().getId())));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.payment.id", CoreMatchers.is((int) reservation.getPayment().getId())));
+    }
+
+    @Test
+    public void ReservationController_GetReservationById_ReturnsReservation() throws Exception {
+        when(reservationService.getReservationById(Mockito.any(long.class))).thenReturn(reservation);
+
+        MockHttpServletRequestBuilder request = get(url + "/id/" + reservation.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc
+                .perform(request)
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", CoreMatchers.is((int) reservation.getId())));
     }
 }

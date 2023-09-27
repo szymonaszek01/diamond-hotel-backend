@@ -12,5 +12,7 @@ public interface AuthTokenRepository extends JpaRepository<AuthToken, Long> {
 
     Optional<AuthToken> findByRefreshValue(String refreshToken);
 
+    Optional<AuthToken> findByAccessValue(String authToken);
+
     Optional<AuthToken> findByUserProfile(UserProfile userProfile);
 }

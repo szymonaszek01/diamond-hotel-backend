@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class PaymentChargeRequestDto {
+public class PaymentCancelRequestDto {
 
     @JsonProperty("payment_id")
     private long paymentId;
@@ -16,8 +16,4 @@ public class PaymentChargeRequestDto {
 
     @JsonProperty("user_profile_id")
     private long userProfileId;
-
-    private String token;
-
-    private int amount;
 }

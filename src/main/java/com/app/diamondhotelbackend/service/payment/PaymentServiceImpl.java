@@ -1,17 +1,24 @@
 package com.app.diamondhotelbackend.service.payment;
 
 
+import com.app.diamondhotelbackend.dto.payment.request.PaymentCancelRequestDto;
 import com.app.diamondhotelbackend.dto.payment.request.PaymentChargeRequestDto;
 import com.app.diamondhotelbackend.entity.Payment;
+import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.exception.PaymentProcessingException;
+import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.repository.PaymentRepository;
+import com.app.diamondhotelbackend.service.email.EmailServiceImpl;
 import com.app.diamondhotelbackend.service.stripe.StripeServiceImpl;
+import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
 import com.app.diamondhotelbackend.util.ConstantUtil;
+import com.app.diamondhotelbackend.util.PdfUtil;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
 import com.stripe.model.Refund;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -26,6 +33,12 @@ public class PaymentServiceImpl implements PaymentService {
 
     private final StripeServiceImpl stripeService;
 
+    private final UserProfileServiceImpl userProfileService;
+
+    private final EmailServiceImpl emailService;
+
+    private final PdfUtil pdfUtil;
+
     @Override
     public Payment createPayment(Payment payment) {
         return paymentRepository.save(payment);
@@ -37,10 +50,11 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public Payment chargePayment(PaymentChargeRequestDto paymentChargeRequestDto) throws PaymentProcessingException, StripeException {
-        Payment payment = getPaymentById(paymentChargeRequestDto.getId());
+    public Payment chargePayment(PaymentChargeRequestDto paymentChargeRequestDto) throws PaymentProcessingException, StripeException, UserProfileProcessingException {
+        Payment payment = getPaymentById(paymentChargeRequestDto.getPaymentId());
         if (payment.getExpiresAt().before(new Date(System.currentTimeMillis()))) {
             /** TODO - Please, create "cron job to remove expired confirmation tokens, auth tokens and payments" */
+            /** TODO - Please, verify "all requests if provided userProfileId is equaled to userProfileId encrypted in JWT token" */
             payment.setStatus(ConstantUtil.CANCELLED);
             paymentRepository.save(payment);
 
@@ -52,12 +66,16 @@ public class PaymentServiceImpl implements PaymentService {
         payment.setToken(paymentChargeRequestDto.getToken());
         payment.setCharge(charge.getId());
 
+        UserProfile userProfile = userProfileService.getUserProfileById(paymentChargeRequestDto.getUserProfileId());
+        InputStreamResource inputStreamResource = pdfUtil.getPaymentPdf(payment, userProfile, paymentChargeRequestDto.getReservationId());
+        emailService.sendPaymentForReservationConfirmedEmail(payment, userProfile, paymentChargeRequestDto.getReservationId(), inputStreamResource);
+
         return paymentRepository.save(payment);
     }
 
     @Override
-    public Payment cancelPayment(long id) throws PaymentProcessingException, StripeException {
-        Payment payment = getPaymentById(id);
+    public Payment cancelPayment(PaymentCancelRequestDto paymentCancelRequestDto) throws PaymentProcessingException, StripeException, UserProfileProcessingException {
+        Payment payment = getPaymentById(paymentCancelRequestDto.getPaymentId());
 
         if (payment.getCharge() != null) {
             Refund refund = stripeService.createRefund(payment.getCharge());
@@ -67,6 +85,10 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         payment.setStatus(ConstantUtil.CANCELLED);
+
+        UserProfile userProfile = userProfileService.getUserProfileById(paymentCancelRequestDto.getUserProfileId());
+        InputStreamResource inputStreamResource = pdfUtil.getPaymentPdf(payment, userProfile, paymentCancelRequestDto.getReservationId());
+        emailService.sendPaymentForReservationCancelledEmail(payment, userProfile, paymentCancelRequestDto.getReservationId(), inputStreamResource);
 
         return paymentRepository.save(payment);
     }

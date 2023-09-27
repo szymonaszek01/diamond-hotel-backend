@@ -2,10 +2,12 @@ package com.app.diamondhotelbackend.service.authtoken;
 
 import com.app.diamondhotelbackend.entity.AuthToken;
 import com.app.diamondhotelbackend.entity.UserProfile;
+import com.app.diamondhotelbackend.exception.AuthProcessingException;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.repository.AuthTokenRepository;
 import com.app.diamondhotelbackend.service.jwt.JwtServiceImpl;
 import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
+import com.app.diamondhotelbackend.util.ConstantUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -40,6 +42,11 @@ public class AuthTokenServiceImpl implements AuthTokenService {
         }
 
         return authTokenRepository.save(token.get());
+    }
+
+    @Override
+    public AuthToken getAuthTokenByAccessValue(String authToken) throws AuthProcessingException {
+        return authTokenRepository.findByAccessValue(authToken).orElseThrow(() -> new AuthProcessingException(ConstantUtil.INVALID_TOKEN_EXCEPTION));
     }
 
     @Override

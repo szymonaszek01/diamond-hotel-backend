@@ -1,14 +1,20 @@
 package com.app.diamondhotelbackend.service.email;
 
 import com.app.diamondhotelbackend.entity.ConfirmationToken;
+import com.app.diamondhotelbackend.entity.Payment;
+import com.app.diamondhotelbackend.entity.Reservation;
+import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.util.ApplicationPropertiesUtil;
 import com.app.diamondhotelbackend.util.ConstantUtil;
 import com.app.diamondhotelbackend.util.EmailUtil;
 import com.app.diamondhotelbackend.util.UrlUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Service
 @AllArgsConstructor
@@ -19,6 +25,8 @@ public class EmailServiceImpl implements EmailService {
 
     private final EmailUtil emailUtil;
 
+    private final SpringTemplateEngine springTemplateEngine;
+
     @Override
     public void sendConfirmationAccountEmail(ConfirmationToken confirmationToken) {
         String link = UriComponentsBuilder.fromUriString(applicationPropertiesUtil.getClientUri() + ConstantUtil.EMAIL_CONFIRM_ACCOUNT_CALLBACK_URI)
@@ -26,16 +34,12 @@ public class EmailServiceImpl implements EmailService {
                 .build()
                 .toUriString();
 
-        emailUtil.send(
-                confirmationToken.getUserProfile().getEmail(),
-                ConstantUtil.buildEmail(confirmationToken.getUserProfile().getFirstname(),
-                        ConstantUtil.EMAIL_CONFIRM_ACCOUNT_CONTENT_TITLE,
-                        ConstantUtil.EMAIL_CONFIRM_ACCOUNT_CONTENT_DESCRIPTION,
-                        ConstantUtil.EMAIL_CONFIRM_ACCOUNT_LINK_DESCRIPTION,
-                        link
-                ),
-                ConstantUtil.EMAIL_CONFIRM_ACCOUNT_SUBJECT
-        );
+        Context context = new Context();
+        context.setVariable("userProfile", confirmationToken.getUserProfile());
+        context.setVariable("link", link);
+        String htmlToString = springTemplateEngine.process("confirmationtokenemail", context);
+
+        emailUtil.send(confirmationToken.getUserProfile().getEmail(), htmlToString, ConstantUtil.EMAIL_CONFIRM_ACCOUNT_SUBJECT, null, null);
     }
 
     @Override
@@ -45,15 +49,42 @@ public class EmailServiceImpl implements EmailService {
                 .build()
                 .toUriString();
 
-        emailUtil.send(
-                confirmationToken.getUserProfile().getEmail(),
-                ConstantUtil.buildEmail(confirmationToken.getUserProfile().getFirstname(),
-                        ConstantUtil.EMAIL_CHANGE_PASSWORD_CONTENT_TITLE,
-                        ConstantUtil.EMAIL_CHANGE_PASSWORD_CONTENT_DESCRIPTION,
-                        ConstantUtil.EMAIL_CHANGE_PASSWORD_LINK_DESCRIPTION,
-                        link
-                ),
-                ConstantUtil.EMAIL_CHANGE_PASSWORD_SUBJECT
-        );
+        Context context = new Context();
+        context.setVariable("userProfile", confirmationToken.getUserProfile());
+        context.setVariable("link", link);
+        String htmlToString = springTemplateEngine.process("changingpasswordemail", context);
+
+        emailUtil.send(confirmationToken.getUserProfile().getEmail(), htmlToString, ConstantUtil.EMAIL_CHANGE_PASSWORD_SUBJECT, null, null);
+    }
+
+    @Override
+    public void sendReservationConfirmedEmail(Reservation reservation, InputStreamResource inputStreamResource) {
+        Context context = new Context();
+        context.setVariable("reservation", reservation);
+        String htmlToString = springTemplateEngine.process("reservationconfirmedemail", context);
+
+        emailUtil.send(reservation.getUserProfile().getEmail(), htmlToString, ConstantUtil.EMAIL_RESERVATION_CONFIRMED_SUBJECT, inputStreamResource, "reservation-pdf.pdf");
+    }
+
+    @Override
+    public void sendPaymentForReservationConfirmedEmail(Payment payment, UserProfile userProfile, long reservationId, InputStreamResource inputStreamResource) {
+        Context context = new Context();
+        context.setVariable("payment", payment);
+        context.setVariable("userProfile", userProfile);
+        context.setVariable("reservationId", reservationId);
+        String htmlToString = springTemplateEngine.process("paymentconfirmedemail", context);
+
+        emailUtil.send(userProfile.getEmail(), htmlToString, ConstantUtil.EMAIL_PAYMENT_FOR_RESERVATION_CONFIRMED_SUBJECT, inputStreamResource, "payment-pdf.pdf");
+    }
+
+    @Override
+    public void sendPaymentForReservationCancelledEmail(Payment payment, UserProfile userProfile, long reservationId, InputStreamResource inputStreamResource) {
+        Context context = new Context();
+        context.setVariable("payment", payment);
+        context.setVariable("userProfile", userProfile);
+        context.setVariable("reservationId", reservationId);
+        String htmlToString = springTemplateEngine.process("paymentcancelledemail", context);
+
+        emailUtil.send(userProfile.getEmail(), htmlToString, ConstantUtil.EMAIL_PAYMENT_FOR_RESERVATION_CANCELLED_SUBJECT, inputStreamResource, "payment-pdf.pdf");
     }
 }

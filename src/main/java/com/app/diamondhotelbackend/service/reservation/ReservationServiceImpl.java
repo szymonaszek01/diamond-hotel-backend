@@ -3,22 +3,27 @@ package com.app.diamondhotelbackend.service.reservation;
 import com.app.diamondhotelbackend.dto.reservation.request.ReservationCreateRequestDto;
 import com.app.diamondhotelbackend.dto.room.model.RoomSelected;
 import com.app.diamondhotelbackend.entity.*;
-import com.app.diamondhotelbackend.exception.FlightProcessingException;
-import com.app.diamondhotelbackend.exception.ReservationProcessingException;
-import com.app.diamondhotelbackend.exception.RoomProcessingException;
-import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
+import com.app.diamondhotelbackend.exception.*;
 import com.app.diamondhotelbackend.repository.ReservationRepository;
+import com.app.diamondhotelbackend.service.email.EmailServiceImpl;
 import com.app.diamondhotelbackend.service.flight.FlightServiceImpl;
+import com.app.diamondhotelbackend.service.payment.PaymentServiceImpl;
 import com.app.diamondhotelbackend.service.reservedroom.ReservedRoomServiceImpl;
 import com.app.diamondhotelbackend.service.room.RoomServiceImpl;
-import com.app.diamondhotelbackend.service.payment.PaymentServiceImpl;
 import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
 import com.app.diamondhotelbackend.util.ConstantUtil;
 import com.app.diamondhotelbackend.util.DateUtil;
+import com.app.diamondhotelbackend.util.PdfUtil;
+import com.app.diamondhotelbackend.util.QrCodeUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.ArrayList;
@@ -43,8 +48,14 @@ public class ReservationServiceImpl implements ReservationService {
 
     private final ReservedRoomServiceImpl reservedRoomService;
 
+    private final EmailServiceImpl emailService;
+
+    private final QrCodeUtil qrCodeUtil;
+
+    private final PdfUtil pdfUtil;
+
     @Override
-    public Reservation createReservation(ReservationCreateRequestDto reservationCreateRequestDto) throws ReservationProcessingException, UserProfileProcessingException {
+    public Reservation createReservation(ReservationCreateRequestDto reservationCreateRequestDto) throws ReservationProcessingException, UserProfileProcessingException, IOException {
         Optional<Date> checkInAsDate = DateUtil.parseDate(reservationCreateRequestDto.getCheckIn());
         Optional<Date> checkOutAsDate = DateUtil.parseDate(reservationCreateRequestDto.getCheckOut());
 
@@ -68,12 +79,56 @@ public class ReservationServiceImpl implements ReservationService {
         payment = paymentService.updatePaymentCost(payment.getId(), cost);
         reservation.setPayment(payment);
 
+        String text = "Reservation id: " + reservation.getId() + ", Payment: " + reservation.getPayment().getToken();
+        byte[] qrCode = qrCodeUtil.getQRCode(text, 300, 300);
+        InputStreamResource inputStreamResource = pdfUtil.getReservationPdf(reservation, reservedRoomList, qrCode);
+        emailService.sendReservationConfirmedEmail(reservation, inputStreamResource);
+
         return reservation;
+    }
+
+    @Override
+    public List<Reservation> getReservationList(int page, int size) {
+        if (page < 0 || size < 1) {
+            return Collections.emptyList();
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Reservation> reservationPage = reservationRepository.findAll(pageable);
+
+        return reservationPage.getContent();
+    }
+
+    @Override
+    public List<Reservation> getReservationListByUserProfileId(long userProfileId, int page, int size) {
+        try {
+            if (userProfileId < 1 || page < 0 || size < 1) {
+                return Collections.emptyList();
+            }
+
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Reservation> reservationPage = reservationRepository.findAllByUserProfileId(userProfileId, pageable);
+
+            return reservationPage.getContent();
+
+        } catch (AuthProcessingException e) {
+            return Collections.emptyList();
+        }
     }
 
     @Override
     public Reservation getReservationById(long id) throws ReservationProcessingException {
         return reservationRepository.findById(id).orElseThrow(() -> new ReservationProcessingException(ConstantUtil.RESERVATION_NOT_FOUND_EXCEPTION));
+    }
+
+    @Override
+    public InputStreamResource getReservationPdfDocument(long id) throws ReservationProcessingException {
+        Reservation reservation = getReservationById(id);
+        List<ReservedRoom> reservedRoomList = reservedRoomService.getReservedRoomListByReservationId(id);
+        String text = "Reservation id: " + reservation.getId() + ", Payment: " + reservation.getPayment().getToken();
+        byte[] qrCode = qrCodeUtil.getQRCode(text, 250, 250);
+
+        return pdfUtil.getReservationPdf(reservation, reservedRoomList, qrCode);
     }
 
     private UserProfile prepareUserProfile(long userProfileId) throws UserProfileProcessingException {

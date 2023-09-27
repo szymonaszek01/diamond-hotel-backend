@@ -10,7 +10,7 @@ import java.util.List;
 @RequestMapping("/api/v1/reserved-room")
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"http://localhost:3000"}, allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:3000", "https://diamond-hotel-frontend-react.vercel.app/"}, allowCredentials = "true")
 public class ReservedRoomController {
 
     private final ReservedRoomServiceImpl reservedRoomService;

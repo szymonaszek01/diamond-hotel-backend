@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+          name="viewport">
+    <meta content="ie=edge" http-equiv="X-UA-Compatible">
+    <title>Reservation pdf</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap"
+          rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Poppins', sans-serif;
+            font-style: normal;
+            word-break: break-all;
+        }
+
+        img#logo {
+            width: 170px;
+            height: auto;
+        }
+
+        img#qr-code {
+            width: 250px;
+            height: auto;
+        }
+
+        p {
+            font-size: 14px;
+            font-weight: normal;
+            color: black;
+            margin: 0;
+            padding: 0;
+        }
+
+        p + p {
+            margin-top: 3px;
+        }
+
+        .mt-3 {
+            margin-top: 30px;
+        }
+
+        .mt-5 {
+            margin-top: 50px;
+        }
+
+        table {
+            width: 100%;
+            border: 1px solid;
+            justify-content: space-between;
+            border-collapse: collapse;
+        }
+
+        table th, td {
+            font-size: 12px;
+            border: 1px solid;
+            padding: 10px;
+            text-align: left;
+        }
+
+        table#table-logo {
+            border: 0;
+        }
+
+        table#table-logo th, table#table-logo td {
+            border: 0;
+            padding: 0;
+            text-align: right;
+        }
+
+        table#table-qr-code {
+            border: 0;
+        }
+
+        table#table-qr-code th, table#table-qr-code td {
+            border: 0;
+            padding: 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<table id="table-logo">
+    <tr>
+        <th>
+            <img alt="logo-black" id="logo" src="src/main/resources/assets/logo-black.png">
+        </th>
+    </tr>
+</table>
+<p class="mt-5">
+    <span><strong>Email: </strong></span>
+    <span th:text="${reservation.getUserProfile().getEmail()}"></span>
+</p>
+<p>
+    <span><strong>Full name: </strong></span>
+    <span th:text="${reservation.getUserProfile().getFirstname() + ' ' + reservation.getUserProfile().getLastname()}"></span>
+</p>
+<p>
+    <span><strong>Tel: </strong></span>
+    <span th:text="${reservation.getUserProfile().getPhoneNumber()}"></span>
+</p>
+<p class="mt-3">
+    <span><strong
+            th:text="${reservation.getUserProfile().getFirstname() + ' ' + reservation.getUserProfile().getLastname()}"></strong></span>
+    <span>, this is your reservation</span>
+</p>
+<table>
+    <tr>
+        <th>Reservation</th>
+        <th>Check in</th>
+        <th>Check out</th>
+        <th>Adults</th>
+        <th>Children</th>
+        <th>Flight<br>number</th>
+    </tr>
+    <tr>
+        <td th:text="${reservation.getId()}"></td>
+        <td th:text="${reservation.getCheckIn().toString()}"></td>
+        <td th:text="${reservation.getCheckOut().toString()}"></td>
+        <td th:text="${reservation.getAdults()}"></td>
+        <td th:text="${reservation.getChildren()}"></td>
+        <td th:text="${reservation.getFlight().getFlightNumber()}"></td>
+    </tr>
+</table>
+<p class="mt-3">
+    <span><strong
+            th:text="${reservation.getUserProfile().getFirstname() + ' ' + reservation.getUserProfile().getLastname()}"></strong></span>
+    <span>, these are your rooms</span>
+</p>
+<table>
+    <tr>
+        <th>Room type</th>
+        <th>Floor</th>
+        <th>Room</th>
+        <th>Cost</th>
+    </tr>
+    <tr th:each="reservedRoom: ${reservedRoomList}">
+        <td th:text="${reservedRoom.getRoom().getRoomType().getName()}"></td>
+        <td th:text="${reservedRoom.getRoom().getFloor()}"></td>
+        <td th:text="${reservedRoom.getRoom().getNumber()}"></td>
+        <td>
+            <span th:text="${reservedRoom.getCost()}"></span>
+            <span>$</span>
+        </td>
+    </tr>
+</table>
+<p class="mt-3">
+    <span><strong
+            th:text="${reservation.getUserProfile().getFirstname() + ' ' + reservation.getUserProfile().getLastname()}"></strong></span>
+    <span>, this is your payment</span>
+</p>
+<table>
+    <tr>
+        <th>Payment</th>
+        <th>Charge</th>
+        <th>Cost</th>
+        <th>Status</th>
+    </tr>
+    <tr>
+        <td th:text="${reservation.getPayment().getToken()}"></td>
+        <td th:text="${reservation.getPayment().getCharge()}"></td>
+        <td>
+            <span th:text="${reservation.getPayment().getCost()}"></span>
+            <span>$</span>
+        </td>
+        <td th:text="${reservation.getPayment().getStatus()}"></td>
+    </tr>
+</table>
+<p class="mt-3">
+    Please keep this reservation QR code handy for quick access to your reservation details.
+</p>
+<table id="table-qr-code">
+    <tr>
+        <th>
+            <img alt="qr-code" id="qr-code" th:src="${'data:image/jpg;charset=utf-8;base64,' + qrCode}">
+        </th>
+    </tr>
+</table>
+<p class="mt-3">
+    Thank you for choosing <strong>Diamond hotel</strong> for your reservation.
+</p>
+<p>
+    <span><strong>Address: </strong></span>
+    <span>Maldives, Malé Atoll</span>
+</p>
+<p>
+    <span><strong>Tel: </strong></span>
+    <span>+960 1234567</span>
+</p>
+<p>
+    <span><strong>Email: </strong></span>
+    <span>diamond.hotel.contact@gmail.com</span>
+</p>
+</body>
+</html>

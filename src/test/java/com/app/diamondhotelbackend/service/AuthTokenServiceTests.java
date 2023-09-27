@@ -100,6 +100,16 @@ public class AuthTokenServiceTests {
     }
 
     @Test
+    public void AuthTokenService_GetAuthTokenByAccessValue_ReturnsAuthToken() {
+        when(authTokenRepository.findByAccessValue(Mockito.any(String.class))).thenReturn(Optional.of(authToken));
+
+        AuthToken foundAuthToken = authTokenService.getAuthTokenByAccessValue(authToken.getAccessValue());
+
+        Assertions.assertThat(foundAuthToken).isNotNull();
+        Assertions.assertThat(foundAuthToken.getId()).isEqualTo(1);
+    }
+
+    @Test
     public void AuthTokenService_UpdateAuthTokenAccessValue_ReturnsOptionalAuthToken() {
         when(jwtService.validateToken(Mockito.any(String.class))).thenReturn(Optional.of(userDetails));
         when(jwtService.getAccessTokenExpiration()).thenReturn(ACCESS_TOKEN_EXPIRATION);

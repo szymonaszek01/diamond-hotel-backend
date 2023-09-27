@@ -1,8 +1,8 @@
 package com.app.diamondhotelbackend.repository;
 
 import com.app.diamondhotelbackend.entity.Flight;
-import com.app.diamondhotelbackend.entity.Reservation;
 import com.app.diamondhotelbackend.entity.Payment;
+import com.app.diamondhotelbackend.entity.Reservation;
 import com.app.diamondhotelbackend.entity.UserProfile;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.sql.Date;
@@ -81,13 +83,20 @@ public class ReservationRepositoryTests {
 
         reservationList = List.of(
                 Reservation.builder()
+                        .checkIn(Date.valueOf("2023-10-24"))
+                        .checkOut(Date.valueOf("2023-10-27"))
+                        .adults(2)
+                        .children(2)
+                        .userProfile(savedUserProfile)
+                        .flight(savedFlightList.get(0))
+                        .build(),
+                Reservation.builder()
                         .checkIn(Date.valueOf("2023-11-24"))
                         .checkOut(Date.valueOf("2023-11-27"))
                         .adults(2)
                         .children(2)
                         .userProfile(savedUserProfile)
                         .flight(savedFlightList.get(0))
-                        .payment(savedPaymentList.get(0))
                         .build(),
                 Reservation.builder()
                         .checkIn(Date.valueOf("2023-12-24"))
@@ -96,7 +105,30 @@ public class ReservationRepositoryTests {
                         .children(2)
                         .userProfile(savedUserProfile)
                         .flight(savedFlightList.get(1))
-                        .payment(savedPaymentList.get(1))
+                        .build(),
+                Reservation.builder()
+                        .checkIn(Date.valueOf("2024-01-24"))
+                        .checkOut(Date.valueOf("2024-01-27"))
+                        .adults(2)
+                        .children(2)
+                        .userProfile(savedUserProfile)
+                        .flight(savedFlightList.get(0))
+                        .build(),
+                Reservation.builder()
+                        .checkIn(Date.valueOf("2024-02-24"))
+                        .checkOut(Date.valueOf("2024-02-27"))
+                        .adults(2)
+                        .children(2)
+                        .userProfile(savedUserProfile)
+                        .flight(savedFlightList.get(0))
+                        .build(),
+                Reservation.builder()
+                        .checkIn(Date.valueOf("2024-03-24"))
+                        .checkOut(Date.valueOf("2024-03-27"))
+                        .adults(2)
+                        .children(2)
+                        .userProfile(savedUserProfile)
+                        .flight(savedFlightList.get(1))
                         .build()
         );
     }
@@ -112,10 +144,17 @@ public class ReservationRepositoryTests {
     @Test
     public void ReservationRepository_FindAll_ReturnsReservationList() {
         reservationRepository.saveAll(reservationList);
-        List<Reservation> foundReservationList = reservationRepository.findAll();
+        Page<Reservation> reservationPage = reservationRepository.findAll(PageRequest.of(0, 3));
 
-        Assertions.assertThat(foundReservationList).isNotNull();
-        Assertions.assertThat(foundReservationList.size()).isEqualTo(2);
+        Assertions.assertThat(reservationPage).isNotNull();
+    }
+
+    @Test
+    public void ReservationRepository_FindAllByUserProfileId_ReturnsReservationList() {
+        reservationRepository.saveAll(reservationList);
+        Page<Reservation> reservationPage = reservationRepository.findAllByUserProfileId(1L, PageRequest.of(1, 3));
+
+        Assertions.assertThat(reservationPage).isNotNull();
     }
 
     @Test

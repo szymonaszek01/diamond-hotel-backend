@@ -54,6 +54,8 @@ public class ReservationControllerTests {
 
     private Reservation reservation;
 
+    private List<Reservation> reservationList;
+
     private static final String url = "/api/v1/reservation";
 
     @BeforeEach
@@ -108,6 +110,33 @@ public class ReservationControllerTests {
                 .flight(flight)
                 .payment(payment)
                 .build();
+
+        reservationList = List.of(
+                Reservation.builder()
+                        .id(1)
+                        .checkIn(Date.valueOf("2023-10-11"))
+                        .checkOut(Date.valueOf("2023-10-15"))
+                        .adults(reservationCreateRequestDto.getAdults())
+                        .children(reservationCreateRequestDto.getChildren())
+                        .userProfile(userProfile)
+                        .build(),
+                Reservation.builder()
+                        .id(2)
+                        .checkIn(Date.valueOf("2023-11-11"))
+                        .checkOut(Date.valueOf("2023-11-15"))
+                        .adults(reservationCreateRequestDto.getAdults())
+                        .children(reservationCreateRequestDto.getChildren())
+                        .userProfile(userProfile)
+                        .build(),
+                Reservation.builder()
+                        .id(3)
+                        .checkIn(Date.valueOf("2023-12-11"))
+                        .checkOut(Date.valueOf("2023-12-15"))
+                        .adults(reservationCreateRequestDto.getAdults())
+                        .children(reservationCreateRequestDto.getChildren())
+                        .userProfile(userProfile)
+                        .build()
+        );
     }
 
     @Test
@@ -128,6 +157,38 @@ public class ReservationControllerTests {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.user_profile.id", CoreMatchers.is((int) reservation.getUserProfile().getId())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.flight.id", CoreMatchers.is((int) reservation.getFlight().getId())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.payment.id", CoreMatchers.is((int) reservation.getPayment().getId())));
+    }
+
+    @Test
+    public void ReservationController_GetReservationList_ReturnsReservationList() throws Exception {
+        when(reservationService.getReservationList(Mockito.any(int.class), Mockito.any(int.class))).thenReturn(reservationList);
+
+        MockHttpServletRequestBuilder request = get(url + "/all")
+                .contentType(MediaType.APPLICATION_JSON)
+                .queryParam("page", "0")
+                .queryParam("size", "3");
+
+        mockMvc
+                .perform(request)
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.size()", CoreMatchers.is(3)));
+    }
+
+    @Test
+    public void ReservationController_GetReservationListByUserProfileId_ReturnsReservationList() throws Exception {
+        when(reservationService.getReservationListByUserProfileId(Mockito.any(long.class), Mockito.any(int.class), Mockito.any(int.class))).thenReturn(reservationList);
+
+        MockHttpServletRequestBuilder request = get(url + "/all/user-profile-id/" + 1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .queryParam("page", "0")
+                .queryParam("size", "3");
+
+        mockMvc
+                .perform(request)
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.size()", CoreMatchers.is(3)));
     }
 
     @Test

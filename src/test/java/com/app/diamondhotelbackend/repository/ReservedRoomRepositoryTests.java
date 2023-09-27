@@ -134,8 +134,8 @@ public class ReservedRoomRepositoryTests {
 
     @Test
     public void ReservedRoomRepository_FindAllByReservationId_ReturnsReservedRoomList() {
-        reservedRoomRepository.saveAll(reservedRoomList);
-        List<ReservedRoom> foundReservedRoomList = reservedRoomRepository.findAllByReservationId(1);
+        List<ReservedRoom> savedReservedRoomList = reservedRoomRepository.saveAll(reservedRoomList);
+        List<ReservedRoom> foundReservedRoomList = reservedRoomRepository.findAllByReservationId(savedReservedRoomList.get(0).getReservation().getId());
 
         Assertions.assertThat(foundReservedRoomList).isNotNull();
         Assertions.assertThat(foundReservedRoomList.size()).isEqualTo(1);

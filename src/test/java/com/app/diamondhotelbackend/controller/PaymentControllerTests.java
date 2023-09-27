@@ -1,5 +1,6 @@
 package com.app.diamondhotelbackend.controller;
 
+import com.app.diamondhotelbackend.dto.payment.request.PaymentCancelRequestDto;
 import com.app.diamondhotelbackend.dto.payment.request.PaymentChargeRequestDto;
 import com.app.diamondhotelbackend.entity.Payment;
 import com.app.diamondhotelbackend.security.jwt.JwtFilter;
@@ -47,6 +48,8 @@ public class PaymentControllerTests {
 
     private PaymentChargeRequestDto paymentChargeRequestDto;
 
+    private PaymentCancelRequestDto paymentCancelRequestDto;
+
     private Payment payment;
 
     private static final String url = "/api/v1/payment";
@@ -54,9 +57,17 @@ public class PaymentControllerTests {
     @BeforeEach
     public void init() {
         paymentChargeRequestDto = PaymentChargeRequestDto.builder()
-                .id(1)
+                .paymentId(1)
+                .reservationId(1)
+                .userProfileId(1)
                 .token("token1")
                 .amount(200)
+                .build();
+
+        paymentCancelRequestDto = PaymentCancelRequestDto.builder()
+                .paymentId(1)
+                .reservationId(1)
+                .userProfileId(1)
                 .build();
 
         payment = Payment.builder()
@@ -72,7 +83,6 @@ public class PaymentControllerTests {
 
     @Test
     public void PaymentController_PayPayment_ReturnsPayment() throws Exception {
-        when(paymentService.getPaymentById(Mockito.any(long.class))).thenReturn(payment);
         when(paymentService.chargePayment(Mockito.any(PaymentChargeRequestDto.class))).thenReturn(payment);
 
         MockHttpServletRequestBuilder request = put(url + "/charge")
@@ -90,11 +100,11 @@ public class PaymentControllerTests {
     public void PaymentController_CancelPayment_ReturnsPayment() throws Exception {
         payment.setStatus(ConstantUtil.CANCELLED);
 
-        when(paymentService.getPaymentById(Mockito.any(long.class))).thenReturn(payment);
-        when(paymentService.cancelPayment(Mockito.any(long.class))).thenReturn(payment);
+        when(paymentService.cancelPayment(Mockito.any(PaymentCancelRequestDto.class))).thenReturn(payment);
 
-        MockHttpServletRequestBuilder request = put(url + "/id/" + payment.getId() + "/cancel")
-                .contentType(MediaType.APPLICATION_JSON);
+        MockHttpServletRequestBuilder request = put(url + "/cancel")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(paymentCancelRequestDto));
 
         mockMvc
                 .perform(request)

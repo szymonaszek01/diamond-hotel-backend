@@ -89,6 +89,15 @@ public class AuthTokenRepositoryTests {
     }
 
     @Test
+    public void AuthTokenRepository_FindByAccessValue_ReturnsOptionalAuthToken() {
+        AuthToken savedAuthToken = authTokenRepository.save(authToken);
+        Optional<AuthToken> authTokenOptional = authTokenRepository.findByAccessValue(savedAuthToken.getAccessValue());
+
+        Assertions.assertThat(authTokenOptional).isPresent();
+        Assertions.assertThat(authTokenOptional.get().getAccessValue()).isEqualTo(savedAuthToken.getAccessValue());
+    }
+
+    @Test
     public void AuthTokenRepository_FindByRefreshValue_ReturnsOptionalAuthToken() {
         AuthToken savedAuthToken = authTokenRepository.save(authToken);
         Optional<AuthToken> authTokenOptional = authTokenRepository.findByRefreshValue((savedAuthToken.getRefreshValue()));

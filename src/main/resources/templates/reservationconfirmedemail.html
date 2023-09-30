@@ -122,7 +122,7 @@
                     <th>Check out</th>
                     <th>Adults</th>
                     <th>Children</th>
-                    <th>Flight<br>number</th>
+                    <th th:if="${reservation.getFlight() != null}">Flight<br>number</th>
                     <th>Payment<br>status</th>
                 </tr>
                 <tr>
@@ -131,7 +131,7 @@
                     <td th:text="${reservation.getCheckOut().toString()}"></td>
                     <td th:text="${reservation.getAdults()}"></td>
                     <td th:text="${reservation.getChildren()}"></td>
-                    <td th:text="${reservation.getFlight().getFlightNumber()}"></td>
+                    <td th:if="${reservation.getFlight() != null}" th:text="${reservation.getFlight().getFlightNumber()}"></td>
                     <td th:text="${reservation.getPayment().getStatus()}"></td>
                 </tr>
             </table>

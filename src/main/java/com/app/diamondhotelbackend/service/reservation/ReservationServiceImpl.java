@@ -100,20 +100,32 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public List<Reservation> getReservationListByUserProfileId(long userProfileId, int page, int size) {
+    public List<Reservation> getReservationListByUserProfileId(long userProfileId, int page, int size, String paymentStatus) {
         try {
             if (userProfileId < 1 || page < 0 || size < 1) {
                 return Collections.emptyList();
             }
 
             Pageable pageable = PageRequest.of(page, size);
-            Page<Reservation> reservationPage = reservationRepository.findAllByUserProfileId(userProfileId, pageable);
+            Page<Reservation> reservationPage;
+            if (paymentStatus.isEmpty()) {
+                reservationPage = reservationRepository.findAllByUserProfileId(userProfileId, pageable);
+            } else {
+                reservationPage = reservationRepository.findAllByUserProfileIdAndPaymentStatus(userProfileId, paymentStatus, pageable);
+            }
 
             return reservationPage.getContent();
 
         } catch (AuthProcessingException e) {
             return Collections.emptyList();
         }
+    }
+
+    @Override
+    public Long countReservationListByUserProfileId(long userProfileId) throws UserProfileProcessingException {
+        UserProfile userProfile = userProfileService.getUserProfileById(userProfileId);
+
+        return reservationRepository.countAllByUserProfile(userProfile);
     }
 
     @Override

@@ -16,7 +16,9 @@ public interface ReservationService {
 
     List<Reservation> getReservationList(int page, int size);
 
-    List<Reservation> getReservationListByUserProfileId(long userProfileId, int page, int size);
+    List<Reservation> getReservationListByUserProfileId(long userProfileId, int page, int size, String paymentStatus);
+
+    Long countReservationListByUserProfileId(long userProfileId) throws UserProfileProcessingException;
 
     Reservation getReservationById(long id) throws ReservationProcessingException;
 

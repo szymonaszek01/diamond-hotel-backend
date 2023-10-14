@@ -62,6 +62,7 @@ public class SecurityConfiguration {
                 .requestMatchers("/api/v1/reservation/create").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)
                 .requestMatchers("/api/v1/reservation/all").hasAuthority(ConstantUtil.ADMIN)
                 .requestMatchers("/api/v1/reservation/all/user-profile-id/{userProfileId}").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)
+                .requestMatchers("/api/v1/reservation/all/number/user-profile-id/{userProfileId}").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)
                 .requestMatchers("/api/v1/reservation/id/{id}").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)
                 .requestMatchers("/api/v1/reservation/id/{id}/pdf").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)
                 .requestMatchers("/api/v1/payment/charge").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)

@@ -51,8 +51,20 @@ public class ReservationController {
     }
 
     @GetMapping("/all/user-profile-id/{userProfileId}")
-    public List<Reservation> getReservationListByUserProfileId(@PathVariable long userProfileId, @RequestParam(value = "page") int page, @RequestParam(value = "size") int size) {
-        return reservationService.getReservationListByUserProfileId(userProfileId, page, size);
+    public List<Reservation> getReservationListByUserProfileId(@PathVariable long userProfileId,
+                                                               @RequestParam(value = "page") int page,
+                                                               @RequestParam(value = "size") int size,
+                                                               @RequestParam(value = "payment-status", defaultValue = "", required = false) String paymentStatus) {
+        return reservationService.getReservationListByUserProfileId(userProfileId, page, size, paymentStatus);
+    }
+
+    @GetMapping("/all/number/user-profile-id/{userProfileId}")
+    public ResponseEntity<Long> countReservationListByUserProfileId(@PathVariable long userProfileId) {
+        try {
+            return ResponseEntity.ok(reservationService.countReservationListByUserProfileId(userProfileId));
+        } catch (UserProfileProcessingException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
     }
 
     @GetMapping(value = "/id/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)

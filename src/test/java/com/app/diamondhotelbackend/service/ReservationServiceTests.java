@@ -231,10 +231,21 @@ public class ReservationServiceTests {
     public void ReservationService_GetReservationListByUserProfileId_ReturnsReservationList() {
         when(reservationRepository.findAllByUserProfileId(Mockito.any(long.class), Mockito.any(PageRequest.class))).thenReturn(reservationPage);
 
-        List<Reservation> foundReservationList = reservationService.getReservationListByUserProfileId(1, 1, 3);
+        List<Reservation> foundReservationList = reservationService.getReservationListByUserProfileId(1, 1, 3,  "");
 
         Assertions.assertThat(foundReservationList).isNotNull();
         Assertions.assertThat(reservationList.size()).isEqualTo(3);
+    }
+
+    @Test
+    public void ReservationService_CountReservationListByUserProfileId_ReturnsLong() {
+        when(userProfileService.getUserProfileById(Mockito.any(long.class))).thenReturn(reservation.getUserProfile());
+        when(reservationRepository.countAllByUserProfile(Mockito.any(UserProfile.class))).thenReturn(3L);
+
+        Long countReservationList = reservationService.countReservationListByUserProfileId(1L);
+
+        Assertions.assertThat(countReservationList).isNotNull();
+        Assertions.assertThat(countReservationList).isEqualTo(3L);
     }
 
     @Test

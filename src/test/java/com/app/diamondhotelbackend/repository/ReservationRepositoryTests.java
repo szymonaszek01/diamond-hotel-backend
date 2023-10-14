@@ -4,6 +4,7 @@ import com.app.diamondhotelbackend.entity.Flight;
 import com.app.diamondhotelbackend.entity.Payment;
 import com.app.diamondhotelbackend.entity.Reservation;
 import com.app.diamondhotelbackend.entity.UserProfile;
+import com.app.diamondhotelbackend.util.ConstantUtil;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,6 +32,8 @@ public class ReservationRepositoryTests {
     private Reservation reservation;
 
     private List<Reservation> reservationList;
+
+    private PageRequest pageRequest;
 
     @BeforeEach
     public void init() {
@@ -60,6 +63,7 @@ public class ReservationRepositoryTests {
                                 .createdAt(new Date(System.currentTimeMillis()))
                                 .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
                                 .token("token1")
+                                .status(ConstantUtil.APPROVED)
                                 .build()
                 ),
                 testEntityManager.persistAndFlush(
@@ -67,6 +71,7 @@ public class ReservationRepositoryTests {
                                 .createdAt(new Date(System.currentTimeMillis()))
                                 .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
                                 .token("token2")
+                                .status(ConstantUtil.WAITING_FOR_PAYMENT)
                                 .build()
                 )
         );
@@ -131,6 +136,8 @@ public class ReservationRepositoryTests {
                         .flight(savedFlightList.get(1))
                         .build()
         );
+
+        pageRequest = PageRequest.of(0, 3);
     }
 
     @Test
@@ -142,19 +149,41 @@ public class ReservationRepositoryTests {
     }
 
     @Test
-    public void ReservationRepository_FindAll_ReturnsReservationList() {
+    public void ReservationRepository_FindAll_ReturnsReservationPage() {
         reservationRepository.saveAll(reservationList);
-        Page<Reservation> reservationPage = reservationRepository.findAll(PageRequest.of(0, 3));
+        Page<Reservation> reservationPage = reservationRepository.findAll(pageRequest);
 
         Assertions.assertThat(reservationPage).isNotNull();
     }
 
     @Test
-    public void ReservationRepository_FindAllByUserProfileId_ReturnsReservationList() {
+    public void ReservationRepository_FindAllByUserProfileId_ReturnsReservationPage() {
+        pageRequest = pageRequest.withPage(1);
+
         reservationRepository.saveAll(reservationList);
-        Page<Reservation> reservationPage = reservationRepository.findAllByUserProfileId(1L, PageRequest.of(1, 3));
+        Page<Reservation> reservationPage = reservationRepository.findAllByUserProfileId(1L, pageRequest);
 
         Assertions.assertThat(reservationPage).isNotNull();
+    }
+
+    @Test
+    public void ReservationRepository_FindAllByUserProfileIdAndPaymentStatus_ReturnsReservationPage() {
+        pageRequest = pageRequest.withPage(1);
+
+        reservationRepository.saveAll(reservationList);
+        Page<Reservation> reservationPage = reservationRepository.findAllByUserProfileIdAndPaymentStatus(1L, ConstantUtil.APPROVED, pageRequest);
+
+        Assertions.assertThat(reservationPage).isNotNull();
+    }
+
+    @Test
+    public void ReservationRepository_CountAllByUserProfile_ReturnsLong() {
+        reservationRepository.saveAll(reservationList);
+
+        Long countedReservationList = reservationRepository.countAllByUserProfile(reservation.getUserProfile());
+
+        Assertions.assertThat(countedReservationList).isNotNull();
+        Assertions.assertThat(countedReservationList).isEqualTo(6);
     }
 
     @Test

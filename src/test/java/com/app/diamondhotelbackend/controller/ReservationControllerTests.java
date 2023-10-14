@@ -177,7 +177,7 @@ public class ReservationControllerTests {
 
     @Test
     public void ReservationController_GetReservationListByUserProfileId_ReturnsReservationList() throws Exception {
-        when(reservationService.getReservationListByUserProfileId(Mockito.any(long.class), Mockito.any(int.class), Mockito.any(int.class))).thenReturn(reservationList);
+        when(reservationService.getReservationListByUserProfileId(Mockito.any(long.class), Mockito.any(int.class), Mockito.any(int.class), Mockito.any(String.class))).thenReturn(reservationList);
 
         MockHttpServletRequestBuilder request = get(url + "/all/user-profile-id/" + 1)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -189,6 +189,20 @@ public class ReservationControllerTests {
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.size()", CoreMatchers.is(3)));
+    }
+
+    @Test
+    public void ReservationController_CountReservationListByUserProfileId() throws Exception {
+        when(reservationService.countReservationListByUserProfileId(Mockito.any(long.class))).thenReturn(3L);
+
+        MockHttpServletRequestBuilder request = get(url + "/all/number/user-profile-id/" + 1)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc
+                .perform(request)
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string(CoreMatchers.is("3")));
     }
 
     @Test

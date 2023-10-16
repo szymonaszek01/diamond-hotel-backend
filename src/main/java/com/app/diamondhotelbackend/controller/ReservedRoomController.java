@@ -1,9 +1,13 @@
 package com.app.diamondhotelbackend.controller;
 
 import com.app.diamondhotelbackend.entity.ReservedRoom;
+import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.service.reservedroom.ReservedRoomServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -15,8 +19,21 @@ public class ReservedRoomController {
 
     private final ReservedRoomServiceImpl reservedRoomService;
 
-    @GetMapping("/all/reservation/id/{id}")
-    public List<ReservedRoom> getReservedRoomListByReservationId(@PathVariable long id) {
-        return reservedRoomService.getReservedRoomListByReservationId(id);
+    @GetMapping("/all/user-profile-id/{userProfileId}")
+    public List<ReservedRoom> getReservedRoomListByUserProfileId(@PathVariable long userProfileId,
+                                                                 @RequestParam(value = "page") int page,
+                                                                 @RequestParam(value = "size") int size,
+                                                                 @RequestParam(value = "payment-status", defaultValue = "", required = false) String paymentStatus) {
+        return reservedRoomService.getReservedRoomListByUserProfileId(userProfileId, page, size, paymentStatus);
     }
+
+    @GetMapping("/all/number/user-profile-id/{userProfileId}")
+    public ResponseEntity<Long> countReservedRoomListByUserProfileId(@PathVariable long userProfileId) {
+        try {
+            return ResponseEntity.ok(reservedRoomService.countReservedRoomListByUserProfileId(userProfileId));
+        } catch (UserProfileProcessingException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
 }

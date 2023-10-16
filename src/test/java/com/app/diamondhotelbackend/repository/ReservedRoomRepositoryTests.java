@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
@@ -25,12 +27,25 @@ public class ReservedRoomRepositoryTests {
     @Autowired
     private TestEntityManager testEntityManager;
 
+    private UserProfile savedUserProfile;
+
+    private List<Reservation> savedReservationList;
+
     private ReservedRoom reservedRoom;
 
     private List<ReservedRoom> reservedRoomList;
 
+    private PageRequest pageRequest;
+
     @BeforeEach
     public void init() {
+        savedUserProfile = testEntityManager.persistAndFlush(
+                UserProfile.builder()
+                        .email("email1")
+                        .passportNumber("passportNumber1")
+                        .build()
+        );
+
         List<RoomType> savedRoomTypeList = List.of(
                 testEntityManager.persistAndFlush(RoomType.builder()
                         .name("Deluxe Suite")
@@ -74,36 +89,40 @@ public class ReservedRoomRepositoryTests {
                         .build())
         );
 
-        List<Reservation> reservationList = List.of(
+        savedReservationList = List.of(
                 testEntityManager.persistAndFlush(Reservation.builder()
                         .checkIn(Date.valueOf("2023-09-20"))
                         .checkOut(Date.valueOf("2023-09-25"))
                         .payment(paymentList.get(0))
+                        .userProfile(savedUserProfile)
                         .build()),
                 testEntityManager.persistAndFlush(Reservation.builder()
                         .checkIn(Date.valueOf("2023-12-20"))
                         .checkOut(Date.valueOf("2023-12-25"))
                         .payment(paymentList.get(1))
+                        .userProfile(savedUserProfile)
                         .build())
         );
 
         reservedRoom = ReservedRoom.builder()
                 .room(savedRoomList.get(0))
-                .reservation(reservationList.get(0))
+                .reservation(savedReservationList.get(0))
                 .build();
 
         reservedRoomList = List.of(
                 ReservedRoom.builder()
                         .room(savedRoomList.get(0))
-                        .reservation(reservationList.get(0))
+                        .reservation(savedReservationList.get(0))
                         .cost(BigDecimal.valueOf(5 * savedRoomList.get(0).getRoomType().getPricePerHotelNight().doubleValue()))
                         .build(),
                 ReservedRoom.builder()
                         .room(savedRoomList.get(1))
-                        .reservation(reservationList.get(1))
+                        .reservation(savedReservationList.get(1))
                         .cost(BigDecimal.valueOf(5 * savedRoomList.get(1).getRoomType().getPricePerHotelNight().doubleValue()))
                         .build()
         );
+
+        pageRequest = PageRequest.of(0, 3);
     }
 
     @Test
@@ -115,17 +134,9 @@ public class ReservedRoomRepositoryTests {
     }
 
     @Test
-    public void ReservedRoomRepository_FindAll_ReturnsReservedRoomList() {
-        reservedRoomRepository.saveAll(reservedRoomList);
-        List<ReservedRoom> foundReservedRoomList = reservedRoomRepository.findAll();
-
-        Assertions.assertThat(foundReservedRoomList).isNotNull();
-        Assertions.assertThat(foundReservedRoomList.size()).isEqualTo(2);
-    }
-
-    @Test
     public void ReservedRoomRepository_FindAllByReservationCheckInAndReservationCheckOut_ReturnsReservedRoomList() {
         reservedRoomRepository.saveAll(reservedRoomList);
+
         List<ReservedRoom> foundReservedRoomList = reservedRoomRepository.findAllByReservationCheckInAndReservationCheckOut(Date.valueOf("2023-09-20"), Date.valueOf("2023-09-25"));
 
         Assertions.assertThat(foundReservedRoomList).isNotNull();
@@ -133,7 +144,17 @@ public class ReservedRoomRepositoryTests {
     }
 
     @Test
-    public void ReservedRoomRepository_FindAllByReservationId_ReturnsReservedRoomList() {
+    public void ReservedRoomRepository_FindAll_ReturnsReservedRoomList() {
+        reservedRoomRepository.saveAll(reservedRoomList);
+
+        List<ReservedRoom> foundReservedRoomList = reservedRoomRepository.findAll();
+
+        Assertions.assertThat(foundReservedRoomList).isNotNull();
+        Assertions.assertThat(foundReservedRoomList.size()).isEqualTo(2);
+    }
+
+    @Test
+    public void ReservedRoomRepository_FindAllByReservationId_ReturnsReservedRoomPage() {
         List<ReservedRoom> savedReservedRoomList = reservedRoomRepository.saveAll(reservedRoomList);
         List<ReservedRoom> foundReservedRoomList = reservedRoomRepository.findAllByReservationId(savedReservedRoomList.get(0).getReservation().getId());
 
@@ -142,8 +163,27 @@ public class ReservedRoomRepositoryTests {
     }
 
     @Test
+    public void ReservedRoomRepository_FindAllByReservationUserProfileIdOrderByReservationIdDesc_ReservedRoomPage() {
+        pageRequest = pageRequest.withPage(1);
+
+        Page<ReservedRoom> reservedRoomPage = reservedRoomRepository.findAllByReservationUserProfileIdOrderByReservationIdDesc(savedReservationList.get(0).getUserProfile().getId(), pageRequest);
+
+        Assertions.assertThat(reservedRoomPage).isNotNull();
+    }
+
+    @Test
+    public void ReservedRoomRepository_FindAllByReservationUserProfileIdAndReservationPaymentStatusOrderByReservationIdDesc() {
+        pageRequest = pageRequest.withPage(1);
+
+        Page<ReservedRoom> reservedRoomPage = reservedRoomRepository.findAllByReservationUserProfileIdAndReservationPaymentStatusOrderByReservationIdDesc(savedReservationList.get(0).getUserProfile().getId(), ConstantUtil.APPROVED, pageRequest);
+
+        Assertions.assertThat(reservedRoomPage).isNotNull();
+    }
+
+    @Test
     public void ReservedRoomRepository_FindById_ReturnsOptionalReservedRoom() {
         ReservedRoom savedReservedRoom = reservedRoomRepository.save(reservedRoom);
+
         Optional<ReservedRoom> ReservedRoomOptional = reservedRoomRepository.findById((reservedRoom.getId()));
 
         Assertions.assertThat(ReservedRoomOptional).isPresent();
@@ -151,8 +191,19 @@ public class ReservedRoomRepositoryTests {
     }
 
     @Test
+    public void ReservedRoomRepository_CountAllByReservationUserProfile_ReturnsLong() {
+        reservedRoomRepository.saveAll(reservedRoomList);
+
+        Long countedReservedRoomList = reservedRoomRepository.countAllByReservationUserProfile(savedUserProfile);
+
+        Assertions.assertThat(countedReservedRoomList).isNotNull();
+        Assertions.assertThat(countedReservedRoomList).isEqualTo(2L);
+    }
+
+    @Test
     public void ReservedRoomRepository_Update_ReturnsReservedRoom() {
         ReservedRoom savedReservedRoom = reservedRoomRepository.save(reservedRoom);
+
         Optional<ReservedRoom> ReservedRoomOptional = reservedRoomRepository.findById((savedReservedRoom.getId()));
 
         Assertions.assertThat(ReservedRoomOptional).isPresent();
@@ -168,7 +219,9 @@ public class ReservedRoomRepositoryTests {
     @Test
     public void ReservedRoomRepository_Delete_ReturnsNothing() {
         ReservedRoom savedReservedRoom = reservedRoomRepository.save(reservedRoom);
+
         reservedRoomRepository.deleteById(savedReservedRoom.getId());
+
         Optional<ReservedRoom> ReservedRoomOptional = reservedRoomRepository.findById(reservedRoom.getId());
 
         Assertions.assertThat(ReservedRoomOptional).isEmpty();

@@ -5,6 +5,7 @@ import com.app.diamondhotelbackend.entity.ReservedRoom;
 import com.app.diamondhotelbackend.entity.Room;
 import com.app.diamondhotelbackend.security.jwt.JwtFilter;
 import com.app.diamondhotelbackend.service.reservedroom.ReservedRoomServiceImpl;
+import com.app.diamondhotelbackend.util.ConstantUtil;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,15 +42,13 @@ public class ReservedRoomControllerTests {
     @Autowired
     private MockMvc mockMvc;
 
-    private Reservation reservation;
-
     private List<ReservedRoom> reservedRoomList;
 
     private static final String url = "/api/v1/reserved-room";
 
     @BeforeEach
     public void init() {
-        reservation = Reservation.builder()
+        Reservation reservation = Reservation.builder()
                 .id(1)
                 .checkIn(Date.valueOf("2023-12-24"))
                 .checkOut(Date.valueOf("2023-12-27"))
@@ -81,17 +80,34 @@ public class ReservedRoomControllerTests {
     }
 
     @Test
-    public void ReservationController_CreateReservation_ReturnsReservation() throws Exception {
-        when(reservedRoomService.getReservedRoomListByReservationId(Mockito.any(long.class))).thenReturn(reservedRoomList);
+    public void ReservedRoomController_GetReservedRoomListByUserProfileId_ReturnsReservedRoomList() throws Exception {
+        when(reservedRoomService.getReservedRoomListByUserProfileId(Mockito.any(long.class), Mockito.any(int.class), Mockito.any(int.class), Mockito.any(String.class))).thenReturn(reservedRoomList);
 
-        MockHttpServletRequestBuilder request = get(url + "/all/reservation/id/" + reservation.getId())
+        MockHttpServletRequestBuilder request = get(url + "/all/user-profile-id/" + 1L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .queryParam("page", "0")
+                .queryParam("size", "3")
+                .queryParam("status", ConstantUtil.APPROVED);
+
+        mockMvc
+                .perform(request)
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.size()", CoreMatchers.is(reservedRoomList.size())));
+    }
+
+    @Test
+    public void ReservedRoomController_CountReservedRoomListByUserProfileId_Long() throws Exception {
+        when(reservedRoomService.countReservedRoomListByUserProfileId(Mockito.any(long.class))).thenReturn(2L);
+
+        MockHttpServletRequestBuilder request = get(url + "/all/number/user-profile-id/" + 1L)
                 .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc
                 .perform(request)
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id", CoreMatchers.is((int) reservedRoomList.get(0).getId())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.[1].id", CoreMatchers.is((int) reservedRoomList.get(1).getId())));
+                .andExpect(MockMvcResultMatchers.content().string(CoreMatchers.is("2")));
     }
 }

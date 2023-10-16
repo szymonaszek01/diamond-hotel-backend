@@ -1,11 +1,9 @@
 package com.app.diamondhotelbackend.service;
 
-import com.app.diamondhotelbackend.entity.Reservation;
-import com.app.diamondhotelbackend.entity.ReservedRoom;
-import com.app.diamondhotelbackend.entity.Room;
-import com.app.diamondhotelbackend.entity.RoomType;
+import com.app.diamondhotelbackend.entity.*;
 import com.app.diamondhotelbackend.repository.ReservedRoomRepository;
 import com.app.diamondhotelbackend.service.reservedroom.ReservedRoomServiceImpl;
+import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +12,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -30,6 +31,11 @@ public class ReservedRoomServiceTests {
     @Mock
     private ReservedRoomRepository reservedRoomRepository;
 
+    @Mock
+    private UserProfileServiceImpl userProfileService;
+
+    private UserProfile userProfile;
+
     private Reservation reservation;
 
     private Room room;
@@ -37,6 +43,9 @@ public class ReservedRoomServiceTests {
     private ReservedRoom reservedRoom;
 
     private List<ReservedRoom> reservedRoomList;
+
+    private Page<ReservedRoom> reservedRoomPage;
+
 
     @BeforeEach
     public void init() {
@@ -46,8 +55,15 @@ public class ReservedRoomServiceTests {
                 .pricePerHotelNight(BigDecimal.valueOf(350))
                 .build();
 
+        userProfile = UserProfile.builder()
+                .id(1)
+                .email("test.email@gmail.com")
+                .passportNumber("AD1234")
+                .build();
+
         reservation = Reservation.builder()
                 .id(1)
+                .userProfile(userProfile)
                 .checkIn(Date.valueOf("2023-12-24"))
                 .checkOut(Date.valueOf("2023-12-27"))
                 .build();
@@ -71,6 +87,8 @@ public class ReservedRoomServiceTests {
                         .id(2)
                         .build()
         );
+
+        reservedRoomPage = new PageImpl<>(reservedRoomList);
     }
 
     @Test
@@ -81,6 +99,17 @@ public class ReservedRoomServiceTests {
 
         Assertions.assertThat(savedReservedRoom).isNotNull();
         Assertions.assertThat(savedReservedRoom.getId()).isEqualTo(reservedRoom.getId());
+    }
+
+
+    @Test
+    public void ReservedRoomService_GetReservedRoomListByReservationCheckInAndReservationCheckOut_ReturnsReservedRoomList() {
+        when(reservedRoomRepository.findAllByReservationCheckInAndReservationCheckOut(Mockito.any(Date.class), Mockito.any(Date.class))).thenReturn(reservedRoomList);
+
+        List<ReservedRoom> foundReservedRoomList = reservedRoomService.getReservedRoomListByReservationCheckInAndReservationCheckOut(Date.valueOf("2023-09-20"), Date.valueOf("2023-09-25"));
+
+        Assertions.assertThat(foundReservedRoomList).isNotNull();
+        Assertions.assertThat(foundReservedRoomList.size()).isEqualTo(2);
     }
 
     @Test
@@ -94,12 +123,23 @@ public class ReservedRoomServiceTests {
     }
 
     @Test
-    public void ReservedRoomService_GetReservedRoomListByReservationCheckInAndReservationCheckOut_ReturnsReservedRoomList() {
-        when(reservedRoomRepository.findAllByReservationCheckInAndReservationCheckOut(Mockito.any(Date.class), Mockito.any(Date.class))).thenReturn(reservedRoomList);
+    public void ReservedRoomService_GetReservedRoomListByUserProfileId_ReturnsReservedRoomList() {
+        when(reservedRoomRepository.findAllByReservationUserProfileIdOrderByReservationIdDesc(Mockito.any(long.class), Mockito.any(PageRequest.class))).thenReturn(reservedRoomPage);
 
-        List<ReservedRoom> foundReservedRoomList = reservedRoomService.getReservedRoomListByReservationCheckInAndReservationCheckOut(Date.valueOf("2023-09-20"), Date.valueOf("2023-09-25"));
+        List<ReservedRoom> foundReservedRoomList = reservedRoomService.getReservedRoomListByUserProfileId(1L, 0, 3, "");
 
         Assertions.assertThat(foundReservedRoomList).isNotNull();
         Assertions.assertThat(foundReservedRoomList.size()).isEqualTo(2);
+    }
+
+    @Test
+    public void ReservedRoomService_CountReservedRoomListByUserProfileId_Long() {
+        when(userProfileService.getUserProfileById(Mockito.any(long.class))).thenReturn(userProfile);
+        when(reservedRoomRepository.countAllByReservationUserProfile(Mockito.any(UserProfile.class))).thenReturn(2L);
+
+        Long countReservationList = reservedRoomService.countReservedRoomListByUserProfileId(1L);
+
+        Assertions.assertThat(countReservationList).isNotNull();
+        Assertions.assertThat(countReservationList).isEqualTo(2L);
     }
 }

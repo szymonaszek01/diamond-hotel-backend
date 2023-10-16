@@ -1,6 +1,7 @@
 package com.app.diamondhotelbackend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,6 +24,7 @@ public class Room {
     private int floor;
 
     @ManyToOne()
+    @JsonProperty("room_type")
     private RoomType roomType;
 
     @JsonIgnore

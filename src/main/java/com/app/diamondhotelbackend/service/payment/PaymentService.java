@@ -9,12 +9,19 @@ import com.stripe.exception.StripeException;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.List;
 
 public interface PaymentService {
 
     Payment createPayment(Payment payment);
 
+    List<Payment> getPaymentList(int page, int size);
+
+    List<Payment> getPaymentListByUserProfileId(long userProfileId, int page, int size, String status);
+
     Payment getPaymentById(long id) throws PaymentProcessingException;
+
+    Long countPaymentListByUserProfileId(long userProfileId) throws UserProfileProcessingException;
 
     Payment chargePayment(PaymentChargeRequestDto paymentChargeRequestDto) throws PaymentProcessingException, StripeException, UserProfileProcessingException;
 

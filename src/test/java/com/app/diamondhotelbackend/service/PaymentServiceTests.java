@@ -23,10 +23,14 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.Mockito.verify;
@@ -67,22 +71,26 @@ public class PaymentServiceTests {
 
     private Payment payment;
 
+    private List<Payment> paymentList;
+
+    private Page<Payment> paymentPage;
+
     private Payment updatedPayment;
 
     @BeforeEach
     public void init() {
         paymentChargeRequestDto = PaymentChargeRequestDto.builder()
-                .paymentId(1)
-                .reservationId(1)
-                .userProfileId(1)
+                .paymentId(1L)
+                .reservationId(1L)
+                .userProfileId(1L)
                 .amount(200)
                 .token("token1")
                 .build();
 
         paymentCancelRequestDto = PaymentCancelRequestDto.builder()
-                .paymentId(1)
-                .reservationId(1)
-                .userProfileId(1)
+                .paymentId(1L)
+                .reservationId(1L)
+                .userProfileId(1L)
                 .build();
 
         charge = new Charge();
@@ -107,6 +115,24 @@ public class PaymentServiceTests {
                 .status(ConstantUtil.WAITING_FOR_PAYMENT)
                 .build();
 
+        paymentList = List.of(
+                Payment.builder()
+                        .createdAt(new Date(System.currentTimeMillis()))
+                        .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
+                        .token("token1")
+                        .build(),
+                Payment.builder()
+                        .createdAt(new Date(System.currentTimeMillis()))
+                        .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
+                        .token("token2")
+                        .build(),
+                Payment.builder()
+                        .createdAt(new Date(System.currentTimeMillis()))
+                        .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
+                        .token("token3")
+                        .build()
+        );
+
         updatedPayment = Payment.builder()
                 .id(1)
                 .createdAt(new Date(System.currentTimeMillis()))
@@ -115,16 +141,8 @@ public class PaymentServiceTests {
                 .cost(BigDecimal.valueOf(1650))
                 .status(ConstantUtil.APPROVED)
                 .build();
-    }
 
-    @Test
-    void PaymentService_GetPaymentById_ReturnsPayment() {
-        when(paymentRepository.findById(Mockito.any(long.class))).thenReturn(Optional.of(payment));
-
-        Payment foundPayment = paymentService.getPaymentById(payment.getId());
-
-        Assertions.assertThat(foundPayment).isNotNull();
-        Assertions.assertThat(foundPayment.getId()).isEqualTo(payment.getId());
+        paymentPage = new PageImpl<>(paymentList);
     }
 
     @Test
@@ -135,6 +153,47 @@ public class PaymentServiceTests {
 
         Assertions.assertThat(savedPayment).isNotNull();
         Assertions.assertThat(savedPayment.getToken()).isEqualTo(payment.getToken());
+    }
+
+    @Test
+    public void PaymentService_GetPaymentList_ReturnsPaymentList() {
+        when(paymentRepository.findAll(Mockito.any(PageRequest.class))).thenReturn(paymentPage);
+
+        List<Payment> foundPaymentList = paymentService.getPaymentList(1, 3);
+
+        Assertions.assertThat(foundPaymentList).isNotNull();
+        Assertions.assertThat(paymentList.size()).isEqualTo(3);
+    }
+
+    @Test
+    public void PaymentService_GetPaymentListByUserProfileId_ReturnsPaymentList() {
+        when(paymentRepository.findAllByReservationUserProfileIdOrderByReservationIdDesc(Mockito.any(long.class), Mockito.any(PageRequest.class))).thenReturn(paymentPage);
+
+        List<Payment> foundPaymentList = paymentService.getPaymentListByUserProfileId(1, 1, 3, "");
+
+        Assertions.assertThat(foundPaymentList).isNotNull();
+        Assertions.assertThat(paymentList.size()).isEqualTo(3);
+    }
+
+    @Test
+    public void PaymentService_GetPaymentById_ReturnsPayment() {
+        when(paymentRepository.findById(Mockito.any(long.class))).thenReturn(Optional.of(payment));
+
+        Payment foundPayment = paymentService.getPaymentById(payment.getId());
+
+        Assertions.assertThat(foundPayment).isNotNull();
+        Assertions.assertThat(foundPayment.getId()).isEqualTo(payment.getId());
+    }
+
+    @Test
+    public void PaymentService_CountPaymentListByUserProfileId_ReturnsLong() {
+        when(userProfileService.getUserProfileById(Mockito.any(long.class))).thenReturn(userProfile);
+        when(paymentRepository.countAllByReservationUserProfile(Mockito.any(UserProfile.class))).thenReturn(3L);
+
+        Long countReservationList = paymentService.countPaymentListByUserProfileId(1L);
+
+        Assertions.assertThat(countReservationList).isNotNull();
+        Assertions.assertThat(countReservationList).isEqualTo(3L);
     }
 
     @Test

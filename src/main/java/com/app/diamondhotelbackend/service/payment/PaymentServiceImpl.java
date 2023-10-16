@@ -5,6 +5,7 @@ import com.app.diamondhotelbackend.dto.payment.request.PaymentCancelRequestDto;
 import com.app.diamondhotelbackend.dto.payment.request.PaymentChargeRequestDto;
 import com.app.diamondhotelbackend.entity.Payment;
 import com.app.diamondhotelbackend.entity.UserProfile;
+import com.app.diamondhotelbackend.exception.AuthProcessingException;
 import com.app.diamondhotelbackend.exception.PaymentProcessingException;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.repository.PaymentRepository;
@@ -19,10 +20,15 @@ import com.stripe.model.Refund;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -45,16 +51,55 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    public List<Payment> getPaymentList(int page, int size) {
+        if (page < 0 || size < 1) {
+            return Collections.emptyList();
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Payment> paymentPage = paymentRepository.findAll(pageable);
+
+        return paymentPage.getContent();
+    }
+
+    @Override
+    public List<Payment> getPaymentListByUserProfileId(long userProfileId, int page, int size, String status) {
+        try {
+            if (userProfileId < 1 || page < 0 || size < 1) {
+                return Collections.emptyList();
+            }
+
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Payment> paymentPage;
+            if (status.isEmpty()) {
+                paymentPage = paymentRepository.findAllByReservationUserProfileIdOrderByReservationIdDesc(userProfileId, pageable);
+            } else {
+                paymentPage = paymentRepository.findAllByStatusAndReservationUserProfileIdOrderByReservationIdDesc(status, userProfileId, pageable);
+            }
+
+            return paymentPage.getContent();
+
+        } catch (AuthProcessingException e) {
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
     public Payment getPaymentById(long id) throws PaymentProcessingException {
         return paymentRepository.findById(id).orElseThrow(() -> new PaymentProcessingException(ConstantUtil.PAYMENT_NOT_FOUND_EXCEPTION));
+    }
+
+    @Override
+    public Long countPaymentListByUserProfileId(long userProfileId) throws UserProfileProcessingException {
+        UserProfile userProfile = userProfileService.getUserProfileById(userProfileId);
+
+        return paymentRepository.countAllByReservationUserProfile(userProfile);
     }
 
     @Override
     public Payment chargePayment(PaymentChargeRequestDto paymentChargeRequestDto) throws PaymentProcessingException, StripeException, UserProfileProcessingException {
         Payment payment = getPaymentById(paymentChargeRequestDto.getPaymentId());
         if (payment.getExpiresAt().before(new Date(System.currentTimeMillis()))) {
-            /** TODO - Please, create "cron job to remove expired confirmation tokens, auth tokens and payments" */
-            /** TODO - Please, verify "all requests if provided userProfileId is equaled to userProfileId encrypted in JWT token" */
             payment.setStatus(ConstantUtil.CANCELLED);
             paymentRepository.save(payment);
 

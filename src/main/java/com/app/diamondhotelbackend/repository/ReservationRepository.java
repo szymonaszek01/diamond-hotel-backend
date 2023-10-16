@@ -10,9 +10,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
-    Page<Reservation> findAllByUserProfileId(long userProfileId, Pageable pageable);
+    Page<Reservation> findAllByUserProfileIdOrderByIdDesc(long userProfileId, Pageable pageable);
 
-    Page<Reservation> findAllByUserProfileIdAndPaymentStatus(long userProfileId, String paymentStatus, Pageable pageable);
+    Page<Reservation> findAllByUserProfileIdAndPaymentStatusOrderByIdDesc(long userProfileId, String paymentStatus, Pageable pageable);
 
     Long countAllByUserProfile(UserProfile userProfile);
 }

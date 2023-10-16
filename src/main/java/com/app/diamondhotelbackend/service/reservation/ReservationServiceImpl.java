@@ -3,7 +3,10 @@ package com.app.diamondhotelbackend.service.reservation;
 import com.app.diamondhotelbackend.dto.reservation.request.ReservationCreateRequestDto;
 import com.app.diamondhotelbackend.dto.room.model.RoomSelected;
 import com.app.diamondhotelbackend.entity.*;
-import com.app.diamondhotelbackend.exception.*;
+import com.app.diamondhotelbackend.exception.FlightProcessingException;
+import com.app.diamondhotelbackend.exception.ReservationProcessingException;
+import com.app.diamondhotelbackend.exception.RoomProcessingException;
+import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.repository.ReservationRepository;
 import com.app.diamondhotelbackend.service.email.EmailServiceImpl;
 import com.app.diamondhotelbackend.service.flight.FlightServiceImpl;
@@ -79,7 +82,7 @@ public class ReservationServiceImpl implements ReservationService {
         payment = paymentService.updatePaymentCost(payment.getId(), cost);
         reservation.setPayment(payment);
 
-        String text = "Reservation id: " + reservation.getId() + ", Payment: " + reservation.getPayment().getToken();
+        String text = "Reservation: " + reservation.getId() + ", Payment: " + reservation.getPayment().getToken();
         byte[] qrCode = qrCodeUtil.getQRCode(text, 300, 300);
         InputStreamResource inputStreamResource = pdfUtil.getReservationPdf(reservation, reservedRoomList, qrCode);
         emailService.sendReservationConfirmedEmail(reservation, inputStreamResource);
@@ -101,24 +104,24 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public List<Reservation> getReservationListByUserProfileId(long userProfileId, int page, int size, String paymentStatus) {
-        try {
-            if (userProfileId < 1 || page < 0 || size < 1) {
-                return Collections.emptyList();
-            }
-
-            Pageable pageable = PageRequest.of(page, size);
-            Page<Reservation> reservationPage;
-            if (paymentStatus.isEmpty()) {
-                reservationPage = reservationRepository.findAllByUserProfileId(userProfileId, pageable);
-            } else {
-                reservationPage = reservationRepository.findAllByUserProfileIdAndPaymentStatus(userProfileId, paymentStatus, pageable);
-            }
-
-            return reservationPage.getContent();
-
-        } catch (AuthProcessingException e) {
+        if (userProfileId < 1 || page < 0 || size < 1) {
             return Collections.emptyList();
         }
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Reservation> reservationPage;
+        if (paymentStatus.isEmpty()) {
+            reservationPage = reservationRepository.findAllByUserProfileIdOrderByIdDesc(userProfileId, pageable);
+        } else {
+            reservationPage = reservationRepository.findAllByUserProfileIdAndPaymentStatusOrderByIdDesc(userProfileId, paymentStatus, pageable);
+        }
+
+        return reservationPage.getContent();
+    }
+
+    @Override
+    public Reservation getReservationById(long id) throws ReservationProcessingException {
+        return reservationRepository.findById(id).orElseThrow(() -> new ReservationProcessingException(ConstantUtil.RESERVATION_NOT_FOUND_EXCEPTION));
     }
 
     @Override
@@ -126,11 +129,6 @@ public class ReservationServiceImpl implements ReservationService {
         UserProfile userProfile = userProfileService.getUserProfileById(userProfileId);
 
         return reservationRepository.countAllByUserProfile(userProfile);
-    }
-
-    @Override
-    public Reservation getReservationById(long id) throws ReservationProcessingException {
-        return reservationRepository.findById(id).orElseThrow(() -> new ReservationProcessingException(ConstantUtil.RESERVATION_NOT_FOUND_EXCEPTION));
     }
 
     @Override

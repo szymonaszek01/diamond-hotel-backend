@@ -157,21 +157,21 @@ public class ReservationRepositoryTests {
     }
 
     @Test
-    public void ReservationRepository_FindAllByUserProfileId_ReturnsReservationPage() {
+    public void ReservationRepository_FindAllByUserProfileIdOrderByIdDesc_ReturnsReservationPage() {
         pageRequest = pageRequest.withPage(1);
 
         reservationRepository.saveAll(reservationList);
-        Page<Reservation> reservationPage = reservationRepository.findAllByUserProfileId(1L, pageRequest);
+        Page<Reservation> reservationPage = reservationRepository.findAllByUserProfileIdOrderByIdDesc(1L, pageRequest);
 
         Assertions.assertThat(reservationPage).isNotNull();
     }
 
     @Test
-    public void ReservationRepository_FindAllByUserProfileIdAndPaymentStatus_ReturnsReservationPage() {
+    public void ReservationRepository_FindAllByUserProfileIdAndPaymentStatusOrderByIdDesc_ReturnsReservationPage() {
         pageRequest = pageRequest.withPage(1);
 
         reservationRepository.saveAll(reservationList);
-        Page<Reservation> reservationPage = reservationRepository.findAllByUserProfileIdAndPaymentStatus(1L, ConstantUtil.APPROVED, pageRequest);
+        Page<Reservation> reservationPage = reservationRepository.findAllByUserProfileIdAndPaymentStatusOrderByIdDesc(1L, ConstantUtil.APPROVED, pageRequest);
 
         Assertions.assertThat(reservationPage).isNotNull();
     }

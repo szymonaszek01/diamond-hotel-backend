@@ -229,7 +229,7 @@ public class ReservationServiceTests {
 
     @Test
     public void ReservationService_GetReservationListByUserProfileId_ReturnsReservationList() {
-        when(reservationRepository.findAllByUserProfileId(Mockito.any(long.class), Mockito.any(PageRequest.class))).thenReturn(reservationPage);
+        when(reservationRepository.findAllByUserProfileIdOrderByIdDesc(Mockito.any(long.class), Mockito.any(PageRequest.class))).thenReturn(reservationPage);
 
         List<Reservation> foundReservationList = reservationService.getReservationListByUserProfileId(1, 1, 3,  "");
 

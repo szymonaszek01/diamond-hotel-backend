@@ -37,7 +37,7 @@ public class EmailUtil {
             mimeMultipart.addBodyPart(mimeBodyPart);
 
             mimeBodyPart = new MimeBodyPart();
-            DataSource dataSource = new FileDataSource("/app/src/main/resources/assets/logo-black.png");
+            DataSource dataSource = new FileDataSource("https://github.com/szymonaszek01/diamond-hotel-backend/blob/d8b529c7567a1091f13238653879b5516ee57ec4/src/main/resources/assets/logo-black.png");
             mimeBodyPart.setDataHandler(new DataHandler(dataSource));
             mimeBodyPart.setHeader("Content-ID", "<image>");
             mimeMultipart.addBodyPart(mimeBodyPart);

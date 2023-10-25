@@ -146,28 +146,6 @@
     </tr>
 </table>
 <p class="mt-3">
-    <span><strong
-            th:text="${reservation.getUserProfile().getFirstname() + ' ' + reservation.getUserProfile().getLastname()}"></strong></span>
-    <span>, this is your payment</span>
-</p>
-<table>
-    <tr>
-        <th>Payment</th>
-        <th>Charge</th>
-        <th>Cost</th>
-        <th>Status</th>
-    </tr>
-    <tr>
-        <td th:text="${reservation.getPayment().getToken()}"></td>
-        <td th:text="${reservation.getPayment().getCharge()}"></td>
-        <td>
-            <span th:text="${reservation.getPayment().getCost()}"></span>
-            <span>$</span>
-        </td>
-        <td th:text="${reservation.getPayment().getStatus()}"></td>
-    </tr>
-</table>
-<p class="mt-3">
     Please keep this reservation QR code handy for quick access to your reservation details.
 </p>
 <table id="table-qr-code">

@@ -3,7 +3,6 @@ package com.app.diamondhotelbackend.service.email;
 import com.app.diamondhotelbackend.entity.ConfirmationToken;
 import com.app.diamondhotelbackend.entity.Payment;
 import com.app.diamondhotelbackend.entity.Reservation;
-import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.util.ApplicationPropertiesUtil;
 import com.app.diamondhotelbackend.util.ConstantUtil;
 import com.app.diamondhotelbackend.util.EmailUtil;
@@ -63,28 +62,24 @@ public class EmailServiceImpl implements EmailService {
         context.setVariable("reservation", reservation);
         String htmlToString = springTemplateEngine.process("reservationconfirmedemail", context);
 
-        emailUtil.send(reservation.getUserProfile().getEmail(), htmlToString, ConstantUtil.EMAIL_RESERVATION_CONFIRMED_SUBJECT, inputStreamResource, "reservation-pdf.pdf");
+        emailUtil.send(reservation.getUserProfile().getEmail(), htmlToString, ConstantUtil.EMAIL_RESERVATION_CONFIRMED_SUBJECT, inputStreamResource, "reservation.pdf");
     }
 
     @Override
-    public void sendPaymentForReservationConfirmedEmail(Payment payment, UserProfile userProfile, long reservationId, InputStreamResource inputStreamResource) {
+    public void sendPaymentForReservationConfirmedEmail(Payment payment, InputStreamResource inputStreamResource) {
         Context context = new Context();
         context.setVariable("payment", payment);
-        context.setVariable("userProfile", userProfile);
-        context.setVariable("reservationId", reservationId);
-        String htmlToString = springTemplateEngine.process("paymentconfirmedemail", context);
+        String htmlToString = springTemplateEngine.process("paymentforreservationconfirmedemail", context);
 
-        emailUtil.send(userProfile.getEmail(), htmlToString, ConstantUtil.EMAIL_PAYMENT_FOR_RESERVATION_CONFIRMED_SUBJECT, inputStreamResource, "payment-pdf.pdf");
+        emailUtil.send(payment.getReservation().getUserProfile().getEmail(), htmlToString, ConstantUtil.EMAIL_PAYMENT_FOR_RESERVATION_CONFIRMED_SUBJECT, inputStreamResource, "payment.pdf");
     }
 
     @Override
-    public void sendPaymentForReservationCancelledEmail(Payment payment, UserProfile userProfile, long reservationId, InputStreamResource inputStreamResource) {
+    public void sendPaymentForReservationCancelledEmail(Payment payment, InputStreamResource inputStreamResource) {
         Context context = new Context();
         context.setVariable("payment", payment);
-        context.setVariable("userProfile", userProfile);
-        context.setVariable("reservationId", reservationId);
-        String htmlToString = springTemplateEngine.process("paymentcancelledemail", context);
+        String htmlToString = springTemplateEngine.process("paymentforreservationcancelledemail", context);
 
-        emailUtil.send(userProfile.getEmail(), htmlToString, ConstantUtil.EMAIL_PAYMENT_FOR_RESERVATION_CANCELLED_SUBJECT, inputStreamResource, "payment-pdf.pdf");
+        emailUtil.send(payment.getReservation().getUserProfile().getEmail(), htmlToString, ConstantUtil.EMAIL_PAYMENT_FOR_RESERVATION_CANCELLED_SUBJECT, inputStreamResource, "payment.pdf");
     }
 }

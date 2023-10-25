@@ -75,19 +75,19 @@
 </table>
 <p class="mt-5">
     <span><strong>Email: </strong></span>
-    <span th:text="${userProfile.getEmail()}"></span>
+    <span th:text="${payment.getReservation().getUserProfile().getEmail()}"></span>
 </p>
 <p>
     <span><strong>Full name: </strong></span>
-    <span th:text="${userProfile.getFirstname() + ' ' + userProfile.getLastname()}"></span>
+    <span th:text="${payment.getReservation().getUserProfile().getFirstname() + ' ' + payment.getReservation().getUserProfile().getLastname()}"></span>
 </p>
 <p>
     <span><strong>Tel: </strong></span>
-    <span th:text="${userProfile.getPhoneNumber()}"></span>
+    <span th:text="${payment.getReservation().getUserProfile().getPhoneNumber()}"></span>
 </p>
 <p class="mt-3">
     <span><strong
-            th:text="${userProfile.getFirstname() + ' ' + userProfile.getLastname()}"></strong></span>
+            th:text="${payment.getReservation().getUserProfile().getFirstname() + ' ' + payment.getReservation().getUserProfile().getLastname()}"></strong></span>
     <span>, this is your payment</span>
 </p>
 <table>
@@ -99,8 +99,8 @@
         <th>Payment<br>status</th>
     </tr>
     <tr>
-        <td th:text="${payment.getToken()}"></td>
-        <td th:text="${reservationId}"></td>
+        <td th:text="${payment.getId()}"></td>
+        <td th:text="${payment.getReservation().getId()}"></td>
         <td th:text="${payment.getCharge()}"></td>
         <td>
             <span th:text="${payment.getCost()}"></span>

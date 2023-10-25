@@ -3,7 +3,6 @@ package com.app.diamondhotelbackend.util;
 import com.app.diamondhotelbackend.entity.Payment;
 import com.app.diamondhotelbackend.entity.Reservation;
 import com.app.diamondhotelbackend.entity.ReservedRoom;
-import com.app.diamondhotelbackend.entity.UserProfile;
 import com.itextpdf.html2pdf.HtmlConverter;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.codec.binary.Base64;
@@ -36,12 +35,10 @@ public class PdfUtil {
         return new InputStreamResource(byteArrayInputStream);
     }
 
-    public InputStreamResource getPaymentPdf(Payment payment, UserProfile userProfile, long reservationId) {
+    public InputStreamResource getPaymentForReservationPdf(Payment payment) {
         Context context = new Context();
         context.setVariable("payment", payment);
-        context.setVariable("userProfile", userProfile);
-        context.setVariable("reservationId", reservationId);
-        String htmlToString = springTemplateEngine.process("paymentpdf", context);
+        String htmlToString = springTemplateEngine.process("paymentforreservationpdf", context);
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         HtmlConverter.convertToPdf(htmlToString, byteArrayOutputStream);

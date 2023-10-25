@@ -91,39 +91,41 @@
         <th>
             <img alt="logo-black" id="logo" src="cid:image">
             <p class="mt-3 mb-3">
-                Dear <strong th:text="${userProfile.getFirstname()}"></strong>,<br>
+                Dear <strong th:text="${payment.getReservation().getUserProfile().getFirstname()}"></strong>,<br>
                 We are delighted to inform you that your payment for your reservation with Diamond hotel has been
                 successfully received and confirmed.
                 Your upcoming stay promises to be a memorable experience, and we can't wait to welcome you.
             </p>
             <p class="mt-3">
                 <span><strong>Email: </strong></span>
-                <span th:text="${userProfile.getEmail()}"></span>
+                <span th:text="${payment.getReservation().getUserProfile().getEmail()}"></span>
             </p>
             <p>
                 <span><strong>Full name: </strong></span>
-                <span th:text="${userProfile.getFirstname() + ' ' + userProfile.getLastname()}"></span>
+                <span th:text="${payment.getReservation().getUserProfile().getFirstname() + ' ' + payment.getReservation().getUserProfile().getLastname()}"></span>
             </p>
             <p>
                 <span><strong>Tel: </strong></span>
-                <span th:text="${userProfile.getPhoneNumber()}"></span>
+                <span th:text="${payment.getReservation().getUserProfile().getPhoneNumber()}"></span>
             </p>
             <p class="mt-3">
                 <span><strong
-                        th:text="${userProfile.getFirstname() + ' ' + userProfile.getLastname()}"></strong></span>
+                        th:text="${payment.getReservation().getUserProfile().getFirstname() + ' ' + payment.getReservation().getUserProfile().getLastname()}"></strong></span>
                 <span>, your reservation is now fully confirmed, here there are payment details</span>
             </p>
             <table id="payment">
                 <tr>
                     <th>Payment</th>
                     <th>Reservation</th>
+                    <th>Code</th>
                     <th>Charge</th>
                     <th>Cost</th>
                     <th>Payment<br>status</th>
                 </tr>
                 <tr>
+                    <td th:text="${payment.getId()}"></td>
+                    <td th:text="${payment.getReservation().getId()}"></td>
                     <td th:text="${payment.getToken()}"></td>
-                    <td th:text="${reservationId}"></td>
                     <td th:text="${payment.getCharge()}"></td>
                     <td>
                         <span th:text="${payment.getCost()}"></span>

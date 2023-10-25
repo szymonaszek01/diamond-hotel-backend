@@ -4,6 +4,7 @@ import com.app.diamondhotelbackend.entity.RoomType;
 import com.app.diamondhotelbackend.exception.RoomTypeProcessingException;
 import com.app.diamondhotelbackend.repository.RoomTypeRepository;
 import com.app.diamondhotelbackend.util.ConstantUtil;
+import com.app.diamondhotelbackend.util.UrlUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,11 @@ public class RoomTypeServiceImpl implements RoomTypeService {
     @Override
     public RoomType getRoomTypeById(long id) throws RoomTypeProcessingException {
         return roomTypeRepository.findById(id).orElseThrow(() -> new RoomTypeProcessingException(ConstantUtil.ROOM_TYPE_NOT_FOUND_EXCEPTION));
+    }
+
+    @Override
+    public RoomType getRoomTypeByName(String name) throws RoomTypeProcessingException {
+        return roomTypeRepository.findByName(UrlUtil.decode(name)).orElseThrow(() -> new RoomTypeProcessingException(ConstantUtil.ROOM_TYPE_NOT_FOUND_EXCEPTION));
     }
 
     @Override

@@ -91,6 +91,16 @@ public class RoomTypeRepositoryTests {
     }
 
     @Test
+    public void RoomTypeRepository_FindByName_ReturnsOptionalRoomType() {
+        RoomType savedRoomType = roomTypeRepository.save(roomType);
+        Optional<RoomType> roomTypeOptional = roomTypeRepository.findByName((roomType.getName()));
+
+        Assertions.assertThat(roomTypeOptional).isPresent();
+        Assertions.assertThat(roomTypeOptional.get().getId()).isEqualTo(savedRoomType.getId());
+        Assertions.assertThat(roomTypeOptional.get().getName()).isEqualTo(savedRoomType.getName());
+    }
+
+    @Test
     public void RoomTypeRepository_FindEquipmentById_ReturnsStringList() {
         List<RoomType> savedRoomTypeList = roomTypeRepository.saveAll(roomTypeList);
 

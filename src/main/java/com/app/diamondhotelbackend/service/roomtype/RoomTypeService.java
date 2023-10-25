@@ -9,6 +9,8 @@ public interface RoomTypeService {
 
     RoomType getRoomTypeById(long id) throws RoomTypeProcessingException;
 
+    RoomType getRoomTypeByName(String name) throws RoomTypeProcessingException;
+
     List<RoomType> getRoomTypeList();
 
     List<String> getRoomTypeNameList();

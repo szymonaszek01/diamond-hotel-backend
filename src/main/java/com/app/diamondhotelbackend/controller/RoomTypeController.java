@@ -29,6 +29,16 @@ public class RoomTypeController {
         }
     }
 
+    @GetMapping("/name/{name}")
+    public ResponseEntity<RoomType> getRoomTypeByName(@PathVariable String name) {
+        try {
+            return ResponseEntity.ok(roomTypeService.getRoomTypeByName(name));
+
+        } catch (RoomTypeProcessingException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
     @GetMapping("/all")
     public List<RoomType> getRoomTypeList() {
         return roomTypeService.getRoomTypeList();

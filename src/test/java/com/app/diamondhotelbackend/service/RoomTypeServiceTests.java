@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
@@ -69,12 +70,23 @@ public class RoomTypeServiceTests {
 
     @Test
     public void RoomTypeService_GetRoomTypeById_ReturnsRoomType() {
-        when(roomTypeRepository.findById(roomType.getId())).thenReturn(Optional.of(roomType));
+        when(roomTypeRepository.findById(Mockito.any(long.class))).thenReturn(Optional.of(roomType));
 
         RoomType foundRoomType = roomTypeService.getRoomTypeById(roomType.getId());
 
         Assertions.assertThat(foundRoomType).isNotNull();
         Assertions.assertThat(foundRoomType.getName()).isEqualTo(roomType.getName());
+    }
+
+    @Test
+    public void RoomTypeService_GetRoomTypeByName_ReturnsRoomType() {
+        when(roomTypeRepository.findByName(Mockito.any(String.class))).thenReturn(Optional.of(roomType));
+
+        RoomType foundRoomType = roomTypeService.getRoomTypeByName(roomType.getName());
+
+        Assertions.assertThat(foundRoomType).isNotNull();
+        Assertions.assertThat(foundRoomType.getName()).isEqualTo(roomType.getName());
+
     }
 
     @Test
@@ -109,7 +121,7 @@ public class RoomTypeServiceTests {
 
     @Test
     public void RoomTypeService_GetRoomTypeEquipmentById_ReturnsStringList() {
-        when(roomTypeRepository.findEquipmentById(roomType.getId())).thenReturn(roomType.getEquipment());
+        when(roomTypeRepository.findEquipmentById(Mockito.any(long.class))).thenReturn(roomType.getEquipment());
 
         List<String> foundEquipment = roomTypeService.getRoomTypeEquipmentById(roomType.getId());
 

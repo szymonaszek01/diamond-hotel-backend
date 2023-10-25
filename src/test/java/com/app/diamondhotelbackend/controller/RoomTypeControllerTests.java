@@ -6,6 +6,7 @@ import com.app.diamondhotelbackend.service.roomtype.RoomTypeServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -83,6 +84,20 @@ public class RoomTypeControllerTests {
         when(roomTypeService.getRoomTypeById(roomType.getId())).thenReturn(roomType);
 
         MockHttpServletRequestBuilder request = get(url + "/id/" + roomType.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc
+                .perform(request)
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(roomType.getName()));
+    }
+
+    @Test
+    public void RoomTypeController_GetRoomTypeByName_ReturnsRoomType() throws Exception {
+        when(roomTypeService.getRoomTypeByName(Mockito.any(String.class))).thenReturn(roomType);
+
+        MockHttpServletRequestBuilder request = get(url + "/name/" + roomType.getName())
                 .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc

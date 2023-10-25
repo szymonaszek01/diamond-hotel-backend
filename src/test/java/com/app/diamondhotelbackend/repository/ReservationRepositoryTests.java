@@ -177,6 +177,15 @@ public class ReservationRepositoryTests {
     }
 
     @Test
+    public void ReservationRepository_FindById_ReturnsOptionalReservation() {
+        Reservation savedReservation = reservationRepository.save(reservation);
+        Optional<Reservation> reservationOptional = reservationRepository.findById((reservation.getId()));
+
+        Assertions.assertThat(reservationOptional).isPresent();
+        Assertions.assertThat(reservationOptional.get().getId()).isEqualTo(savedReservation.getId());
+    }
+
+    @Test
     public void ReservationRepository_CountAllByUserProfile_ReturnsLong() {
         reservationRepository.saveAll(reservationList);
 
@@ -184,15 +193,6 @@ public class ReservationRepositoryTests {
 
         Assertions.assertThat(countedReservationList).isNotNull();
         Assertions.assertThat(countedReservationList).isEqualTo(6);
-    }
-
-    @Test
-    public void ReservationRepository_FindById_ReturnsOptionalReservation() {
-        Reservation savedReservation = reservationRepository.save(reservation);
-        Optional<Reservation> reservationOptional = reservationRepository.findById((reservation.getId()));
-
-        Assertions.assertThat(reservationOptional).isPresent();
-        Assertions.assertThat(reservationOptional.get().getId()).isEqualTo(savedReservation.getId());
     }
 
     @Test

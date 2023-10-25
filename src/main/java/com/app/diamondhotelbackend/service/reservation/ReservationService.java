@@ -1,18 +1,19 @@
 package com.app.diamondhotelbackend.service.reservation;
 
+import com.app.diamondhotelbackend.dto.common.PdfResponseDto;
 import com.app.diamondhotelbackend.dto.reservation.request.ReservationCreateRequestDto;
 import com.app.diamondhotelbackend.entity.Reservation;
 import com.app.diamondhotelbackend.exception.ReservationProcessingException;
 import com.app.diamondhotelbackend.exception.RoomProcessingException;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
-import org.springframework.core.io.InputStreamResource;
+import com.stripe.exception.StripeException;
 
 import java.io.IOException;
 import java.util.List;
 
 public interface ReservationService {
 
-    Reservation createReservation(ReservationCreateRequestDto reservationCreateRequestDto) throws ReservationProcessingException, UserProfileProcessingException, RoomProcessingException, IOException;
+    Reservation createReservation(ReservationCreateRequestDto reservationCreateRequestDto) throws ReservationProcessingException, UserProfileProcessingException, RoomProcessingException, IOException, StripeException;
 
     List<Reservation> getReservationList(int page, int size);
 
@@ -20,7 +21,11 @@ public interface ReservationService {
 
     Reservation getReservationById(long id) throws ReservationProcessingException;
 
+    PdfResponseDto getReservationPdfDocumentById(long id) throws ReservationProcessingException, IOException;
+
     Long countReservationListByUserProfileId(long userProfileId) throws UserProfileProcessingException;
 
-    InputStreamResource getReservationPdfDocument(long id) throws ReservationProcessingException;
+    Reservation updateReservationPayment(long id, String paymentToken);
+
+    Reservation deleteReservationById(long id) throws ReservationProcessingException;
 }

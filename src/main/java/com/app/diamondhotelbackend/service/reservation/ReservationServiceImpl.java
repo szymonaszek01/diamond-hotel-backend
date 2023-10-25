@@ -1,12 +1,10 @@
 package com.app.diamondhotelbackend.service.reservation;
 
+import com.app.diamondhotelbackend.dto.common.PdfResponseDto;
 import com.app.diamondhotelbackend.dto.reservation.request.ReservationCreateRequestDto;
 import com.app.diamondhotelbackend.dto.room.model.RoomSelected;
 import com.app.diamondhotelbackend.entity.*;
-import com.app.diamondhotelbackend.exception.FlightProcessingException;
-import com.app.diamondhotelbackend.exception.ReservationProcessingException;
-import com.app.diamondhotelbackend.exception.RoomProcessingException;
-import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
+import com.app.diamondhotelbackend.exception.*;
 import com.app.diamondhotelbackend.repository.ReservationRepository;
 import com.app.diamondhotelbackend.service.email.EmailServiceImpl;
 import com.app.diamondhotelbackend.service.flight.FlightServiceImpl;
@@ -18,6 +16,7 @@ import com.app.diamondhotelbackend.util.ConstantUtil;
 import com.app.diamondhotelbackend.util.DateUtil;
 import com.app.diamondhotelbackend.util.PdfUtil;
 import com.app.diamondhotelbackend.util.QrCodeUtil;
+import com.stripe.exception.StripeException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
@@ -29,10 +28,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Date;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -58,7 +54,7 @@ public class ReservationServiceImpl implements ReservationService {
     private final PdfUtil pdfUtil;
 
     @Override
-    public Reservation createReservation(ReservationCreateRequestDto reservationCreateRequestDto) throws ReservationProcessingException, UserProfileProcessingException, IOException {
+    public Reservation createReservation(ReservationCreateRequestDto reservationCreateRequestDto) throws ReservationProcessingException, UserProfileProcessingException, IOException, StripeException {
         Optional<Date> checkInAsDate = DateUtil.parseDate(reservationCreateRequestDto.getCheckIn());
         Optional<Date> checkOutAsDate = DateUtil.parseDate(reservationCreateRequestDto.getCheckOut());
 
@@ -70,7 +66,7 @@ public class ReservationServiceImpl implements ReservationService {
         Flight flight = prepareFlight(reservationCreateRequestDto.getFlightNumber());
         Payment payment = preparePayment();
         Reservation reservation = prepareReservation(checkInAsDate.get(), checkOutAsDate.get(), reservationCreateRequestDto.getAdults(), reservationCreateRequestDto.getChildren(), userProfile, flight, payment);
-        List<ReservedRoom> reservedRoomList = prepareReservedRoomList(checkInAsDate.get(), checkOutAsDate.get(), reservation, payment, reservationCreateRequestDto.getRoomSelectedList());
+        List<ReservedRoom> reservedRoomList = prepareReservedRoomList(checkInAsDate.get(), checkOutAsDate.get(), reservation, reservationCreateRequestDto.getRoomSelectedList());
 
         if (reservedRoomList.isEmpty()) {
             throw new ReservationProcessingException(ConstantUtil.NOT_ENOUGH_AVAILABLE_ROOMS);
@@ -79,7 +75,8 @@ public class ReservationServiceImpl implements ReservationService {
         BigDecimal cost = BigDecimal.valueOf(reservedRoomList.stream()
                 .map(reservedRoom -> reservedRoom.getCost().longValue())
                 .reduce(0L, Long::sum));
-        payment = paymentService.updatePaymentCost(payment.getId(), cost);
+        payment.setCost(cost);
+        paymentService.updatePayment(payment);
         reservation.setPayment(payment);
 
         String text = "Reservation: " + reservation.getId() + ", Payment: " + reservation.getPayment().getToken();
@@ -125,6 +122,21 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
+    public PdfResponseDto getReservationPdfDocumentById(long id) throws ReservationProcessingException, IOException {
+        Reservation reservation = getReservationById(id);
+        List<ReservedRoom> reservedRoomList = reservedRoomService.getReservedRoomListByReservationId(id);
+        String text = "Reservation id: " + reservation.getId();
+        byte[] qrCode = qrCodeUtil.getQRCode(text, 250, 250);
+        InputStreamResource inputStreamResource = pdfUtil.getReservationPdf(reservation, reservedRoomList, qrCode);
+        String encodedFile = inputStreamResource != null ? Base64.getEncoder().encodeToString(inputStreamResource.getContentAsByteArray()) : "";
+
+        return PdfResponseDto.builder()
+                .fileName("Reservation" + id + ".pdf")
+                .encodedFile(encodedFile)
+                .build();
+    }
+
+    @Override
     public Long countReservationListByUserProfileId(long userProfileId) throws UserProfileProcessingException {
         UserProfile userProfile = userProfileService.getUserProfileById(userProfileId);
 
@@ -132,13 +144,44 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public InputStreamResource getReservationPdfDocument(long id) throws ReservationProcessingException {
-        Reservation reservation = getReservationById(id);
-        List<ReservedRoom> reservedRoomList = reservedRoomService.getReservedRoomListByReservationId(id);
-        String text = "Reservation id: " + reservation.getId() + ", Payment: " + reservation.getPayment().getToken();
-        byte[] qrCode = qrCodeUtil.getQRCode(text, 250, 250);
+    public Reservation updateReservationPayment(long id, String paymentToken) {
+        try {
+            Reservation reservation = getReservationById(id);
 
-        return pdfUtil.getReservationPdf(reservation, reservedRoomList, qrCode);
+            reservation.getPayment().setToken(paymentToken);
+            Payment payment = paymentService.updatePayment(reservation.getPayment());
+            reservation.setPayment(payment);
+
+            InputStreamResource inputStreamResource = pdfUtil.getPaymentForReservationPdf(payment);
+            emailService.sendPaymentForReservationConfirmedEmail(payment, inputStreamResource);
+
+            return reservation;
+
+        } catch (PaymentProcessingException | StripeException e) {
+            throw new ReservationProcessingException(ConstantUtil.RESERVATION_EXPIRED_EXCEPTION);
+        }
+    }
+
+    @Override
+    public Reservation deleteReservationById(long id) throws ReservationProcessingException {
+        try {
+            Reservation reservation = getReservationById(id);
+            if (DateUtil.getDifferenceBetweenTwoDates(reservation.getCheckIn(), new Date(System.currentTimeMillis())) < 7) {
+                throw new ReservationProcessingException(ConstantUtil.TOO_LATE_TO_CANCEL_RESERVATION);
+            }
+
+            Payment payment = paymentService.deletePayment(reservation.getPayment());
+            reservation.setPayment(payment);
+
+            reservationRepository.deleteById(id);
+            InputStreamResource inputStreamResource = pdfUtil.getPaymentForReservationPdf(payment);
+            emailService.sendPaymentForReservationCancelledEmail(payment, inputStreamResource);
+
+            return reservation;
+
+        } catch (PaymentProcessingException | StripeException e) {
+            throw new ReservationProcessingException(ConstantUtil.RESERVATION_NOT_FOUND_EXCEPTION);
+        }
     }
 
     private UserProfile prepareUserProfile(long userProfileId) throws UserProfileProcessingException {
@@ -181,7 +224,7 @@ public class ReservationServiceImpl implements ReservationService {
         return reservationRepository.save(reservation);
     }
 
-    private List<ReservedRoom> prepareReservedRoomList(Date checkIn, Date checkOut, Reservation reservation, Payment payment, List<RoomSelected> roomSelectedList) {
+    private List<ReservedRoom> prepareReservedRoomList(Date checkIn, Date checkOut, Reservation reservation, List<RoomSelected> roomSelectedList) {
         try {
             List<ReservedRoom> reservedRoomList = new ArrayList<>();
             for (RoomSelected roomSelected : roomSelectedList) {
@@ -195,8 +238,6 @@ public class ReservationServiceImpl implements ReservationService {
             return reservedRoomList;
 
         } catch (RoomProcessingException e) {
-            paymentService.updatePaymentStatus(payment.getId(), ConstantUtil.CANCELLED);
-
             return Collections.emptyList();
         }
     }

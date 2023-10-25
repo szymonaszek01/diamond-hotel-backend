@@ -1,5 +1,6 @@
 package com.app.diamondhotelbackend.controller;
 
+import com.app.diamondhotelbackend.dto.common.PdfResponseDto;
 import com.app.diamondhotelbackend.dto.reservation.request.ReservationCreateRequestDto;
 import com.app.diamondhotelbackend.dto.room.model.RoomSelected;
 import com.app.diamondhotelbackend.entity.Flight;
@@ -26,11 +27,12 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.sql.Date;
+import java.util.Base64;
+import java.util.HexFormat;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @WebMvcTest(controllers = ReservationController.class)
@@ -53,6 +55,8 @@ public class ReservationControllerTests {
     private ReservationCreateRequestDto reservationCreateRequestDto;
 
     private Reservation reservation;
+
+    private PdfResponseDto pdfResponseDto;
 
     private List<Reservation> reservationList;
 
@@ -109,6 +113,13 @@ public class ReservationControllerTests {
                 .userProfile(userProfile)
                 .flight(flight)
                 .payment(payment)
+                .build();
+
+        byte[] bytes = HexFormat.of().parseHex("e04fd020");
+
+        pdfResponseDto = PdfResponseDto.builder()
+                .fileName("testFileName")
+                .encodedFile(Base64.getEncoder().encodeToString(bytes))
                 .build();
 
         reservationList = List.of(
@@ -192,6 +203,34 @@ public class ReservationControllerTests {
     }
 
     @Test
+    public void ReservationController_GetReservationById_ReturnsReservation() throws Exception {
+        when(reservationService.getReservationById(Mockito.any(long.class))).thenReturn(reservation);
+
+        MockHttpServletRequestBuilder request = get(url + "/id/" + reservation.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc
+                .perform(request)
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", CoreMatchers.is((int) reservation.getId())));
+    }
+
+    @Test
+    public void ReservationController_GetReservationPdfDocumentById_ReturnsPdfResponseDto() throws Exception {
+        when(reservationService.getReservationPdfDocumentById(Mockito.any(long.class))).thenReturn(pdfResponseDto);
+
+        MockHttpServletRequestBuilder request = get(url + "/id/" + 1 + "/pdf")
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc
+                .perform(request)
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.encoded_file", CoreMatchers.is(pdfResponseDto.getEncodedFile())));
+    }
+
+    @Test
     public void ReservationController_CountReservationListByUserProfileId() throws Exception {
         when(reservationService.countReservationListByUserProfileId(Mockito.any(long.class))).thenReturn(3L);
 
@@ -206,16 +245,40 @@ public class ReservationControllerTests {
     }
 
     @Test
-    public void ReservationController_GetReservationById_ReturnsReservation() throws Exception {
-        when(reservationService.getReservationById(Mockito.any(long.class))).thenReturn(reservation);
+    public void ReservationController_UpdateReservationPayment_ReturnsReservation() throws Exception {
+        reservation.getPayment().setStatus(ConstantUtil.APPROVED);
+        reservation.getPayment().setToken("token1");
+        reservation.getPayment().setCharge("charge1");
 
-        MockHttpServletRequestBuilder request = get(url + "/id/" + reservation.getId())
+        when(reservationService.updateReservationPayment(Mockito.any(long.class), Mockito.any(String.class))).thenReturn(reservation);
+
+        MockHttpServletRequestBuilder request = put(url + "/id/" + 1 + "/payment-token/token1")
                 .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc
                 .perform(request)
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id", CoreMatchers.is((int) reservation.getId())));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", CoreMatchers.is((int) reservation.getId())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.payment.status", CoreMatchers.is(reservation.getPayment().getStatus())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.payment.token", CoreMatchers.is(reservation.getPayment().getToken())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.payment.charge", CoreMatchers.is(reservation.getPayment().getCharge())));
+    }
+
+    @Test
+    public void ReservationController_DeleteReservationById_ReturnsReservation() throws Exception {
+        reservation.getPayment().setStatus(ConstantUtil.CANCELLED);
+
+        when(reservationService.deleteReservationById(Mockito.any(long.class))).thenReturn(reservation);
+
+        MockHttpServletRequestBuilder request = delete(url + "/id/" + 1)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc
+                .perform(request)
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", CoreMatchers.is((int) reservation.getId())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.payment.status", CoreMatchers.is(reservation.getPayment().getStatus())));
     }
 }

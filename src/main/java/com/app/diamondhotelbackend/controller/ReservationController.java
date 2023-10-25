@@ -1,16 +1,15 @@
 package com.app.diamondhotelbackend.controller;
 
+import com.app.diamondhotelbackend.dto.common.PdfResponseDto;
 import com.app.diamondhotelbackend.dto.reservation.request.ReservationCreateRequestDto;
 import com.app.diamondhotelbackend.entity.Reservation;
 import com.app.diamondhotelbackend.exception.ReservationProcessingException;
 import com.app.diamondhotelbackend.exception.RoomProcessingException;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.service.reservation.ReservationServiceImpl;
+import com.stripe.exception.StripeException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -31,17 +30,8 @@ public class ReservationController {
         try {
             return ResponseEntity.ok(reservationService.createReservation(reservationCreateRequestDto));
         } catch (ReservationProcessingException | UserProfileProcessingException | RoomProcessingException |
-                 IOException e) {
+                 IOException | StripeException e) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, e.getMessage());
-        }
-    }
-
-    @GetMapping("/id/{id}")
-    public ResponseEntity<Reservation> getReservationById(@PathVariable long id) {
-        try {
-            return ResponseEntity.ok(reservationService.getReservationById(id));
-        } catch (ReservationProcessingException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
 
@@ -58,6 +48,25 @@ public class ReservationController {
         return reservationService.getReservationListByUserProfileId(userProfileId, page, size, paymentStatus);
     }
 
+    @GetMapping("/id/{id}")
+    public ResponseEntity<Reservation> getReservationById(@PathVariable long id) {
+        try {
+            return ResponseEntity.ok(reservationService.getReservationById(id));
+        } catch (ReservationProcessingException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
+    @GetMapping(value = "/id/{id}/pdf")
+    public ResponseEntity<PdfResponseDto> getReservationPdfDocumentById(@PathVariable long id) {
+        try {
+            return ResponseEntity.ok(reservationService.getReservationPdfDocumentById(id));
+
+        } catch (ReservationProcessingException | IOException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
     @GetMapping("/all/number/user-profile-id/{userProfileId}")
     public ResponseEntity<Long> countReservationListByUserProfileId(@PathVariable long userProfileId) {
         try {
@@ -67,16 +76,19 @@ public class ReservationController {
         }
     }
 
-    @GetMapping(value = "/id/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
-    public ResponseEntity<InputStreamResource> getReservationPdfDocument(@PathVariable long id) {
+    @PutMapping("/id/{id}/payment-token/{paymentToken}")
+    public ResponseEntity<Reservation> updateReservationPayment(@PathVariable long id, @PathVariable String paymentToken) {
         try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Content-Disposition", "inline; " + "filename=reservation" + id + ".pdf");
+            return ResponseEntity.ok(reservationService.updateReservationPayment(id, paymentToken));
+        } catch (ReservationProcessingException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
 
-            return ResponseEntity.ok().headers(headers)
-                    .contentType(MediaType.APPLICATION_PDF)
-                    .body(reservationService.getReservationPdfDocument(id));
-
+    @DeleteMapping("/id/{id}")
+    public ResponseEntity<Reservation> deleteReservationById(@PathVariable long id) {
+        try {
+            return ResponseEntity.ok(reservationService.deleteReservationById(id));
         } catch (ReservationProcessingException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }

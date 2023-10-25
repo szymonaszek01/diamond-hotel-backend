@@ -37,7 +37,7 @@ public class EmailUtil {
             mimeMultipart.addBodyPart(mimeBodyPart);
 
             mimeBodyPart = new MimeBodyPart();
-            DataSource dataSource = new FileDataSource("src/main/resources/assets/logo-black.png");
+            DataSource dataSource = new FileDataSource("/app/src/main/resources/assets/logo-black.png");
             mimeBodyPart.setDataHandler(new DataHandler(dataSource));
             mimeBodyPart.setHeader("Content-ID", "<image>");
             mimeMultipart.addBodyPart(mimeBodyPart);

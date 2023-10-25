@@ -111,9 +111,13 @@ public class ConstantUtil {
 
     public static final String RESERVATION_NOT_FOUND_EXCEPTION = "Reservation not found exception";
 
+    public static final String TOO_LATE_TO_CANCEL_RESERVATION = "Too late to cancel reservation";
+
     public static final String PAYMENT_EXPIRED_EXCEPTION = "Payment expired";
 
     public static final String CHARGE_NOT_FOUND_EXCEPTION = "Charge not found";
+
+    public static final String RESERVATION_EXPIRED_EXCEPTION = "Reservation expired exception";
 
 
     /**

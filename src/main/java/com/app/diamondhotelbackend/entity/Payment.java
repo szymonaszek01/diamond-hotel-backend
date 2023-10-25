@@ -39,6 +39,6 @@ public class Payment {
     private String charge;
 
     @JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "payment", cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "payment", cascade = CascadeType.REMOVE)
     private Reservation reservation;
 }

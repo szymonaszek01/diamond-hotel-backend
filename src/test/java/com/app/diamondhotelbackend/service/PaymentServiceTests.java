@@ -1,11 +1,9 @@
 package com.app.diamondhotelbackend.service;
 
-import com.app.diamondhotelbackend.dto.payment.request.PaymentCancelRequestDto;
-import com.app.diamondhotelbackend.dto.payment.request.PaymentChargeRequestDto;
+import com.app.diamondhotelbackend.dto.common.PdfResponseDto;
 import com.app.diamondhotelbackend.entity.Payment;
 import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.repository.PaymentRepository;
-import com.app.diamondhotelbackend.service.email.EmailServiceImpl;
 import com.app.diamondhotelbackend.service.payment.PaymentServiceImpl;
 import com.app.diamondhotelbackend.service.stripe.StripeServiceImpl;
 import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
@@ -27,9 +25,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.util.Base64;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,14 +53,7 @@ public class PaymentServiceTests {
     private UserProfileServiceImpl userProfileService;
 
     @Mock
-    private EmailServiceImpl emailService;
-
-    @Mock
     private PdfUtil pdfUtil;
-
-    private PaymentChargeRequestDto paymentChargeRequestDto;
-
-    private PaymentCancelRequestDto paymentCancelRequestDto;
 
     private Charge charge;
 
@@ -75,24 +69,10 @@ public class PaymentServiceTests {
 
     private Page<Payment> paymentPage;
 
-    private Payment updatedPayment;
+    private PdfResponseDto pdfResponseDto;
 
     @BeforeEach
     public void init() {
-        paymentChargeRequestDto = PaymentChargeRequestDto.builder()
-                .paymentId(1L)
-                .reservationId(1L)
-                .userProfileId(1L)
-                .amount(200)
-                .token("token1")
-                .build();
-
-        paymentCancelRequestDto = PaymentCancelRequestDto.builder()
-                .paymentId(1L)
-                .reservationId(1L)
-                .userProfileId(1L)
-                .build();
-
         charge = new Charge();
         charge.setId("chargeId1");
         charge.setStatus(ConstantUtil.SUCCEEDED);
@@ -101,46 +81,17 @@ public class PaymentServiceTests {
         refund.setId("chargeId1");
         refund.setObject(ConstantUtil.REFUND);
 
-        userProfile = UserProfile.builder()
-                .id(1)
-                .email("email1")
-                .build();
+        userProfile = UserProfile.builder().id(1).email("email1").build();
 
         inputStreamResource = new InputStreamResource(InputStream.nullInputStream());
 
-        payment = Payment.builder()
-                .id(1)
-                .createdAt(new Date(System.currentTimeMillis()))
-                .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
-                .status(ConstantUtil.WAITING_FOR_PAYMENT)
-                .build();
+        payment = Payment.builder().id(1).createdAt(new Date(System.currentTimeMillis())).expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15)).status(ConstantUtil.WAITING_FOR_PAYMENT).build();
 
-        paymentList = List.of(
-                Payment.builder()
-                        .createdAt(new Date(System.currentTimeMillis()))
-                        .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
-                        .token("token1")
-                        .build(),
-                Payment.builder()
-                        .createdAt(new Date(System.currentTimeMillis()))
-                        .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
-                        .token("token2")
-                        .build(),
-                Payment.builder()
-                        .createdAt(new Date(System.currentTimeMillis()))
-                        .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
-                        .token("token3")
-                        .build()
-        );
+        paymentList = List.of(Payment.builder().createdAt(new Date(System.currentTimeMillis())).expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15)).token("token1").build(), Payment.builder().createdAt(new Date(System.currentTimeMillis())).expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15)).token("token2").build(), Payment.builder().createdAt(new Date(System.currentTimeMillis())).expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15)).token("token3").build());
 
-        updatedPayment = Payment.builder()
-                .id(1)
-                .createdAt(new Date(System.currentTimeMillis()))
-                .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
-                .token("token1")
-                .cost(BigDecimal.valueOf(1650))
-                .status(ConstantUtil.APPROVED)
-                .build();
+        byte[] bytes = HexFormat.of().parseHex("e04fd020");
+
+        pdfResponseDto = PdfResponseDto.builder().fileName("Payment1.pdf").encodedFile(Base64.getEncoder().encodeToString(bytes)).build();
 
         paymentPage = new PageImpl<>(paymentList);
     }
@@ -186,6 +137,16 @@ public class PaymentServiceTests {
     }
 
     @Test
+    public void PaymentService_GetPaymentPdfDocumentById_ReturnsPdfResponseDto() throws IOException {
+        when(paymentRepository.findById(Mockito.any(long.class))).thenReturn(Optional.of(payment));
+        when(pdfUtil.getPaymentForReservationPdf(Mockito.any(Payment.class))).thenReturn(inputStreamResource);
+
+        PdfResponseDto createdPdfResponseDto = paymentService.getPaymentPdfDocumentById(payment.getId());
+
+        Assertions.assertThat(createdPdfResponseDto.getFileName()).isEqualTo(pdfResponseDto.getFileName());
+    }
+
+    @Test
     public void PaymentService_CountPaymentListByUserProfileId_ReturnsLong() {
         when(userProfileService.getUserProfileById(Mockito.any(long.class))).thenReturn(userProfile);
         when(paymentRepository.countAllByReservationUserProfile(Mockito.any(UserProfile.class))).thenReturn(3L);
@@ -197,16 +158,14 @@ public class PaymentServiceTests {
     }
 
     @Test
-    public void PaymentService_ChargePayment_ReturnsPayment() throws StripeException {
-        when(paymentRepository.findById(Mockito.any(long.class))).thenReturn(Optional.of(payment));
+    public void PaymentService_UpdatePayment_ReturnsPayment() throws StripeException {
+        payment.setCost(BigDecimal.valueOf(1000));
+        payment.setToken("token1");
+
         when(paymentRepository.save(Mockito.any(Payment.class))).thenReturn(payment);
         when(stripeService.createCharge(Mockito.any(String.class), Mockito.any(int.class))).thenReturn(charge);
-        when(userProfileService.getUserProfileById(Mockito.any(long.class))).thenReturn(userProfile);
-        when(pdfUtil.getPaymentPdf(Mockito.any(Payment.class), Mockito.any(UserProfile.class), Mockito.any(long.class))).thenReturn(inputStreamResource);
 
-        Payment savedPayment = paymentService.chargePayment(paymentChargeRequestDto);
-
-        verify(emailService).sendPaymentForReservationConfirmedEmail(Mockito.any(Payment.class), Mockito.any(UserProfile.class), Mockito.any(long.class), Mockito.any(InputStreamResource.class));
+        Payment savedPayment = paymentService.updatePayment(payment);
 
         Assertions.assertThat(savedPayment).isNotNull();
         Assertions.assertThat(savedPayment.getToken()).isEqualTo("token1");
@@ -215,53 +174,16 @@ public class PaymentServiceTests {
     }
 
     @Test
-    public void PaymentService_CancelPayment_ReturnsPayment() throws StripeException {
+    public void PaymentService_DeletePayment_ReturnsPayment() throws StripeException {
         payment.setCharge("chargeId1");
 
-        when(paymentRepository.findById(Mockito.any(long.class))).thenReturn(Optional.of(payment));
-        when(paymentRepository.save(Mockito.any(Payment.class))).thenReturn(payment);
         when(stripeService.createRefund(Mockito.any(String.class))).thenReturn(refund);
-        when(userProfileService.getUserProfileById(Mockito.any(long.class))).thenReturn(userProfile);
-        when(pdfUtil.getPaymentPdf(Mockito.any(Payment.class), Mockito.any(UserProfile.class), Mockito.any(long.class))).thenReturn(inputStreamResource);
 
-        Payment savedPayment = paymentService.cancelPayment(paymentCancelRequestDto);
+        Payment savedPayment = paymentService.deletePayment(payment);
 
-        verify(emailService).sendPaymentForReservationCancelledEmail(Mockito.any(Payment.class), Mockito.any(UserProfile.class), Mockito.any(long.class), Mockito.any(InputStreamResource.class));
+        verify(paymentRepository).delete(Mockito.any(Payment.class));
 
         Assertions.assertThat(savedPayment).isNotNull();
         Assertions.assertThat(savedPayment.getStatus()).isEqualTo(ConstantUtil.CANCELLED);
-    }
-
-    @Test
-    public void PaymentService_UpdatePaymentStatus_ReturnsPayment() {
-        when(paymentRepository.findById(Mockito.any(long.class))).thenReturn(Optional.of(payment));
-        when(paymentRepository.save(Mockito.any(Payment.class))).thenReturn(updatedPayment);
-
-        Payment savedPayment = paymentService.updatePaymentStatus(1, ConstantUtil.APPROVED);
-
-        Assertions.assertThat(savedPayment).isNotNull();
-        Assertions.assertThat(savedPayment.getStatus()).isEqualTo(updatedPayment.getStatus());
-    }
-
-    @Test
-    public void PaymentService_UpdatePaymentCost_ReturnsPayment() {
-        when(paymentRepository.findById(Mockito.any(long.class))).thenReturn(Optional.of(payment));
-        when(paymentRepository.save(Mockito.any(Payment.class))).thenReturn(updatedPayment);
-
-        Payment savedPayment = paymentService.updatePaymentCost(1, BigDecimal.valueOf(1650));
-
-        Assertions.assertThat(savedPayment).isNotNull();
-        Assertions.assertThat(savedPayment.getCost()).isEqualTo(updatedPayment.getCost());
-    }
-
-    @Test
-    public void PaymentService_UpdatePaymentToken_ReturnsPayment() {
-        when(paymentRepository.findById(Mockito.any(long.class))).thenReturn(Optional.of(payment));
-        when(paymentRepository.save(Mockito.any(Payment.class))).thenReturn(updatedPayment);
-
-        Payment savedPayment = paymentService.updatePaymentToken(1, "token1");
-
-        Assertions.assertThat(savedPayment).isNotNull();
-        Assertions.assertThat(savedPayment.getToken()).isEqualTo(updatedPayment.getToken());
     }
 }

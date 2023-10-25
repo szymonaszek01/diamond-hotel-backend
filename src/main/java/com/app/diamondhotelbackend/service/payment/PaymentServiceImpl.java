@@ -1,15 +1,13 @@
 package com.app.diamondhotelbackend.service.payment;
 
 
-import com.app.diamondhotelbackend.dto.payment.request.PaymentCancelRequestDto;
-import com.app.diamondhotelbackend.dto.payment.request.PaymentChargeRequestDto;
+import com.app.diamondhotelbackend.dto.common.PdfResponseDto;
 import com.app.diamondhotelbackend.entity.Payment;
 import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.exception.AuthProcessingException;
 import com.app.diamondhotelbackend.exception.PaymentProcessingException;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.repository.PaymentRepository;
-import com.app.diamondhotelbackend.service.email.EmailServiceImpl;
 import com.app.diamondhotelbackend.service.stripe.StripeServiceImpl;
 import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
 import com.app.diamondhotelbackend.util.ConstantUtil;
@@ -25,7 +23,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
+import java.io.IOException;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -40,8 +39,6 @@ public class PaymentServiceImpl implements PaymentService {
     private final StripeServiceImpl stripeService;
 
     private final UserProfileServiceImpl userProfileService;
-
-    private final EmailServiceImpl emailService;
 
     private final PdfUtil pdfUtil;
 
@@ -90,6 +87,18 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    public PdfResponseDto getPaymentPdfDocumentById(long id) throws PaymentProcessingException, IOException {
+        Payment payment = getPaymentById(id);
+        InputStreamResource inputStreamResource = pdfUtil.getPaymentForReservationPdf(payment);
+        String encodedFile = inputStreamResource != null ? Base64.getEncoder().encodeToString(inputStreamResource.getContentAsByteArray()) : "";
+
+        return PdfResponseDto.builder()
+                .fileName("Payment" + id + ".pdf")
+                .encodedFile(encodedFile)
+                .build();
+    }
+
+    @Override
     public Long countPaymentListByUserProfileId(long userProfileId) throws UserProfileProcessingException {
         UserProfile userProfile = userProfileService.getUserProfileById(userProfileId);
 
@@ -97,31 +106,24 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public Payment chargePayment(PaymentChargeRequestDto paymentChargeRequestDto) throws PaymentProcessingException, StripeException, UserProfileProcessingException {
-        Payment payment = getPaymentById(paymentChargeRequestDto.getPaymentId());
+    public Payment updatePayment(Payment payment) throws PaymentProcessingException, StripeException {
         if (payment.getExpiresAt().before(new Date(System.currentTimeMillis()))) {
-            payment.setStatus(ConstantUtil.CANCELLED);
-            paymentRepository.save(payment);
-
+            paymentRepository.delete(payment);
             throw new PaymentProcessingException(ConstantUtil.PAYMENT_EXPIRED_EXCEPTION);
         }
 
-        Charge charge = stripeService.createCharge(paymentChargeRequestDto.getToken(), paymentChargeRequestDto.getAmount());
-        payment.setStatus(ConstantUtil.SUCCEEDED.equals(charge.getStatus()) ? ConstantUtil.APPROVED : ConstantUtil.CANCELLED);
-        payment.setToken(paymentChargeRequestDto.getToken());
-        payment.setCharge(charge.getId());
-
-        UserProfile userProfile = userProfileService.getUserProfileById(paymentChargeRequestDto.getUserProfileId());
-        InputStreamResource inputStreamResource = pdfUtil.getPaymentPdf(payment, userProfile, paymentChargeRequestDto.getReservationId());
-        emailService.sendPaymentForReservationConfirmedEmail(payment, userProfile, paymentChargeRequestDto.getReservationId(), inputStreamResource);
+        if (payment.getToken() != null && payment.getCost() != null) {
+            Charge charge = stripeService.createCharge(payment.getToken(), payment.getCost().intValue());
+            payment.setStatus(ConstantUtil.SUCCEEDED.equals(charge.getStatus()) ? ConstantUtil.APPROVED : ConstantUtil.CANCELLED);
+            payment.setToken(payment.getToken());
+            payment.setCharge(charge.getId());
+        }
 
         return paymentRepository.save(payment);
     }
 
     @Override
-    public Payment cancelPayment(PaymentCancelRequestDto paymentCancelRequestDto) throws PaymentProcessingException, StripeException, UserProfileProcessingException {
-        Payment payment = getPaymentById(paymentCancelRequestDto.getPaymentId());
-
+    public Payment deletePayment(Payment payment) throws PaymentProcessingException, StripeException {
         if (payment.getCharge() != null) {
             Refund refund = stripeService.createRefund(payment.getCharge());
             if (!ConstantUtil.REFUND.equals(refund.getObject())) {
@@ -130,35 +132,8 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         payment.setStatus(ConstantUtil.CANCELLED);
+        paymentRepository.delete(payment);
 
-        UserProfile userProfile = userProfileService.getUserProfileById(paymentCancelRequestDto.getUserProfileId());
-        InputStreamResource inputStreamResource = pdfUtil.getPaymentPdf(payment, userProfile, paymentCancelRequestDto.getReservationId());
-        emailService.sendPaymentForReservationCancelledEmail(payment, userProfile, paymentCancelRequestDto.getReservationId(), inputStreamResource);
-
-        return paymentRepository.save(payment);
-    }
-
-    @Override
-    public Payment updatePaymentStatus(long id, String status) throws PaymentProcessingException {
-        Payment payment = getPaymentById(id);
-        payment.setStatus(status);
-
-        return paymentRepository.save(payment);
-    }
-
-    @Override
-    public Payment updatePaymentCost(long id, BigDecimal cost) throws PaymentProcessingException {
-        Payment payment = getPaymentById(id);
-        payment.setCost(cost);
-
-        return paymentRepository.save(payment);
-    }
-
-    @Override
-    public Payment updatePaymentToken(long id, String token) throws PaymentProcessingException {
-        Payment payment = getPaymentById(id);
-        payment.setToken(token);
-
-        return paymentRepository.save(payment);
+        return payment;
     }
 }

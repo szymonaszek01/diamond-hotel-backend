@@ -1,14 +1,12 @@
 package com.app.diamondhotelbackend.service.payment;
 
-import com.app.diamondhotelbackend.dto.payment.request.PaymentCancelRequestDto;
-import com.app.diamondhotelbackend.dto.payment.request.PaymentChargeRequestDto;
+import com.app.diamondhotelbackend.dto.common.PdfResponseDto;
 import com.app.diamondhotelbackend.entity.Payment;
 import com.app.diamondhotelbackend.exception.PaymentProcessingException;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.stripe.exception.StripeException;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.List;
 
 public interface PaymentService {
@@ -21,15 +19,11 @@ public interface PaymentService {
 
     Payment getPaymentById(long id) throws PaymentProcessingException;
 
+    PdfResponseDto getPaymentPdfDocumentById(long id) throws PaymentProcessingException, IOException;
+
     Long countPaymentListByUserProfileId(long userProfileId) throws UserProfileProcessingException;
 
-    Payment chargePayment(PaymentChargeRequestDto paymentChargeRequestDto) throws PaymentProcessingException, StripeException, UserProfileProcessingException;
+    Payment updatePayment(Payment payment) throws PaymentProcessingException, StripeException;
 
-    Payment cancelPayment(PaymentCancelRequestDto paymentCancelRequestDto) throws PaymentProcessingException, IOException, StripeException, UserProfileProcessingException;
-
-    Payment updatePaymentStatus(long id, String status) throws PaymentProcessingException;
-
-    Payment updatePaymentCost(long id, BigDecimal cost) throws PaymentProcessingException;
-
-    Payment updatePaymentToken(long id, String token) throws PaymentProcessingException;
+    Payment deletePayment(Payment payment) throws PaymentProcessingException, StripeException;
 }

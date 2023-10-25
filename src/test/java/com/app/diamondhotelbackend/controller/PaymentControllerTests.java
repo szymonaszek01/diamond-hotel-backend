@@ -1,12 +1,10 @@
 package com.app.diamondhotelbackend.controller;
 
-import com.app.diamondhotelbackend.dto.payment.request.PaymentCancelRequestDto;
-import com.app.diamondhotelbackend.dto.payment.request.PaymentChargeRequestDto;
+import com.app.diamondhotelbackend.dto.common.PdfResponseDto;
 import com.app.diamondhotelbackend.entity.Payment;
 import com.app.diamondhotelbackend.security.jwt.JwtFilter;
 import com.app.diamondhotelbackend.service.payment.PaymentServiceImpl;
 import com.app.diamondhotelbackend.util.ConstantUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,13 +20,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.math.BigDecimal;
 import java.sql.Date;
+import java.util.Base64;
+import java.util.HexFormat;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @WebMvcTest(controllers = PaymentController.class)
@@ -45,14 +43,7 @@ public class PaymentControllerTests {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    private PaymentChargeRequestDto paymentChargeRequestDto;
-
-    private PaymentCancelRequestDto paymentCancelRequestDto;
-
-    private Payment payment;
+    private PdfResponseDto pdfResponseDto;
 
     private List<Payment> paymentList;
 
@@ -60,29 +51,13 @@ public class PaymentControllerTests {
 
     @BeforeEach
     public void init() {
-        paymentChargeRequestDto = PaymentChargeRequestDto.builder()
-                .paymentId(1)
-                .reservationId(1)
-                .userProfileId(1)
-                .token("token1")
-                .amount(200)
+        byte[] bytes = HexFormat.of().parseHex("e04fd020");
+
+        pdfResponseDto = PdfResponseDto.builder()
+                .fileName("testFileName")
+                .encodedFile(Base64.getEncoder().encodeToString(bytes))
                 .build();
 
-        paymentCancelRequestDto = PaymentCancelRequestDto.builder()
-                .paymentId(1)
-                .reservationId(1)
-                .userProfileId(1)
-                .build();
-
-        payment = Payment.builder()
-                .id(1)
-                .createdAt(new Date(System.currentTimeMillis()))
-                .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
-                .status(ConstantUtil.APPROVED)
-                .charge("chargeId1")
-                .token("token1")
-                .cost(BigDecimal.valueOf(200))
-                .build();
 
         paymentList = List.of(
                 Payment.builder()
@@ -138,6 +113,20 @@ public class PaymentControllerTests {
     }
 
     @Test
+    public void PaymentController_GetPaymentPdfDocumentById_ReturnsPdfResponseDto() throws Exception {
+        when(paymentService.getPaymentPdfDocumentById(Mockito.any(long.class))).thenReturn(pdfResponseDto);
+
+        MockHttpServletRequestBuilder request = get(url + "/id/" + 1 + "/pdf")
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc
+                .perform(request)
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.encoded_file", CoreMatchers.is(pdfResponseDto.getEncodedFile())));
+    }
+
+    @Test
     public void PaymentController_CountPaymentListByUserProfileId_ReturnsLong() throws Exception {
         when(paymentService.countPaymentListByUserProfileId(Mockito.any(long.class))).thenReturn(3L);
 
@@ -149,37 +138,5 @@ public class PaymentControllerTests {
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().string(CoreMatchers.is("3")));
-    }
-
-    @Test
-    public void PaymentController_ChargePayment_ReturnsPayment() throws Exception {
-        when(paymentService.chargePayment(Mockito.any(PaymentChargeRequestDto.class))).thenReturn(payment);
-
-        MockHttpServletRequestBuilder request = put(url + "/charge")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(paymentChargeRequestDto));
-
-        mockMvc
-                .perform(request)
-                .andDo(print())
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.status", CoreMatchers.is(payment.getStatus())));
-    }
-
-    @Test
-    public void PaymentController_CancelPayment_ReturnsPayment() throws Exception {
-        payment.setStatus(ConstantUtil.CANCELLED);
-
-        when(paymentService.cancelPayment(Mockito.any(PaymentCancelRequestDto.class))).thenReturn(payment);
-
-        MockHttpServletRequestBuilder request = put(url + "/cancel")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(paymentCancelRequestDto));
-
-        mockMvc
-                .perform(request)
-                .andDo(print())
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.status", CoreMatchers.is(payment.getStatus())));
     }
 }

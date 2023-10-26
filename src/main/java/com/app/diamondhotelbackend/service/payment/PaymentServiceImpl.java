@@ -113,7 +113,7 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         if (payment.getToken() != null && payment.getCost() != null) {
-            Charge charge = stripeService.createCharge(payment.getToken(), payment.getCost().intValue());
+            Charge charge = stripeService.createCharge(payment.getToken(), payment.getCost().intValue() * 100);
             payment.setStatus(ConstantUtil.SUCCEEDED.equals(charge.getStatus()) ? ConstantUtil.APPROVED : ConstantUtil.CANCELLED);
             payment.setToken(payment.getToken());
             payment.setCharge(charge.getId());

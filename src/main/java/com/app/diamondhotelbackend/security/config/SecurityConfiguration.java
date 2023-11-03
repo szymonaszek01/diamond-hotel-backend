@@ -53,6 +53,7 @@ public class SecurityConfiguration {
                 .requestMatchers("/api/v1/user-profile/email/{email}/picture").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)
                 .requestMatchers("/api/v1/user-profile/email/{email}/details").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)
                 .requestMatchers("/api/v1/weather/all").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)
+                .requestMatchers("/api/v1/reserved-room/all").hasAnyAuthority(ConstantUtil.ADMIN)
                 .requestMatchers("/api/v1/reserved-room/all/user-profile-id/{userProfileId}").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)
                 .requestMatchers("/api/v1/reserved-room/all/number/user-profile-id/{userProfileId}").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)
                 .requestMatchers("/api/v1/room/all/available").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)

@@ -10,10 +10,6 @@ COPY --from=build /target/diamond-hotel-backend-0.0.1-SNAPSHOT.jar app.jar
 # Copy the entire application directory into the Docker image
 COPY . /app
 
-ENV DB_URL=$DB_URL
-ENV DB_USERNAME=$DB_USERNAME
-ENV DB_PASSWORD=$DB_PASSWORD
-
 # Set the working directory
 WORKDIR /app
 

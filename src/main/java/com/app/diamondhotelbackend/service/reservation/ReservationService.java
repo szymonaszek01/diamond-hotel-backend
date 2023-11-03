@@ -7,6 +7,7 @@ import com.app.diamondhotelbackend.exception.ReservationProcessingException;
 import com.app.diamondhotelbackend.exception.RoomProcessingException;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.stripe.exception.StripeException;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 
 import java.io.IOException;
 import java.util.List;
@@ -15,9 +16,9 @@ public interface ReservationService {
 
     Reservation createReservation(ReservationCreateRequestDto reservationCreateRequestDto) throws ReservationProcessingException, UserProfileProcessingException, RoomProcessingException, IOException, StripeException;
 
-    List<Reservation> getReservationList(int page, int size);
+    List<Reservation> getReservationList(int page, int size, String paymentStatus, JSONArray jsonArray);
 
-    List<Reservation> getReservationListByUserProfileId(long userProfileId, int page, int size, String paymentStatus);
+    List<Reservation> getReservationListByUserProfileId(long userProfileId, int page, int size, String paymentStatus, JSONArray jsonArray);
 
     Reservation getReservationById(long id) throws ReservationProcessingException;
 

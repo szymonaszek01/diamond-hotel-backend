@@ -13,14 +13,12 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
 
 @DataJpaTest
-@ActiveProfiles("test")
 public class ReservationRepositoryTests {
 
     @Autowired
@@ -157,21 +155,29 @@ public class ReservationRepositoryTests {
     }
 
     @Test
-    public void ReservationRepository_FindAllByUserProfileIdOrderByIdDesc_ReturnsReservationPage() {
-        pageRequest = pageRequest.withPage(1);
-
+    public void ReservationRepository_FindAllByPaymentStatus_ReturnsReservationPage() {
         reservationRepository.saveAll(reservationList);
-        Page<Reservation> reservationPage = reservationRepository.findAllByUserProfileIdOrderByIdDesc(1L, pageRequest);
+        Page<Reservation> reservationPage = reservationRepository.findAllByPaymentStatus(ConstantUtil.APPROVED, pageRequest);
 
         Assertions.assertThat(reservationPage).isNotNull();
     }
 
     @Test
-    public void ReservationRepository_FindAllByUserProfileIdAndPaymentStatusOrderByIdDesc_ReturnsReservationPage() {
+    public void ReservationRepository_FindAllByUserProfileId_ReturnsReservationPage() {
         pageRequest = pageRequest.withPage(1);
 
         reservationRepository.saveAll(reservationList);
-        Page<Reservation> reservationPage = reservationRepository.findAllByUserProfileIdAndPaymentStatusOrderByIdDesc(1L, ConstantUtil.APPROVED, pageRequest);
+        Page<Reservation> reservationPage = reservationRepository.findAllByUserProfileId(1L, pageRequest);
+
+        Assertions.assertThat(reservationPage).isNotNull();
+    }
+
+    @Test
+    public void ReservationRepository_FindAllByUserProfileIdAndPaymentStatus_ReturnsReservationPage() {
+        pageRequest = pageRequest.withPage(1);
+
+        reservationRepository.saveAll(reservationList);
+        Page<Reservation> reservationPage = reservationRepository.findAllByUserProfileIdAndPaymentStatus(1L, ConstantUtil.APPROVED, pageRequest);
 
         Assertions.assertThat(reservationPage).isNotNull();
     }

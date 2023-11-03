@@ -26,6 +26,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -141,8 +142,8 @@ public class ReservationServiceTests {
 
         reservationCreateRequestDto = ReservationCreateRequestDto.builder()
                 .userProfileId(1)
-                .checkIn("2023-12-24")
-                .checkOut("2023-12-27")
+                .checkIn("2024-12-24")
+                .checkOut("2024-12-27")
                 .adults(2)
                 .children(2)
                 .flightNumber("flightNumber1")
@@ -151,8 +152,8 @@ public class ReservationServiceTests {
 
         reservation = Reservation.builder()
                 .id(1)
-                .checkIn(Date.valueOf("2023-12-24"))
-                .checkOut(Date.valueOf("2023-12-27"))
+                .checkIn(Date.valueOf("2024-12-24"))
+                .checkOut(Date.valueOf("2024-12-27"))
                 .userProfile(userProfile)
                 .flight(flight)
                 .payment(payment)
@@ -161,23 +162,23 @@ public class ReservationServiceTests {
         reservationList = List.of(
                 Reservation.builder()
                         .id(1)
-                        .checkIn(Date.valueOf("2023-10-24"))
-                        .checkOut(Date.valueOf("2023-10-27"))
+                        .checkIn(Date.valueOf("2024-10-24"))
+                        .checkOut(Date.valueOf("2024-10-27"))
                         .userProfile(userProfile)
                         .flight(flight)
                         .payment(payment)
                         .build(),
                 Reservation.builder()
                         .id(2)
-                        .checkIn(Date.valueOf("2023-11-24"))
-                        .checkOut(Date.valueOf("2023-11-27"))
+                        .checkIn(Date.valueOf("2024-11-24"))
+                        .checkOut(Date.valueOf("2024-11-27"))
                         .userProfile(userProfile)
                         .flight(flight)
                         .payment(payment)
                         .build(),
                 Reservation.builder().id(3)
-                        .checkIn(Date.valueOf("2023-12-24"))
-                        .checkOut(Date.valueOf("2023-12-27"))
+                        .checkIn(Date.valueOf("2024-12-24"))
+                        .checkOut(Date.valueOf("2024-12-27"))
                         .userProfile(userProfile)
                         .flight(flight)
                         .payment(payment)
@@ -233,22 +234,24 @@ public class ReservationServiceTests {
 
     @Test
     public void ReservationService_GetReservationList_ReturnsReservationList() {
+        payment.setStatus(ConstantUtil.APPROVED);
+
         when(reservationRepository.findAll(Mockito.any(PageRequest.class))).thenReturn(reservationPage);
 
-        List<Reservation> foundReservationList = reservationService.getReservationList(1, 3);
+        List<Reservation> foundReservationList = reservationService.getReservationList(1, 3, "", new JSONArray());
 
         Assertions.assertThat(foundReservationList).isNotNull();
-        Assertions.assertThat(reservationList.size()).isEqualTo(3);
+        Assertions.assertThat(foundReservationList.size()).isEqualTo(3);
     }
 
     @Test
     public void ReservationService_GetReservationListByUserProfileId_ReturnsReservationList() {
-        when(reservationRepository.findAllByUserProfileIdOrderByIdDesc(Mockito.any(long.class), Mockito.any(PageRequest.class))).thenReturn(reservationPage);
+        when(reservationRepository.findAllByUserProfileId(Mockito.any(long.class), Mockito.any(PageRequest.class))).thenReturn(reservationPage);
 
-        List<Reservation> foundReservationList = reservationService.getReservationListByUserProfileId(1, 1, 3, "");
+        List<Reservation> foundReservationList = reservationService.getReservationListByUserProfileId(1, 1, 3, "", new JSONArray());
 
         Assertions.assertThat(foundReservationList).isNotNull();
-        Assertions.assertThat(reservationList.size()).isEqualTo(3);
+        Assertions.assertThat(foundReservationList.size()).isEqualTo(3);
     }
 
     @Test

@@ -18,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -172,7 +173,7 @@ public class ReservationControllerTests {
 
     @Test
     public void ReservationController_GetReservationList_ReturnsReservationList() throws Exception {
-        when(reservationService.getReservationList(Mockito.any(int.class), Mockito.any(int.class))).thenReturn(reservationList);
+        when(reservationService.getReservationList(Mockito.any(int.class), Mockito.any(int.class), Mockito.any(String.class), Mockito.any(JSONArray.class))).thenReturn(reservationList);
 
         MockHttpServletRequestBuilder request = get(url + "/all")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -188,7 +189,7 @@ public class ReservationControllerTests {
 
     @Test
     public void ReservationController_GetReservationListByUserProfileId_ReturnsReservationList() throws Exception {
-        when(reservationService.getReservationListByUserProfileId(Mockito.any(long.class), Mockito.any(int.class), Mockito.any(int.class), Mockito.any(String.class))).thenReturn(reservationList);
+        when(reservationService.getReservationListByUserProfileId(Mockito.any(long.class), Mockito.any(int.class), Mockito.any(int.class), Mockito.any(String.class), Mockito.any(JSONArray.class))).thenReturn(reservationList);
 
         MockHttpServletRequestBuilder request = get(url + "/all/user-profile-id/" + 1)
                 .contentType(MediaType.APPLICATION_JSON)

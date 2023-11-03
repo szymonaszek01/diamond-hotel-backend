@@ -12,17 +12,16 @@ import com.app.diamondhotelbackend.service.payment.PaymentServiceImpl;
 import com.app.diamondhotelbackend.service.reservedroom.ReservedRoomServiceImpl;
 import com.app.diamondhotelbackend.service.room.RoomServiceImpl;
 import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
-import com.app.diamondhotelbackend.util.ConstantUtil;
-import com.app.diamondhotelbackend.util.DateUtil;
-import com.app.diamondhotelbackend.util.PdfUtil;
-import com.app.diamondhotelbackend.util.QrCodeUtil;
+import com.app.diamondhotelbackend.util.*;
 import com.stripe.exception.StripeException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -88,29 +87,36 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public List<Reservation> getReservationList(int page, int size) {
+    public List<Reservation> getReservationList(int page, int size, String paymentStatus, JSONArray jsonArray) {
         if (page < 0 || size < 1) {
             return Collections.emptyList();
         }
 
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Reservation> reservationPage = reservationRepository.findAll(pageable);
+        List<Sort.Order> orderList = UrlUtil.toOrderListMapper(jsonArray);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(orderList));
+        Page<Reservation> reservationPage;
+        if (paymentStatus.isEmpty()) {
+            reservationPage = reservationRepository.findAll(pageable);
+        } else {
+            reservationPage = reservationRepository.findAllByPaymentStatus(paymentStatus, pageable);
+        }
 
         return reservationPage.getContent();
     }
 
     @Override
-    public List<Reservation> getReservationListByUserProfileId(long userProfileId, int page, int size, String paymentStatus) {
+    public List<Reservation> getReservationListByUserProfileId(long userProfileId, int page, int size, String paymentStatus, JSONArray jsonArray) {
         if (userProfileId < 1 || page < 0 || size < 1) {
             return Collections.emptyList();
         }
 
-        Pageable pageable = PageRequest.of(page, size);
+        List<Sort.Order> orderList = UrlUtil.toOrderListMapper(jsonArray);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(orderList));
         Page<Reservation> reservationPage;
         if (paymentStatus.isEmpty()) {
-            reservationPage = reservationRepository.findAllByUserProfileIdOrderByIdDesc(userProfileId, pageable);
+            reservationPage = reservationRepository.findAllByUserProfileId(userProfileId, pageable);
         } else {
-            reservationPage = reservationRepository.findAllByUserProfileIdAndPaymentStatusOrderByIdDesc(userProfileId, paymentStatus, pageable);
+            reservationPage = reservationRepository.findAllByUserProfileIdAndPaymentStatus(userProfileId, paymentStatus, pageable);
         }
 
         return reservationPage.getContent();

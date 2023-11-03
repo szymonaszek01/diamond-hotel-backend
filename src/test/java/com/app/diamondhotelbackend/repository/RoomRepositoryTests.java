@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 @DataJpaTest
+@ActiveProfiles("test")
 public class RoomRepositoryTests {
 
     @Autowired

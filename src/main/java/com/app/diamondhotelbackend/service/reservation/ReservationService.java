@@ -7,7 +7,7 @@ import com.app.diamondhotelbackend.exception.ReservationProcessingException;
 import com.app.diamondhotelbackend.exception.RoomProcessingException;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.stripe.exception.StripeException;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.json.JSONArray;
 
 import java.io.IOException;
 import java.util.List;

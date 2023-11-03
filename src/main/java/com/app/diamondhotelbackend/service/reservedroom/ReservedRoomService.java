@@ -4,7 +4,7 @@ import com.app.diamondhotelbackend.entity.Reservation;
 import com.app.diamondhotelbackend.entity.ReservedRoom;
 import com.app.diamondhotelbackend.entity.Room;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.json.JSONArray;
 
 import java.sql.Date;
 import java.util.List;

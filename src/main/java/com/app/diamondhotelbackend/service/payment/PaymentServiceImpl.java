@@ -18,7 +18,7 @@ import com.stripe.model.Charge;
 import com.stripe.model.Refund;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.json.JSONArray;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

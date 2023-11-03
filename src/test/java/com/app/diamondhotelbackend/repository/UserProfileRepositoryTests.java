@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @DataJpaTest
+@ActiveProfiles("test")
 public class UserProfileRepositoryTests {
 
     @Autowired

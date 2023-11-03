@@ -12,15 +12,18 @@ import com.app.diamondhotelbackend.service.stripe.StripeServiceImpl;
 import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
 import com.app.diamondhotelbackend.util.ConstantUtil;
 import com.app.diamondhotelbackend.util.PdfUtil;
+import com.app.diamondhotelbackend.util.UrlUtil;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
 import com.stripe.model.Refund;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -48,30 +51,37 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public List<Payment> getPaymentList(int page, int size) {
+    public List<Payment> getPaymentList(int page, int size, String status, JSONArray jsonArray) {
         if (page < 0 || size < 1) {
             return Collections.emptyList();
         }
 
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Payment> paymentPage = paymentRepository.findAll(pageable);
+        List<Sort.Order> orderList = UrlUtil.toOrderListMapper(jsonArray);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(orderList));
+        Page<Payment> paymentPage;
+        if (status.isEmpty()) {
+            paymentPage = paymentRepository.findAll(pageable);
+        } else {
+            paymentPage = paymentRepository.findAllByStatus(status, pageable);
+        }
 
         return paymentPage.getContent();
     }
 
     @Override
-    public List<Payment> getPaymentListByUserProfileId(long userProfileId, int page, int size, String status) {
+    public List<Payment> getPaymentListByUserProfileId(long userProfileId, int page, int size, String status, JSONArray jsonArray) {
         try {
             if (userProfileId < 1 || page < 0 || size < 1) {
                 return Collections.emptyList();
             }
 
-            Pageable pageable = PageRequest.of(page, size);
+            List<Sort.Order> orderList = UrlUtil.toOrderListMapper(jsonArray);
+            Pageable pageable = PageRequest.of(page, size, Sort.by(orderList));
             Page<Payment> paymentPage;
             if (status.isEmpty()) {
-                paymentPage = paymentRepository.findAllByReservationUserProfileIdOrderByReservationIdDesc(userProfileId, pageable);
+                paymentPage = paymentRepository.findAllByReservationUserProfileId(userProfileId, pageable);
             } else {
-                paymentPage = paymentRepository.findAllByStatusAndReservationUserProfileIdOrderByReservationIdDesc(status, userProfileId, pageable);
+                paymentPage = paymentRepository.findAllByStatusAndReservationUserProfileId(status, userProfileId, pageable);
             }
 
             return paymentPage.getContent();

@@ -5,6 +5,7 @@ import com.app.diamondhotelbackend.entity.Payment;
 import com.app.diamondhotelbackend.exception.PaymentProcessingException;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.stripe.exception.StripeException;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,9 +14,9 @@ public interface PaymentService {
 
     Payment createPayment(Payment payment);
 
-    List<Payment> getPaymentList(int page, int size);
+    List<Payment> getPaymentList(int page, int size, String status, JSONArray jsonArray);
 
-    List<Payment> getPaymentListByUserProfileId(long userProfileId, int page, int size, String status);
+    List<Payment> getPaymentListByUserProfileId(long userProfileId, int page, int size, String status, JSONArray jsonArray);
 
     Payment getPaymentById(long id) throws PaymentProcessingException;
 

@@ -10,9 +10,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
-    Page<Payment> findAllByReservationUserProfileIdOrderByReservationIdDesc(long userProfileId, Pageable pageable);
+    Page<Payment> findAllByStatus(String status, Pageable pageable);
 
-    Page<Payment> findAllByStatusAndReservationUserProfileIdOrderByReservationIdDesc(String status, long userProfileId, Pageable pageable);
+    Page<Payment> findAllByReservationUserProfileId(long userProfileId, Pageable pageable);
+
+    Page<Payment> findAllByStatusAndReservationUserProfileId(String status, long userProfileId, Pageable pageable);
 
     Long countAllByReservationUserProfile(UserProfile userProfile);
 }

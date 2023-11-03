@@ -12,14 +12,12 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
 
 @DataJpaTest
-@ActiveProfiles("test")
 public class PaymentRepositoryTests {
 
     @Autowired
@@ -136,17 +134,27 @@ public class PaymentRepositoryTests {
     }
 
     @Test
-    public void PaymentRepository_FindAllByReservationUserProfileIdOrderByReservationIdDesc_ReturnsPaymentPage() {
+    public void PaymentRepository_FindAllByStatus_ReturnsPaymentPage() {
+        paymentList.forEach(p -> p.setStatus(ConstantUtil.APPROVED));
+
         paymentRepository.saveAll(paymentList);
-        Page<Payment> paymentPage = paymentRepository.findAllByReservationUserProfileIdOrderByReservationIdDesc(savedUserProfile.getId(), pageRequest);
+        Page<Payment> paymentPage = paymentRepository.findAllByStatus(ConstantUtil.APPROVED, pageRequest);
 
         Assertions.assertThat(paymentPage).isNotNull();
     }
 
     @Test
-    public void PaymentRepository_FindAllByStatusAndReservationUserProfileIdOrderByReservationIdDesc_ReturnsPaymentPage() {
+    public void PaymentRepository_FindAllByReservationUserProfileId_ReturnsPaymentPage() {
         paymentRepository.saveAll(paymentList);
-        Page<Payment> paymentPage = paymentRepository.findAllByStatusAndReservationUserProfileIdOrderByReservationIdDesc(payment.getStatus(), savedUserProfile.getId(), pageRequest);
+        Page<Payment> paymentPage = paymentRepository.findAllByReservationUserProfileId(savedUserProfile.getId(), pageRequest);
+
+        Assertions.assertThat(paymentPage).isNotNull();
+    }
+
+    @Test
+    public void PaymentRepository_FindAllByStatusAndReservationUserProfileId_ReturnsPaymentPage() {
+        paymentRepository.saveAll(paymentList);
+        Page<Payment> paymentPage = paymentRepository.findAllByStatusAndReservationUserProfileId(payment.getStatus(), savedUserProfile.getId(), pageRequest);
 
         Assertions.assertThat(paymentPage).isNotNull();
     }

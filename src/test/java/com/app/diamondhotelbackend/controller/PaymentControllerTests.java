@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -80,7 +81,7 @@ public class PaymentControllerTests {
 
     @Test
     public void PaymentController_GetPaymentList_ReturnsPaymentList() throws Exception {
-        when(paymentService.getPaymentList(Mockito.any(int.class), Mockito.any(int.class))).thenReturn(paymentList);
+        when(paymentService.getPaymentList(Mockito.any(int.class), Mockito.any(int.class), Mockito.any(String.class), Mockito.any(JSONArray.class))).thenReturn(paymentList);
 
         MockHttpServletRequestBuilder request = get(url + "/all")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -96,7 +97,7 @@ public class PaymentControllerTests {
 
     @Test
     public void PaymentController_GetPaymentListByUserProfileId_ReturnsPaymentList() throws Exception {
-        when(paymentService.getPaymentListByUserProfileId(Mockito.any(long.class), Mockito.any(int.class), Mockito.any(int.class), Mockito.any(String.class))).thenReturn(paymentList);
+        when(paymentService.getPaymentListByUserProfileId(Mockito.any(long.class), Mockito.any(int.class), Mockito.any(int.class), Mockito.any(String.class), Mockito.any(JSONArray.class))).thenReturn(paymentList);
 
         MockHttpServletRequestBuilder request = get(url + "/all/user-profile-id/" + 1L)
                 .contentType(MediaType.APPLICATION_JSON)

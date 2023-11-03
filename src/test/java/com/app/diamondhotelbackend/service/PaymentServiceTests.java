@@ -20,6 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -110,20 +111,20 @@ public class PaymentServiceTests {
     public void PaymentService_GetPaymentList_ReturnsPaymentList() {
         when(paymentRepository.findAll(Mockito.any(PageRequest.class))).thenReturn(paymentPage);
 
-        List<Payment> foundPaymentList = paymentService.getPaymentList(1, 3);
+        List<Payment> foundPaymentList = paymentService.getPaymentList(1, 3, "", new JSONArray());
 
         Assertions.assertThat(foundPaymentList).isNotNull();
-        Assertions.assertThat(paymentList.size()).isEqualTo(3);
+        Assertions.assertThat(foundPaymentList.size()).isEqualTo(3);
     }
 
     @Test
     public void PaymentService_GetPaymentListByUserProfileId_ReturnsPaymentList() {
-        when(paymentRepository.findAllByReservationUserProfileIdOrderByReservationIdDesc(Mockito.any(long.class), Mockito.any(PageRequest.class))).thenReturn(paymentPage);
+        when(paymentRepository.findAllByReservationUserProfileId(Mockito.any(long.class), Mockito.any(PageRequest.class))).thenReturn(paymentPage);
 
-        List<Payment> foundPaymentList = paymentService.getPaymentListByUserProfileId(1, 1, 3, "");
+        List<Payment> foundPaymentList = paymentService.getPaymentListByUserProfileId(1, 1, 3, "", new JSONArray());
 
         Assertions.assertThat(foundPaymentList).isNotNull();
-        Assertions.assertThat(paymentList.size()).isEqualTo(3);
+        Assertions.assertThat(foundPaymentList.size()).isEqualTo(3);
     }
 
     @Test

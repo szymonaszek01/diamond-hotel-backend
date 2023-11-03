@@ -12,6 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -101,6 +102,15 @@ public class ReservedRoomServiceTests {
         Assertions.assertThat(savedReservedRoom.getId()).isEqualTo(reservedRoom.getId());
     }
 
+    @Test
+    public void ReservationService_GetReservedRoomList_ReturnsReservationList() {
+        when(reservedRoomRepository.findAll(Mockito.any(PageRequest.class))).thenReturn(reservedRoomPage);
+
+        List<ReservedRoom> foundReservedRoomList = reservedRoomService.getReservedRoomList(1, 3, "", new JSONArray());
+
+        Assertions.assertThat(foundReservedRoomList).isNotNull();
+        Assertions.assertThat(foundReservedRoomList.size()).isEqualTo(2);
+    }
 
     @Test
     public void ReservedRoomService_GetReservedRoomListByReservationCheckInAndReservationCheckOut_ReturnsReservedRoomList() {
@@ -124,9 +134,9 @@ public class ReservedRoomServiceTests {
 
     @Test
     public void ReservedRoomService_GetReservedRoomListByUserProfileId_ReturnsReservedRoomList() {
-        when(reservedRoomRepository.findAllByReservationUserProfileIdOrderByReservationIdDesc(Mockito.any(long.class), Mockito.any(PageRequest.class))).thenReturn(reservedRoomPage);
+        when(reservedRoomRepository.findAllByReservationUserProfileId(Mockito.any(long.class), Mockito.any(PageRequest.class))).thenReturn(reservedRoomPage);
 
-        List<ReservedRoom> foundReservedRoomList = reservedRoomService.getReservedRoomListByUserProfileId(1L, 0, 3, "");
+        List<ReservedRoom> foundReservedRoomList = reservedRoomService.getReservedRoomListByUserProfileId(1L, 0, 3, "", new JSONArray());
 
         Assertions.assertThat(foundReservedRoomList).isNotNull();
         Assertions.assertThat(foundReservedRoomList.size()).isEqualTo(2);

@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -80,8 +81,24 @@ public class ReservedRoomControllerTests {
     }
 
     @Test
+    public void PaymentController_GetReservedRoomList_ReturnsPaymentList() throws Exception {
+        when(reservedRoomService.getReservedRoomList(Mockito.any(int.class), Mockito.any(int.class), Mockito.any(String.class), Mockito.any(JSONArray.class))).thenReturn(reservedRoomList);
+
+        MockHttpServletRequestBuilder request = get(url + "/all")
+                .contentType(MediaType.APPLICATION_JSON)
+                .queryParam("page", "0")
+                .queryParam("size", "3");
+
+        mockMvc
+                .perform(request)
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.size()", CoreMatchers.is(reservedRoomList.size())));
+    }
+
+    @Test
     public void ReservedRoomController_GetReservedRoomListByUserProfileId_ReturnsReservedRoomList() throws Exception {
-        when(reservedRoomService.getReservedRoomListByUserProfileId(Mockito.any(long.class), Mockito.any(int.class), Mockito.any(int.class), Mockito.any(String.class))).thenReturn(reservedRoomList);
+        when(reservedRoomService.getReservedRoomListByUserProfileId(Mockito.any(long.class), Mockito.any(int.class), Mockito.any(int.class), Mockito.any(String.class), Mockito.any(JSONArray.class))).thenReturn(reservedRoomList);
 
         MockHttpServletRequestBuilder request = get(url + "/all/user-profile-id/" + 1L)
                 .contentType(MediaType.APPLICATION_JSON)

@@ -8,11 +8,14 @@ import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.repository.ReservedRoomRepository;
 import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
 import com.app.diamondhotelbackend.util.DateUtil;
+import com.app.diamondhotelbackend.util.UrlUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -40,6 +43,24 @@ public class ReservedRoomServiceImpl implements ReservedRoomService {
     }
 
     @Override
+    public List<ReservedRoom> getReservedRoomList(int page, int size, String paymentStatus, JSONArray jsonArray) {
+        if (page < 0 || size < 1) {
+            return Collections.emptyList();
+        }
+
+        List<Sort.Order> orderList = UrlUtil.toOrderListMapper(jsonArray);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(orderList));
+        Page<ReservedRoom> reservedRoomPage;
+        if (paymentStatus.isEmpty()) {
+            reservedRoomPage = reservedRoomRepository.findAll(pageable);
+        } else {
+            reservedRoomPage = reservedRoomRepository.findAllByReservationPaymentStatus(paymentStatus, pageable);
+        }
+
+        return reservedRoomPage.getContent();
+    }
+
+    @Override
     public List<ReservedRoom> getReservedRoomListByReservationCheckInAndReservationCheckOut(Date checkIn, Date checkOut) {
         return reservedRoomRepository.findAllByReservationCheckInAndReservationCheckOut(checkIn, checkOut);
     }
@@ -50,17 +71,18 @@ public class ReservedRoomServiceImpl implements ReservedRoomService {
     }
 
     @Override
-    public List<ReservedRoom> getReservedRoomListByUserProfileId(long userProfileId, int page, int size, String paymentStatus) {
+    public List<ReservedRoom> getReservedRoomListByUserProfileId(long userProfileId, int page, int size, String paymentStatus, JSONArray jsonArray) {
         if (page < 0 || size < 1) {
             return Collections.emptyList();
         }
 
-        Pageable pageable = PageRequest.of(page, size);
+        List<Sort.Order> orderList = UrlUtil.toOrderListMapper(jsonArray);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(orderList));
         Page<ReservedRoom> reservedRoomPage;
         if (paymentStatus.isEmpty()) {
-            reservedRoomPage = reservedRoomRepository.findAllByReservationUserProfileIdOrderByReservationIdDesc(userProfileId, pageable);
+            reservedRoomPage = reservedRoomRepository.findAllByReservationUserProfileId(userProfileId, pageable);
         } else {
-            reservedRoomPage = reservedRoomRepository.findAllByReservationUserProfileIdAndReservationPaymentStatusOrderByReservationIdDesc(userProfileId, paymentStatus, pageable);
+            reservedRoomPage = reservedRoomRepository.findAllByReservationUserProfileIdAndReservationPaymentStatus(userProfileId, paymentStatus, pageable);
         }
 
         return reservedRoomPage.getContent();

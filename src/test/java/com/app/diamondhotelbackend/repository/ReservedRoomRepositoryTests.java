@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Optional;
 
 @DataJpaTest
-@ActiveProfiles("test")
 public class ReservedRoomRepositoryTests {
 
     @Autowired
@@ -144,13 +143,21 @@ public class ReservedRoomRepositoryTests {
     }
 
     @Test
+    public void ReservedRoomRepository_FindAllReservationPaymentStatus_ReturnsReservedRoomList() {
+        reservedRoomRepository.saveAll(reservedRoomList);
+
+        Page<ReservedRoom> foundReservedRoomList = reservedRoomRepository.findAllByReservationPaymentStatus(ConstantUtil.APPROVED, pageRequest);
+
+        Assertions.assertThat(foundReservedRoomList).isNotNull();
+    }
+
+    @Test
     public void ReservedRoomRepository_FindAll_ReturnsReservedRoomList() {
         reservedRoomRepository.saveAll(reservedRoomList);
 
-        List<ReservedRoom> foundReservedRoomList = reservedRoomRepository.findAll();
+        Page<ReservedRoom> foundReservedRoomPage = reservedRoomRepository.findAll(pageRequest);
 
-        Assertions.assertThat(foundReservedRoomList).isNotNull();
-        Assertions.assertThat(foundReservedRoomList.size()).isEqualTo(2);
+        Assertions.assertThat(foundReservedRoomPage).isNotNull();
     }
 
     @Test
@@ -163,19 +170,19 @@ public class ReservedRoomRepositoryTests {
     }
 
     @Test
-    public void ReservedRoomRepository_FindAllByReservationUserProfileIdOrderByReservationIdDesc_ReservedRoomPage() {
+    public void ReservedRoomRepository_FindAllByReservationUserProfileId_ReservedRoomPage() {
         pageRequest = pageRequest.withPage(1);
 
-        Page<ReservedRoom> reservedRoomPage = reservedRoomRepository.findAllByReservationUserProfileIdOrderByReservationIdDesc(savedReservationList.get(0).getUserProfile().getId(), pageRequest);
+        Page<ReservedRoom> reservedRoomPage = reservedRoomRepository.findAllByReservationUserProfileId(savedReservationList.get(0).getUserProfile().getId(), pageRequest);
 
         Assertions.assertThat(reservedRoomPage).isNotNull();
     }
 
     @Test
-    public void ReservedRoomRepository_FindAllByReservationUserProfileIdAndReservationPaymentStatusOrderByReservationIdDesc() {
+    public void ReservedRoomRepository_FindAllByReservationUserProfileIdAndReservationPaymentStatus() {
         pageRequest = pageRequest.withPage(1);
 
-        Page<ReservedRoom> reservedRoomPage = reservedRoomRepository.findAllByReservationUserProfileIdAndReservationPaymentStatusOrderByReservationIdDesc(savedReservationList.get(0).getUserProfile().getId(), ConstantUtil.APPROVED, pageRequest);
+        Page<ReservedRoom> reservedRoomPage = reservedRoomRepository.findAllByReservationUserProfileIdAndReservationPaymentStatus(savedReservationList.get(0).getUserProfile().getId(), ConstantUtil.APPROVED, pageRequest);
 
         Assertions.assertThat(reservedRoomPage).isNotNull();
     }

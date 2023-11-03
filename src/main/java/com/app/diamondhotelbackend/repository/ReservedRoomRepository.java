@@ -14,6 +14,8 @@ import java.util.List;
 @Repository
 public interface ReservedRoomRepository extends JpaRepository<ReservedRoom, Long> {
 
+    Page<ReservedRoom> findAllByReservationPaymentStatus(String paymentStatus, Pageable pageable);
+
     @Query("SELECT rr FROM ReservedRoom rr WHERE " +
             "rr.reservation.payment.status <> 'cancelled' AND" +
             "((rr.reservation.checkIn BETWEEN :checkIn AND :checkOut) OR " +
@@ -24,9 +26,9 @@ public interface ReservedRoomRepository extends JpaRepository<ReservedRoom, Long
 
     List<ReservedRoom> findAllByReservationId(long reservationId);
 
-    Page<ReservedRoom> findAllByReservationUserProfileIdOrderByReservationIdDesc(long userProfileId, Pageable pageable);
+    Page<ReservedRoom> findAllByReservationUserProfileId(long userProfileId, Pageable pageable);
 
-    Page<ReservedRoom> findAllByReservationUserProfileIdAndReservationPaymentStatusOrderByReservationIdDesc(long userProfileId, String status, Pageable pageable);
+    Page<ReservedRoom> findAllByReservationUserProfileIdAndReservationPaymentStatus(long userProfileId, String status, Pageable pageable);
 
     Long countAllByReservationUserProfile(UserProfile userProfile);
 }

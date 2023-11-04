@@ -17,7 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping("/api/v1/auth")
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"http://localhost:3000", "https://diamond-hotel-frontend-react.vercel.app/"}, allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:3000", "https://diamond-hotel-frontend.vercel.app/"}, allowCredentials = "true")
 public class AuthController {
 
     private final AuthServiceImpl authService;

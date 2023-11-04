@@ -16,7 +16,7 @@ import java.io.IOException;
 @RequestMapping("/api/v1/weather")
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"http://localhost:3000", "https://diamond-hotel-frontend-react.vercel.app/"}, allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:3000", "https://diamond-hotel-frontend.vercel.app/"}, allowCredentials = "true")
 public class WeatherController {
 
     private final WeatherServiceImpl weatherService;

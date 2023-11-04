@@ -18,7 +18,7 @@ import java.util.List;
 @RequestMapping("/api/v1/payment")
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"http://localhost:3000", "https://diamond-hotel-frontend-react.vercel.app/"}, allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:3000", "https://diamond-hotel-frontend.vercel.app/"}, allowCredentials = "true")
 public class PaymentController {
 
     private final PaymentServiceImpl paymentService;

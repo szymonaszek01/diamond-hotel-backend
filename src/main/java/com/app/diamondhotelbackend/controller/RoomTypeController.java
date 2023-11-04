@@ -14,7 +14,7 @@ import java.util.List;
 @RequestMapping("/api/v1/room-type")
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"http://localhost:3000", "https://diamond-hotel-frontend-react.vercel.app/"}, allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:3000", "https://diamond-hotel-frontend.vercel.app/"}, allowCredentials = "true")
 public class RoomTypeController {
 
     private final RoomTypeServiceImpl roomTypeService;

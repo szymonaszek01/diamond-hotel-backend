@@ -37,11 +37,19 @@ public class ReservationRepositoryTests {
 
     @BeforeEach
     public void init() {
-        UserProfile savedUserProfile = testEntityManager.persistAndFlush(
-                UserProfile.builder()
-                        .email("email1")
-                        .passportNumber("passportNumber1")
-                        .build()
+        List<UserProfile> savedUserProfileList = List.of(
+                testEntityManager.persistAndFlush(
+                        UserProfile.builder()
+                                .email("email1")
+                                .passportNumber("passportNumber1")
+                                .build()
+                ),
+                testEntityManager.persistAndFlush(
+                        UserProfile.builder()
+                                .email("email2")
+                                .passportNumber("passportNumber2")
+                                .build()
+                )
         );
 
         List<Flight> savedFlightList = List.of(
@@ -73,17 +81,49 @@ public class ReservationRepositoryTests {
                                 .token("token2")
                                 .status(ConstantUtil.WAITING_FOR_PAYMENT)
                                 .build()
+                ),
+                testEntityManager.persistAndFlush(
+                        Payment.builder()
+                                .createdAt(new Date(System.currentTimeMillis()))
+                                .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
+                                .token("token3")
+                                .status(ConstantUtil.WAITING_FOR_PAYMENT)
+                                .build()
+                ),
+                testEntityManager.persistAndFlush(
+                        Payment.builder()
+                                .createdAt(new Date(System.currentTimeMillis()))
+                                .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
+                                .token("token4")
+                                .status(ConstantUtil.WAITING_FOR_PAYMENT)
+                                .build()
+                ),
+                testEntityManager.persistAndFlush(
+                        Payment.builder()
+                                .createdAt(new Date(System.currentTimeMillis()))
+                                .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
+                                .token("token5")
+                                .status(ConstantUtil.WAITING_FOR_PAYMENT)
+                                .build()
+                ),
+                testEntityManager.persistAndFlush(
+                        Payment.builder()
+                                .createdAt(new Date(System.currentTimeMillis()))
+                                .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
+                                .token("token6")
+                                .status(ConstantUtil.WAITING_FOR_PAYMENT)
+                                .build()
                 )
         );
 
         reservation = Reservation.builder()
-                .checkIn(Date.valueOf("2023-11-24"))
-                .checkOut(Date.valueOf("2023-11-27"))
+                .checkIn(Date.valueOf("2023-10-24"))
+                .checkOut(Date.valueOf("2023-10-27"))
                 .adults(2)
                 .children(2)
-                .userProfile(savedUserProfile)
+                .userProfile(savedUserProfileList.get(0))
                 .flight(savedFlightList.get(0))
-                .payment(savedPaymentList.get(0))
+                .payment(savedPaymentList.get(1))
                 .build();
 
         reservationList = List.of(
@@ -92,48 +132,54 @@ public class ReservationRepositoryTests {
                         .checkOut(Date.valueOf("2023-10-27"))
                         .adults(2)
                         .children(2)
-                        .userProfile(savedUserProfile)
+                        .userProfile(savedUserProfileList.get(0))
                         .flight(savedFlightList.get(0))
+                        .payment(savedPaymentList.get(1))
                         .build(),
                 Reservation.builder()
                         .checkIn(Date.valueOf("2023-11-24"))
                         .checkOut(Date.valueOf("2023-11-27"))
                         .adults(2)
                         .children(2)
-                        .userProfile(savedUserProfile)
+                        .userProfile(savedUserProfileList.get(0))
                         .flight(savedFlightList.get(0))
+                        .payment(savedPaymentList.get(2))
                         .build(),
                 Reservation.builder()
                         .checkIn(Date.valueOf("2023-12-24"))
                         .checkOut(Date.valueOf("2023-12-27"))
                         .adults(2)
                         .children(2)
-                        .userProfile(savedUserProfile)
+                        .userProfile(savedUserProfileList.get(0))
                         .flight(savedFlightList.get(1))
+                        .payment(savedPaymentList.get(3))
                         .build(),
                 Reservation.builder()
                         .checkIn(Date.valueOf("2024-01-24"))
                         .checkOut(Date.valueOf("2024-01-27"))
                         .adults(2)
                         .children(2)
-                        .userProfile(savedUserProfile)
+                        .userProfile(savedUserProfileList.get(1))
                         .flight(savedFlightList.get(0))
+                        .payment(savedPaymentList.get(4))
                         .build(),
                 Reservation.builder()
                         .checkIn(Date.valueOf("2024-02-24"))
                         .checkOut(Date.valueOf("2024-02-27"))
                         .adults(2)
                         .children(2)
-                        .userProfile(savedUserProfile)
+                        .userProfile(savedUserProfileList.get(1))
                         .flight(savedFlightList.get(0))
+                        .payment(savedPaymentList.get(5))
                         .build(),
                 Reservation.builder()
                         .checkIn(Date.valueOf("2024-03-24"))
                         .checkOut(Date.valueOf("2024-03-27"))
                         .adults(2)
                         .children(2)
-                        .userProfile(savedUserProfile)
+                        .userProfile(savedUserProfileList.get(1))
                         .flight(savedFlightList.get(1))
+                        .payment(savedPaymentList.get(6))
                         .build()
         );
 
@@ -194,13 +240,23 @@ public class ReservationRepositoryTests {
     }
 
     @Test
+    public void ReservationRepository_Count_ReturnsLong() {
+        reservationRepository.saveAll(reservationList);
+
+        Long countedReservationList = reservationRepository.count();
+
+        Assertions.assertThat(countedReservationList).isNotNull();
+        Assertions.assertThat(countedReservationList).isEqualTo(6);
+    }
+
+    @Test
     public void ReservationRepository_CountAllByUserProfile_ReturnsLong() {
         reservationRepository.saveAll(reservationList);
 
         Long countedReservationList = reservationRepository.countAllByUserProfile(reservation.getUserProfile());
 
         Assertions.assertThat(countedReservationList).isNotNull();
-        Assertions.assertThat(countedReservationList).isEqualTo(6);
+        Assertions.assertThat(countedReservationList).isEqualTo(3);
     }
 
     @Test

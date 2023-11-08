@@ -277,6 +277,16 @@ public class ReservationServiceTests {
     }
 
     @Test
+    public void ReservationService_Count_ReturnsLong() {
+        when(reservationRepository.count()).thenReturn(3L);
+
+        Long countReservationList = reservationService.countReservationList();
+
+        Assertions.assertThat(countReservationList).isNotNull();
+        Assertions.assertThat(countReservationList).isEqualTo(3L);
+    }
+
+    @Test
     public void ReservationService_CountReservationListByUserProfileId_ReturnsLong() {
         when(userProfileService.getUserProfileById(Mockito.any(long.class))).thenReturn(reservation.getUserProfile());
         when(reservationRepository.countAllByUserProfile(Mockito.any(UserProfile.class))).thenReturn(3L);

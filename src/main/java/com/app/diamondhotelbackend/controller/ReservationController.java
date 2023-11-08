@@ -69,6 +69,15 @@ public class ReservationController {
         }
     }
 
+    @GetMapping("/all/number")
+    public ResponseEntity<Long> countReservationList() {
+        try {
+            return ResponseEntity.ok(reservationService.countReservationList());
+        } catch (UserProfileProcessingException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
     @GetMapping("/all/number/user-profile-id/{userProfileId}")
     public ResponseEntity<Long> countReservationListByUserProfileId(@PathVariable long userProfileId) {
         try {

@@ -143,6 +143,11 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
+    public Long countReservationList() {
+        return reservationRepository.count();
+    }
+
+    @Override
     public Long countReservationListByUserProfileId(long userProfileId) throws UserProfileProcessingException {
         UserProfile userProfile = userProfileService.getUserProfileById(userProfileId);
 

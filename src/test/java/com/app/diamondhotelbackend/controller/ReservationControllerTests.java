@@ -232,6 +232,20 @@ public class ReservationControllerTests {
     }
 
     @Test
+    public void ReservationController_Count() throws Exception {
+        when(reservationService.countReservationList()).thenReturn(3L);
+
+        MockHttpServletRequestBuilder request = get(url + "/all/number")
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc
+                .perform(request)
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string(CoreMatchers.is("3")));
+    }
+
+    @Test
     public void ReservationController_CountReservationListByUserProfileId() throws Exception {
         when(reservationService.countReservationListByUserProfileId(Mockito.any(long.class))).thenReturn(3L);
 

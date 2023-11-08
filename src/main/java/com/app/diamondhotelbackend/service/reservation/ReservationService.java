@@ -24,6 +24,8 @@ public interface ReservationService {
 
     PdfResponseDto getReservationPdfDocumentById(long id) throws ReservationProcessingException, IOException;
 
+    Long countReservationList();
+
     Long countReservationListByUserProfileId(long userProfileId) throws UserProfileProcessingException;
 
     Reservation updateReservationPayment(long id, String paymentToken);

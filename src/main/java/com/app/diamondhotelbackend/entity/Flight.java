@@ -1,6 +1,7 @@
 package com.app.diamondhotelbackend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,6 +19,7 @@ public class Flight {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @JsonProperty("flight_number")
     @Column(unique = true)
     private String flightNumber;
 

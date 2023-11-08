@@ -47,6 +47,15 @@ public class PaymentController {
         }
     }
 
+    @GetMapping("/all/number")
+    public ResponseEntity<Long> countPaymentList() {
+        try {
+            return ResponseEntity.ok(paymentService.countPaymentList());
+        } catch (UserProfileProcessingException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
     @GetMapping("/all/number/user-profile-id/{userProfileId}")
     public ResponseEntity<Long> countPaymentListByUserProfileId(@PathVariable long userProfileId) {
         try {

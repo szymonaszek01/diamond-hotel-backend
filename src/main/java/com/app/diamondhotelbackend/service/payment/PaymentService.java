@@ -22,6 +22,8 @@ public interface PaymentService {
 
     PdfResponseDto getPaymentPdfDocumentById(long id) throws PaymentProcessingException, IOException;
 
+    Long countPaymentList();
+
     Long countPaymentListByUserProfileId(long userProfileId) throws UserProfileProcessingException;
 
     Payment updatePayment(Payment payment) throws PaymentProcessingException, StripeException;

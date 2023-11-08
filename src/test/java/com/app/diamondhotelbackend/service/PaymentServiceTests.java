@@ -148,6 +148,16 @@ public class PaymentServiceTests {
     }
 
     @Test
+    public void PaymentService_Count_ReturnsLong() {
+        when(paymentRepository.count()).thenReturn(3L);
+
+        Long countReservationList = paymentService.countPaymentList();
+
+        Assertions.assertThat(countReservationList).isNotNull();
+        Assertions.assertThat(countReservationList).isEqualTo(3L);
+    }
+
+    @Test
     public void PaymentService_CountPaymentListByUserProfileId_ReturnsLong() {
         when(userProfileService.getUserProfileById(Mockito.any(long.class))).thenReturn(userProfile);
         when(paymentRepository.countAllByReservationUserProfile(Mockito.any(UserProfile.class))).thenReturn(3L);

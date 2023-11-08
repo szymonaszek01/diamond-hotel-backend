@@ -5,6 +5,7 @@ import com.app.diamondhotelbackend.entity.Payment;
 import com.app.diamondhotelbackend.security.jwt.JwtFilter;
 import com.app.diamondhotelbackend.service.payment.PaymentServiceImpl;
 import com.app.diamondhotelbackend.util.ConstantUtil;
+import jakarta.servlet.ServletContext;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -125,6 +126,20 @@ public class PaymentControllerTests {
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.encoded_file", CoreMatchers.is(pdfResponseDto.getEncodedFile())));
+    }
+
+    @Test
+    public void PaymentController_Count_ReturnsLong() throws Exception {
+        when(paymentService.countPaymentList()).thenReturn(3L);
+
+        MockHttpServletRequestBuilder request = get(url + "/all/number")
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc
+                .perform(request)
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string(CoreMatchers.is("3")));
     }
 
     @Test

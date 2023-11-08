@@ -32,23 +32,25 @@ public class PaymentRepositoryTests {
 
     private List<Payment> paymentList;
 
-    private UserProfile savedUserProfile;
+    private List<UserProfile> savedUserProfileList;
 
     private PageRequest pageRequest;
 
     @BeforeEach
     public void init() {
-        payment = Payment.builder()
-                .createdAt(new Date(System.currentTimeMillis()))
-                .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
-                .token("token1")
-                .build();
-
-        savedUserProfile = testEntityManager.persistAndFlush(
-                UserProfile.builder()
-                        .email("test.user@gmail.com")
-                        .passportNumber("passportNumber1")
-                        .build()
+        savedUserProfileList = List.of(
+                testEntityManager.persistAndFlush(
+                        UserProfile.builder()
+                                .email("email1")
+                                .passportNumber("passportNumber1")
+                                .build()
+                ),
+                testEntityManager.persistAndFlush(
+                        UserProfile.builder()
+                                .email("email2")
+                                .passportNumber("passportNumber2")
+                                .build()
+                )
         );
 
         List<Reservation> savedReservationList = List.of(
@@ -58,7 +60,7 @@ public class PaymentRepositoryTests {
                                 .checkOut(Date.valueOf("2023-10-27"))
                                 .adults(2)
                                 .children(2)
-                                .userProfile(savedUserProfile)
+                                .userProfile(savedUserProfileList.get(0))
                                 .build()
                 ),
                 testEntityManager.persistAndFlush(Reservation.builder()
@@ -66,7 +68,7 @@ public class PaymentRepositoryTests {
                         .checkOut(Date.valueOf("2023-11-27"))
                         .adults(2)
                         .children(2)
-                        .userProfile(savedUserProfile)
+                        .userProfile(savedUserProfileList.get(0))
                         .build()
                 ),
                 testEntityManager.persistAndFlush(
@@ -75,7 +77,7 @@ public class PaymentRepositoryTests {
                                 .checkOut(Date.valueOf("2023-12-27"))
                                 .adults(2)
                                 .children(2)
-                                .userProfile(savedUserProfile)
+                                .userProfile(savedUserProfileList.get(1))
                                 .build()
                 ),
                 testEntityManager.persistAndFlush(
@@ -84,10 +86,17 @@ public class PaymentRepositoryTests {
                                 .checkOut(Date.valueOf("2024-01-27"))
                                 .adults(2)
                                 .children(2)
-                                .userProfile(savedUserProfile)
+                                .userProfile(savedUserProfileList.get(1))
                                 .build()
                 )
         );
+
+        payment = Payment.builder()
+                .createdAt(new Date(System.currentTimeMillis()))
+                .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
+                .reservation(savedReservationList.get(0))
+                .token("token1")
+                .build();
 
         paymentList = List.of(
                 Payment.builder()
@@ -148,7 +157,7 @@ public class PaymentRepositoryTests {
     @Test
     public void PaymentRepository_FindAllByReservationUserProfileId_ReturnsPaymentPage() {
         paymentRepository.saveAll(paymentList);
-        Page<Payment> paymentPage = paymentRepository.findAllByReservationUserProfileId(savedUserProfile.getId(), pageRequest);
+        Page<Payment> paymentPage = paymentRepository.findAllByReservationUserProfileId(savedUserProfileList.get(0).getId(), pageRequest);
 
         Assertions.assertThat(paymentPage).isNotNull();
     }
@@ -156,16 +165,26 @@ public class PaymentRepositoryTests {
     @Test
     public void PaymentRepository_FindAllByStatusAndReservationUserProfileId_ReturnsPaymentPage() {
         paymentRepository.saveAll(paymentList);
-        Page<Payment> paymentPage = paymentRepository.findAllByStatusAndReservationUserProfileId(payment.getStatus(), savedUserProfile.getId(), pageRequest);
+        Page<Payment> paymentPage = paymentRepository.findAllByStatusAndReservationUserProfileId(payment.getStatus(), savedUserProfileList.get(0).getId(), pageRequest);
 
         Assertions.assertThat(paymentPage).isNotNull();
+    }
+
+    @Test
+    public void PaymentRepository_Count_ReturnsLong() {
+        paymentRepository.saveAll(paymentList);
+
+        Long countedPaymentList = paymentRepository.count();
+
+        Assertions.assertThat(countedPaymentList).isNotNull();
+        Assertions.assertThat(countedPaymentList).isEqualTo(4);
     }
 
     @Test
     public void PaymentRepository_CountAllByReservationUserProfile_ReturnsLong() {
         paymentRepository.saveAll(paymentList);
 
-        Long countedPaymentList = paymentRepository.countAllByReservationUserProfile(savedUserProfile);
+        Long countedPaymentList = paymentRepository.countAllByReservationUserProfile(savedUserProfileList.get(1));
 
         Assertions.assertThat(countedPaymentList).isNotNull();
     }

@@ -109,6 +109,11 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    public Long countPaymentList() {
+        return paymentRepository.count();
+    }
+
+    @Override
     public Long countPaymentListByUserProfileId(long userProfileId) throws UserProfileProcessingException {
         UserProfile userProfile = userProfileService.getUserProfileById(userProfileId);
 

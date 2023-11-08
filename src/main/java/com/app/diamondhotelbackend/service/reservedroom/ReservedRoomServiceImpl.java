@@ -89,6 +89,11 @@ public class ReservedRoomServiceImpl implements ReservedRoomService {
     }
 
     @Override
+    public Long countReservedRoomList() {
+        return reservedRoomRepository.count();
+    }
+
+    @Override
     public Long countReservedRoomListByUserProfileId(long userProfileId) throws UserProfileProcessingException {
         UserProfile userProfile = userProfileService.getUserProfileById(userProfileId);
 

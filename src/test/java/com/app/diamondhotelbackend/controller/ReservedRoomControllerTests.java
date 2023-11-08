@@ -115,6 +115,20 @@ public class ReservedRoomControllerTests {
     }
 
     @Test
+    public void ReservedRoomController_Count_Long() throws Exception {
+        when(reservedRoomService.countReservedRoomList()).thenReturn(2L);
+
+        MockHttpServletRequestBuilder request = get(url + "/all/number")
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc
+                .perform(request)
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string(CoreMatchers.is("2")));
+    }
+
+    @Test
     public void ReservedRoomController_CountReservedRoomListByUserProfileId_Long() throws Exception {
         when(reservedRoomService.countReservedRoomListByUserProfileId(Mockito.any(long.class))).thenReturn(2L);
 

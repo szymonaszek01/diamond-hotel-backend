@@ -27,9 +27,9 @@ public class ReservedRoomRepositoryTests {
     @Autowired
     private TestEntityManager testEntityManager;
 
-    private UserProfile savedUserProfile;
-
     private List<Reservation> savedReservationList;
+
+    private List<UserProfile> savedUserProfileList;
 
     private ReservedRoom reservedRoom;
 
@@ -39,11 +39,19 @@ public class ReservedRoomRepositoryTests {
 
     @BeforeEach
     public void init() {
-        savedUserProfile = testEntityManager.persistAndFlush(
-                UserProfile.builder()
-                        .email("email1")
-                        .passportNumber("passportNumber1")
-                        .build()
+        savedUserProfileList = List.of(
+                testEntityManager.persistAndFlush(
+                        UserProfile.builder()
+                                .email("email1")
+                                .passportNumber("passportNumber1")
+                                .build()
+                ),
+                testEntityManager.persistAndFlush(
+                        UserProfile.builder()
+                                .email("email2")
+                                .passportNumber("passportNumber2")
+                                .build()
+                )
         );
 
         List<RoomType> savedRoomTypeList = List.of(
@@ -86,6 +94,18 @@ public class ReservedRoomRepositoryTests {
                         .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
                         .token("token2")
                         .status(ConstantUtil.APPROVED)
+                        .build()),
+                testEntityManager.persistAndFlush(Payment.builder()
+                        .createdAt(new Date(System.currentTimeMillis()))
+                        .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
+                        .token("token3")
+                        .status(ConstantUtil.APPROVED)
+                        .build()),
+                testEntityManager.persistAndFlush(Payment.builder()
+                        .createdAt(new Date(System.currentTimeMillis()))
+                        .expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15))
+                        .token("token4")
+                        .status(ConstantUtil.APPROVED)
                         .build())
         );
 
@@ -94,19 +114,32 @@ public class ReservedRoomRepositoryTests {
                         .checkIn(Date.valueOf("2023-09-20"))
                         .checkOut(Date.valueOf("2023-09-25"))
                         .payment(paymentList.get(0))
-                        .userProfile(savedUserProfile)
+                        .userProfile(savedUserProfileList.get(0))
+                        .build()),
+                testEntityManager.persistAndFlush(Reservation.builder()
+                        .checkIn(Date.valueOf("2023-10-20"))
+                        .checkOut(Date.valueOf("2023-10-25"))
+                        .payment(paymentList.get(1))
+                        .userProfile(savedUserProfileList.get(0))
+                        .build()),
+                testEntityManager.persistAndFlush(Reservation.builder()
+                        .checkIn(Date.valueOf("2023-11-20"))
+                        .checkOut(Date.valueOf("2023-11-25"))
+                        .payment(paymentList.get(2))
+                        .userProfile(savedUserProfileList.get(1))
                         .build()),
                 testEntityManager.persistAndFlush(Reservation.builder()
                         .checkIn(Date.valueOf("2023-12-20"))
                         .checkOut(Date.valueOf("2023-12-25"))
-                        .payment(paymentList.get(1))
-                        .userProfile(savedUserProfile)
+                        .payment(paymentList.get(3))
+                        .userProfile(savedUserProfileList.get(1))
                         .build())
         );
 
         reservedRoom = ReservedRoom.builder()
                 .room(savedRoomList.get(0))
                 .reservation(savedReservationList.get(0))
+                .cost(BigDecimal.valueOf(5 * savedRoomList.get(0).getRoomType().getPricePerHotelNight().doubleValue()))
                 .build();
 
         reservedRoomList = List.of(
@@ -118,6 +151,16 @@ public class ReservedRoomRepositoryTests {
                 ReservedRoom.builder()
                         .room(savedRoomList.get(1))
                         .reservation(savedReservationList.get(1))
+                        .cost(BigDecimal.valueOf(5 * savedRoomList.get(1).getRoomType().getPricePerHotelNight().doubleValue()))
+                        .build(),
+                ReservedRoom.builder()
+                        .room(savedRoomList.get(0))
+                        .reservation(savedReservationList.get(2))
+                        .cost(BigDecimal.valueOf(5 * savedRoomList.get(0).getRoomType().getPricePerHotelNight().doubleValue()))
+                        .build(),
+                ReservedRoom.builder()
+                        .room(savedRoomList.get(1))
+                        .reservation(savedReservationList.get(3))
                         .cost(BigDecimal.valueOf(5 * savedRoomList.get(1).getRoomType().getPricePerHotelNight().doubleValue()))
                         .build()
         );
@@ -199,13 +242,23 @@ public class ReservedRoomRepositoryTests {
     }
 
     @Test
+    public void ReservedRoomRepository_Count_ReturnsLong() {
+        reservedRoomRepository.saveAll(reservedRoomList);
+
+        Long countedReservedRoomList = reservedRoomRepository.count();
+
+        Assertions.assertThat(countedReservedRoomList).isNotNull();
+        Assertions.assertThat(countedReservedRoomList).isEqualTo(4);
+    }
+
+    @Test
     public void ReservedRoomRepository_CountAllByReservationUserProfile_ReturnsLong() {
         reservedRoomRepository.saveAll(reservedRoomList);
 
-        Long countedReservedRoomList = reservedRoomRepository.countAllByReservationUserProfile(savedUserProfile);
+        Long countedReservedRoomList = reservedRoomRepository.countAllByReservationUserProfile(savedUserProfileList.get(0));
 
         Assertions.assertThat(countedReservedRoomList).isNotNull();
-        Assertions.assertThat(countedReservedRoomList).isEqualTo(2L);
+        Assertions.assertThat(countedReservedRoomList).isEqualTo(2);
     }
 
     @Test

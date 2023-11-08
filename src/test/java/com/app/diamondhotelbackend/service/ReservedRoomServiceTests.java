@@ -143,6 +143,16 @@ public class ReservedRoomServiceTests {
     }
 
     @Test
+    public void ReservedRoomService_Count_Long() {
+        when(reservedRoomRepository.count()).thenReturn(2L);
+
+        Long countReservationList = reservedRoomService.countReservedRoomList();
+
+        Assertions.assertThat(countReservationList).isNotNull();
+        Assertions.assertThat(countReservationList).isEqualTo(2L);
+    }
+
+    @Test
     public void ReservedRoomService_CountReservedRoomListByUserProfileId_Long() {
         when(userProfileService.getUserProfileById(Mockito.any(long.class))).thenReturn(userProfile);
         when(reservedRoomRepository.countAllByReservationUserProfile(Mockito.any(UserProfile.class))).thenReturn(2L);

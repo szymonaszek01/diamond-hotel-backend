@@ -34,6 +34,15 @@ public class ReservedRoomController {
         return reservedRoomService.getReservedRoomListByUserProfileId(userProfileId, page, size, paymentStatus, jsonArray);
     }
 
+    @GetMapping("/all/number")
+    public ResponseEntity<Long> countReservedRoomList() {
+        try {
+            return ResponseEntity.ok(reservedRoomService.countReservedRoomList());
+        } catch (UserProfileProcessingException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
     @GetMapping("/all/number/user-profile-id/{userProfileId}")
     public ResponseEntity<Long> countReservedRoomListByUserProfileId(@PathVariable long userProfileId) {
         try {

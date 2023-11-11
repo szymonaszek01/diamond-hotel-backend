@@ -82,12 +82,12 @@ public class RoomServiceTests {
 
         List<Reservation> reservationList = List.of(
                 Reservation.builder()
-                        .checkIn(Date.valueOf("2023-09-20"))
-                        .checkOut(Date.valueOf("2023-09-25"))
+                        .checkIn(Date.valueOf("2024-09-20"))
+                        .checkOut(Date.valueOf("2024-09-25"))
                         .build(),
                 Reservation.builder()
-                        .checkIn(Date.valueOf("2023-12-20"))
-                        .checkOut(Date.valueOf("2023-12-25"))
+                        .checkIn(Date.valueOf("2024-12-20"))
+                        .checkOut(Date.valueOf("2024-12-25"))
                         .build()
         );
 
@@ -99,9 +99,9 @@ public class RoomServiceTests {
                         .build()
         );
 
-        checkIn = "2023-09-20";
+        checkIn = "2024-09-20";
 
-        checkOut = "2023-09-25";
+        checkOut = "2024-09-25";
 
         rooms = 1;
 

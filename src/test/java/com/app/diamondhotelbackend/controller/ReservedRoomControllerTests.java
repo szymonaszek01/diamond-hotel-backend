@@ -7,13 +7,14 @@ import com.app.diamondhotelbackend.security.jwt.JwtFilter;
 import com.app.diamondhotelbackend.service.reservedroom.ReservedRoomServiceImpl;
 import com.app.diamondhotelbackend.util.ConstantUtil;
 import org.hamcrest.CoreMatchers;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.json.JSONArray;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -34,18 +35,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @ExtendWith(MockitoExtension.class)
 public class ReservedRoomControllerTests {
 
+    private static final String url = "/api/v1/reserved-room";
     @MockBean
     private ReservedRoomServiceImpl reservedRoomService;
-
     @MockBean
     private JwtFilter jwtFilter;
-
     @Autowired
     private MockMvc mockMvc;
-
     private List<ReservedRoom> reservedRoomList;
-
-    private static final String url = "/api/v1/reserved-room";
 
     @BeforeEach
     public void init() {
@@ -82,7 +79,7 @@ public class ReservedRoomControllerTests {
 
     @Test
     public void PaymentController_GetReservedRoomList_ReturnsPaymentList() throws Exception {
-        when(reservedRoomService.getReservedRoomList(Mockito.any(int.class), Mockito.any(int.class), Mockito.any(String.class), Mockito.any(JSONArray.class))).thenReturn(reservedRoomList);
+        when(reservedRoomService.getReservedRoomList(Mockito.any(int.class), Mockito.any(int.class), Mockito.any(JSONObject.class), Mockito.any(JSONArray.class))).thenReturn(reservedRoomList);
 
         MockHttpServletRequestBuilder request = get(url + "/all")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -98,7 +95,7 @@ public class ReservedRoomControllerTests {
 
     @Test
     public void ReservedRoomController_GetReservedRoomListByUserProfileId_ReturnsReservedRoomList() throws Exception {
-        when(reservedRoomService.getReservedRoomListByUserProfileId(Mockito.any(long.class), Mockito.any(int.class), Mockito.any(int.class), Mockito.any(String.class), Mockito.any(JSONArray.class))).thenReturn(reservedRoomList);
+        when(reservedRoomService.getReservedRoomListByUserProfileId(Mockito.any(long.class), Mockito.any(int.class), Mockito.any(int.class), Mockito.any(JSONObject.class), Mockito.any(JSONArray.class))).thenReturn(reservedRoomList);
 
         MockHttpServletRequestBuilder request = get(url + "/all/user-profile-id/" + 1L)
                 .contentType(MediaType.APPLICATION_JSON)

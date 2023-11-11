@@ -1,10 +1,8 @@
 package com.app.diamondhotelbackend.repository;
 
 import com.app.diamondhotelbackend.entity.ReservedRoom;
-import com.app.diamondhotelbackend.entity.UserProfile;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -12,9 +10,7 @@ import java.util.Date;
 import java.util.List;
 
 @Repository
-public interface ReservedRoomRepository extends JpaRepository<ReservedRoom, Long> {
-
-    Page<ReservedRoom> findAllByReservationPaymentStatus(String paymentStatus, Pageable pageable);
+public interface ReservedRoomRepository extends JpaRepository<ReservedRoom, Long>, JpaSpecificationExecutor<ReservedRoom> {
 
     @Query("SELECT rr FROM ReservedRoom rr WHERE " +
             "rr.reservation.payment.status <> 'cancelled' AND" +
@@ -23,12 +19,4 @@ public interface ReservedRoomRepository extends JpaRepository<ReservedRoom, Long
             "((:checkIn BETWEEN rr.reservation.checkIn AND rr.reservation.checkOut) AND " +
             "(:checkOut BETWEEN rr.reservation.checkIn AND rr.reservation.checkOut)))")
     List<ReservedRoom> findAllByReservationCheckInAndReservationCheckOut(Date checkIn, Date checkOut);
-
-    List<ReservedRoom> findAllByReservationId(long reservationId);
-
-    Page<ReservedRoom> findAllByReservationUserProfileId(long userProfileId, Pageable pageable);
-
-    Page<ReservedRoom> findAllByReservationUserProfileIdAndReservationPaymentStatus(long userProfileId, String status, Pageable pageable);
-
-    Long countAllByReservationUserProfile(UserProfile userProfile);
 }

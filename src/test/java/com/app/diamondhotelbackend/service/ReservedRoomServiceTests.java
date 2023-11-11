@@ -3,8 +3,9 @@ package com.app.diamondhotelbackend.service;
 import com.app.diamondhotelbackend.entity.*;
 import com.app.diamondhotelbackend.repository.ReservedRoomRepository;
 import com.app.diamondhotelbackend.service.reservedroom.ReservedRoomServiceImpl;
-import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
 import org.assertj.core.api.Assertions;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,10 +13,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.json.JSONArray;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -31,11 +32,6 @@ public class ReservedRoomServiceTests {
 
     @Mock
     private ReservedRoomRepository reservedRoomRepository;
-
-    @Mock
-    private UserProfileServiceImpl userProfileService;
-
-    private UserProfile userProfile;
 
     private Reservation reservation;
 
@@ -56,7 +52,7 @@ public class ReservedRoomServiceTests {
                 .pricePerHotelNight(BigDecimal.valueOf(350))
                 .build();
 
-        userProfile = UserProfile.builder()
+        UserProfile userProfile = UserProfile.builder()
                 .id(1)
                 .email("test.email@gmail.com")
                 .passportNumber("AD1234")
@@ -104,9 +100,9 @@ public class ReservedRoomServiceTests {
 
     @Test
     public void ReservationService_GetReservedRoomList_ReturnsReservationList() {
-        when(reservedRoomRepository.findAll(Mockito.any(PageRequest.class))).thenReturn(reservedRoomPage);
+        when(reservedRoomRepository.findAll(Mockito.any(Specification.class), Mockito.any(PageRequest.class))).thenReturn(reservedRoomPage);
 
-        List<ReservedRoom> foundReservedRoomList = reservedRoomService.getReservedRoomList(1, 3, "", new JSONArray());
+        List<ReservedRoom> foundReservedRoomList = reservedRoomService.getReservedRoomList(1, 3, new JSONObject(), new JSONArray());
 
         Assertions.assertThat(foundReservedRoomList).isNotNull();
         Assertions.assertThat(foundReservedRoomList.size()).isEqualTo(2);
@@ -123,8 +119,8 @@ public class ReservedRoomServiceTests {
     }
 
     @Test
-    public void ReservedRoomService_GetAllByReservationId_ReturnsReservedRoomList() {
-        when(reservedRoomRepository.findAllByReservationId(Mockito.any(long.class))).thenReturn(reservedRoomList);
+    public void ReservedRoomService_GetReservedRoomListByReservationId_ReturnsReservedRoomList() {
+        when(reservedRoomRepository.findAll(Mockito.any(Specification.class))).thenReturn(reservedRoomList);
 
         List<ReservedRoom> foundReservedRoomList = reservedRoomService.getReservedRoomListByReservationId(1);
 
@@ -134,9 +130,9 @@ public class ReservedRoomServiceTests {
 
     @Test
     public void ReservedRoomService_GetReservedRoomListByUserProfileId_ReturnsReservedRoomList() {
-        when(reservedRoomRepository.findAllByReservationUserProfileId(Mockito.any(long.class), Mockito.any(PageRequest.class))).thenReturn(reservedRoomPage);
+        when(reservedRoomRepository.findAll(Mockito.any(Specification.class), Mockito.any(PageRequest.class))).thenReturn(reservedRoomPage);
 
-        List<ReservedRoom> foundReservedRoomList = reservedRoomService.getReservedRoomListByUserProfileId(1L, 0, 3, "", new JSONArray());
+        List<ReservedRoom> foundReservedRoomList = reservedRoomService.getReservedRoomListByUserProfileId(1L, 0, 3, new JSONObject(), new JSONArray());
 
         Assertions.assertThat(foundReservedRoomList).isNotNull();
         Assertions.assertThat(foundReservedRoomList.size()).isEqualTo(2);
@@ -154,8 +150,7 @@ public class ReservedRoomServiceTests {
 
     @Test
     public void ReservedRoomService_CountReservedRoomListByUserProfileId_Long() {
-        when(userProfileService.getUserProfileById(Mockito.any(long.class))).thenReturn(userProfile);
-        when(reservedRoomRepository.countAllByReservationUserProfile(Mockito.any(UserProfile.class))).thenReturn(2L);
+        when(reservedRoomRepository.count(Mockito.any(Specification.class))).thenReturn(2L);
 
         Long countReservationList = reservedRoomService.countReservedRoomListByUserProfileId(1L);
 

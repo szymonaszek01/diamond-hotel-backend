@@ -40,7 +40,7 @@ public class RoomServiceImpl implements RoomService {
         Optional<Date> checkInAsDate = DateUtil.parseDate(checkIn);
         Optional<Date> checkOutAsDate = DateUtil.parseDate(checkOut);
 
-        if (checkInAsDate.isEmpty() || checkOutAsDate.isEmpty() || rooms == 0 || adults == 0) {
+        if (checkInAsDate.isEmpty() || checkInAsDate.get().before(new Date(System.currentTimeMillis())) || checkOutAsDate.isEmpty() || checkOutAsDate.get().before(new Date(System.currentTimeMillis())) || rooms == 0 || adults == 0) {
             throw new RoomProcessingException(ConstantUtil.INVALID_PARAMETERS_EXCEPTION);
         }
 

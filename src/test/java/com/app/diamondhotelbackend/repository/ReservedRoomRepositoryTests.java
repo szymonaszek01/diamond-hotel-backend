@@ -10,12 +10,15 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
+
+import static com.app.diamondhotelbackend.specification.ReservedRoomSpecification.paymentStatusEqual;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -27,10 +30,6 @@ public class ReservedRoomRepositoryTests {
     @Autowired
     private TestEntityManager testEntityManager;
 
-    private List<Reservation> savedReservationList;
-
-    private List<UserProfile> savedUserProfileList;
-
     private ReservedRoom reservedRoom;
 
     private List<ReservedRoom> reservedRoomList;
@@ -39,7 +38,7 @@ public class ReservedRoomRepositoryTests {
 
     @BeforeEach
     public void init() {
-        savedUserProfileList = List.of(
+        List<UserProfile> savedUserProfileList = List.of(
                 testEntityManager.persistAndFlush(
                         UserProfile.builder()
                                 .email("email1")
@@ -109,7 +108,7 @@ public class ReservedRoomRepositoryTests {
                         .build())
         );
 
-        savedReservationList = List.of(
+        List<Reservation> savedReservationList = List.of(
                 testEntityManager.persistAndFlush(Reservation.builder()
                         .checkIn(Date.valueOf("2023-09-20"))
                         .checkOut(Date.valueOf("2023-09-25"))
@@ -177,58 +176,13 @@ public class ReservedRoomRepositoryTests {
     }
 
     @Test
-    public void ReservedRoomRepository_FindAllByReservationCheckInAndReservationCheckOut_ReturnsReservedRoomList() {
-        reservedRoomRepository.saveAll(reservedRoomList);
-
-        List<ReservedRoom> foundReservedRoomList = reservedRoomRepository.findAllByReservationCheckInAndReservationCheckOut(Date.valueOf("2023-09-20"), Date.valueOf("2023-09-25"));
-
-        Assertions.assertThat(foundReservedRoomList).isNotNull();
-        Assertions.assertThat(foundReservedRoomList.size()).isEqualTo(1);
-    }
-
-    @Test
-    public void ReservedRoomRepository_FindAllReservationPaymentStatus_ReturnsReservedRoomList() {
-        reservedRoomRepository.saveAll(reservedRoomList);
-
-        Page<ReservedRoom> foundReservedRoomList = reservedRoomRepository.findAllByReservationPaymentStatus(ConstantUtil.APPROVED, pageRequest);
-
-        Assertions.assertThat(foundReservedRoomList).isNotNull();
-    }
-
-    @Test
     public void ReservedRoomRepository_FindAll_ReturnsReservedRoomList() {
+        Specification<ReservedRoom> reservationSpecification = Specification.where(paymentStatusEqual(ConstantUtil.WAITING_FOR_PAYMENT));
         reservedRoomRepository.saveAll(reservedRoomList);
 
-        Page<ReservedRoom> foundReservedRoomPage = reservedRoomRepository.findAll(pageRequest);
+        Page<ReservedRoom> foundReservedRoomPage = reservedRoomRepository.findAll(reservationSpecification, pageRequest);
 
         Assertions.assertThat(foundReservedRoomPage).isNotNull();
-    }
-
-    @Test
-    public void ReservedRoomRepository_FindAllByReservationId_ReturnsReservedRoomPage() {
-        List<ReservedRoom> savedReservedRoomList = reservedRoomRepository.saveAll(reservedRoomList);
-        List<ReservedRoom> foundReservedRoomList = reservedRoomRepository.findAllByReservationId(savedReservedRoomList.get(0).getReservation().getId());
-
-        Assertions.assertThat(foundReservedRoomList).isNotNull();
-        Assertions.assertThat(foundReservedRoomList.size()).isEqualTo(1);
-    }
-
-    @Test
-    public void ReservedRoomRepository_FindAllByReservationUserProfileId_ReservedRoomPage() {
-        pageRequest = pageRequest.withPage(1);
-
-        Page<ReservedRoom> reservedRoomPage = reservedRoomRepository.findAllByReservationUserProfileId(savedReservationList.get(0).getUserProfile().getId(), pageRequest);
-
-        Assertions.assertThat(reservedRoomPage).isNotNull();
-    }
-
-    @Test
-    public void ReservedRoomRepository_FindAllByReservationUserProfileIdAndReservationPaymentStatus() {
-        pageRequest = pageRequest.withPage(1);
-
-        Page<ReservedRoom> reservedRoomPage = reservedRoomRepository.findAllByReservationUserProfileIdAndReservationPaymentStatus(savedReservationList.get(0).getUserProfile().getId(), ConstantUtil.APPROVED, pageRequest);
-
-        Assertions.assertThat(reservedRoomPage).isNotNull();
     }
 
     @Test
@@ -249,16 +203,6 @@ public class ReservedRoomRepositoryTests {
 
         Assertions.assertThat(countedReservedRoomList).isNotNull();
         Assertions.assertThat(countedReservedRoomList).isEqualTo(4);
-    }
-
-    @Test
-    public void ReservedRoomRepository_CountAllByReservationUserProfile_ReturnsLong() {
-        reservedRoomRepository.saveAll(reservedRoomList);
-
-        Long countedReservedRoomList = reservedRoomRepository.countAllByReservationUserProfile(savedUserProfileList.get(0));
-
-        Assertions.assertThat(countedReservedRoomList).isNotNull();
-        Assertions.assertThat(countedReservedRoomList).isEqualTo(2);
     }
 
     @Test

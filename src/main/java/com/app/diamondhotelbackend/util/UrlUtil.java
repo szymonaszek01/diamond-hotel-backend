@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -21,6 +22,14 @@ public class UrlUtil {
     public static String encode(String value) {
         return URLEncoder.encode(value.replace("%2B", "+"), StandardCharsets.UTF_8)
                 .replace("+", "%2B");
+    }
+
+    public static String getValueFromJSONObject(String key, JSONObject jsonObject) {
+        try {
+            return jsonObject.getString(key);
+        } catch (JSONException e) {
+            return "";
+        }
     }
 
     public static List<Sort.Order> toOrderListMapper(JSONArray jsonArray) {

@@ -8,6 +8,7 @@ import com.app.diamondhotelbackend.exception.RoomProcessingException;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.stripe.exception.StripeException;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.List;
@@ -16,9 +17,9 @@ public interface ReservationService {
 
     Reservation createReservation(ReservationCreateRequestDto reservationCreateRequestDto) throws ReservationProcessingException, UserProfileProcessingException, RoomProcessingException, IOException, StripeException;
 
-    List<Reservation> getReservationList(int page, int size, String paymentStatus, JSONArray jsonArray);
+    List<Reservation> getReservationList(int page, int size, JSONObject filters, JSONArray sort);
 
-    List<Reservation> getReservationListByUserProfileId(long userProfileId, int page, int size, String paymentStatus, JSONArray jsonArray);
+    List<Reservation> getReservationListByUserProfileId(long userProfileId, int page, int size, JSONObject filters, JSONArray sort);
 
     Reservation getReservationById(long id) throws ReservationProcessingException;
 

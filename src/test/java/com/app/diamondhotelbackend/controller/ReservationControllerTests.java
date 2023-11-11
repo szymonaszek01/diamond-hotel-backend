@@ -12,13 +12,14 @@ import com.app.diamondhotelbackend.service.reservation.ReservationServiceImpl;
 import com.app.diamondhotelbackend.util.ConstantUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.CoreMatchers;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.json.JSONArray;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -41,27 +42,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @ExtendWith(MockitoExtension.class)
 public class ReservationControllerTests {
 
+    private static final String url = "/api/v1/reservation";
     @MockBean
     private ReservationServiceImpl reservationService;
-
     @MockBean
     private JwtFilter jwtFilter;
-
     @Autowired
     private MockMvc mockMvc;
-
     @Autowired
     private ObjectMapper objectMapper;
-
     private ReservationCreateRequestDto reservationCreateRequestDto;
-
     private Reservation reservation;
-
     private PdfResponseDto pdfResponseDto;
-
     private List<Reservation> reservationList;
-
-    private static final String url = "/api/v1/reservation";
 
     @BeforeEach
     public void init() {
@@ -173,7 +166,7 @@ public class ReservationControllerTests {
 
     @Test
     public void ReservationController_GetReservationList_ReturnsReservationList() throws Exception {
-        when(reservationService.getReservationList(Mockito.any(int.class), Mockito.any(int.class), Mockito.any(String.class), Mockito.any(JSONArray.class))).thenReturn(reservationList);
+        when(reservationService.getReservationList(Mockito.any(int.class), Mockito.any(int.class), Mockito.any(JSONObject.class), Mockito.any(JSONArray.class))).thenReturn(reservationList);
 
         MockHttpServletRequestBuilder request = get(url + "/all")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -189,7 +182,7 @@ public class ReservationControllerTests {
 
     @Test
     public void ReservationController_GetReservationListByUserProfileId_ReturnsReservationList() throws Exception {
-        when(reservationService.getReservationListByUserProfileId(Mockito.any(long.class), Mockito.any(int.class), Mockito.any(int.class), Mockito.any(String.class), Mockito.any(JSONArray.class))).thenReturn(reservationList);
+        when(reservationService.getReservationListByUserProfileId(Mockito.any(long.class), Mockito.any(int.class), Mockito.any(int.class), Mockito.any(JSONObject.class), Mockito.any(JSONArray.class))).thenReturn(reservationList);
 
         MockHttpServletRequestBuilder request = get(url + "/all/user-profile-id/" + 1)
                 .contentType(MediaType.APPLICATION_JSON)

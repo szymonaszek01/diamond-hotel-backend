@@ -3,6 +3,7 @@ package com.app.diamondhotelbackend.service.reservation;
 import com.app.diamondhotelbackend.dto.common.PdfResponseDto;
 import com.app.diamondhotelbackend.dto.reservation.request.ReservationCreateRequestDto;
 import com.app.diamondhotelbackend.dto.room.model.RoomSelected;
+import com.app.diamondhotelbackend.dto.table.model.ReservationPaymentReservedRoomTableFilter;
 import com.app.diamondhotelbackend.entity.*;
 import com.app.diamondhotelbackend.exception.*;
 import com.app.diamondhotelbackend.repository.ReservationRepository;
@@ -17,17 +18,20 @@ import com.stripe.exception.StripeException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.*;
+
+import static com.app.diamondhotelbackend.specification.ReservationSpecification.*;
 
 @Service
 @AllArgsConstructor
@@ -87,39 +91,21 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public List<Reservation> getReservationList(int page, int size, String paymentStatus, JSONArray jsonArray) {
+    public List<Reservation> getReservationList(int page, int size, JSONObject filters, JSONArray sort) {
         if (page < 0 || size < 1) {
             return Collections.emptyList();
         }
 
-        List<Sort.Order> orderList = UrlUtil.toOrderListMapper(jsonArray);
-        Pageable pageable = PageRequest.of(page, size, Sort.by(orderList));
-        Page<Reservation> reservationPage;
-        if (paymentStatus.isEmpty()) {
-            reservationPage = reservationRepository.findAll(pageable);
-        } else {
-            reservationPage = reservationRepository.findAllByPaymentStatus(paymentStatus, pageable);
-        }
-
-        return reservationPage.getContent();
+        return prepareReservationList(0, page, size, filters, sort);
     }
 
     @Override
-    public List<Reservation> getReservationListByUserProfileId(long userProfileId, int page, int size, String paymentStatus, JSONArray jsonArray) {
+    public List<Reservation> getReservationListByUserProfileId(long userProfileId, int page, int size, JSONObject filters, JSONArray sort) {
         if (userProfileId < 1 || page < 0 || size < 1) {
             return Collections.emptyList();
         }
 
-        List<Sort.Order> orderList = UrlUtil.toOrderListMapper(jsonArray);
-        Pageable pageable = PageRequest.of(page, size, Sort.by(orderList));
-        Page<Reservation> reservationPage;
-        if (paymentStatus.isEmpty()) {
-            reservationPage = reservationRepository.findAllByUserProfileId(userProfileId, pageable);
-        } else {
-            reservationPage = reservationRepository.findAllByUserProfileIdAndPaymentStatus(userProfileId, paymentStatus, pageable);
-        }
-
-        return reservationPage.getContent();
+        return prepareReservationList(userProfileId, page, size, filters, sort);
     }
 
     @Override
@@ -149,9 +135,9 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public Long countReservationListByUserProfileId(long userProfileId) throws UserProfileProcessingException {
-        UserProfile userProfile = userProfileService.getUserProfileById(userProfileId);
+        Specification<Reservation> reservationSpecification = Specification.where(userProfileIdEqual(userProfileId));
 
-        return reservationRepository.countAllByUserProfile(userProfile);
+        return reservationRepository.count(reservationSpecification);
     }
 
     @Override
@@ -251,5 +237,22 @@ public class ReservationServiceImpl implements ReservationService {
         } catch (RoomProcessingException e) {
             return Collections.emptyList();
         }
+    }
+
+    private List<Reservation> prepareReservationList(long userProfileId, int page, int size, JSONObject filters, JSONArray sort) {
+        ReservationPaymentReservedRoomTableFilter tableFilters = new ReservationPaymentReservedRoomTableFilter(filters);
+        Specification<Reservation> reservationSpecification = Specification.where(userProfileId == 0 ? null : userProfileIdEqual(userProfileId))
+                .and(tableFilters.getMinDate() == null || tableFilters.getMaxDate() == null ? null : reservationCheckInReservationCheckOutBetween(tableFilters.getMinDate(), tableFilters.getMaxDate()))
+                .and(tableFilters.getUserProfileEmail().isEmpty() ? null : userProfileEmailEqual(tableFilters.getUserProfileEmail()))
+                .and(tableFilters.getFlightNumber().isEmpty() ? null : flightNumberEqual(tableFilters.getFlightNumber()))
+                .and(tableFilters.getPaymentStatus().isEmpty() ? null : paymentStatusEqual(tableFilters.getPaymentStatus()))
+                .and(tableFilters.getMinPaymentCost() == null || tableFilters.getMaxPaymentCost() == null ? null : paymentCostBetween(tableFilters.getMinPaymentCost(), tableFilters.getMaxPaymentCost()))
+                .and(tableFilters.getPaymentCharge().isEmpty() ? null : paymentChargeEqual(tableFilters.getPaymentCharge()))
+                .and(tableFilters.getRoomTypeName().isEmpty() ? null : roomTypeNameEqual(tableFilters.getRoomTypeName()));
+
+        List<Sort.Order> orderList = UrlUtil.toOrderListMapper(sort);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(orderList));
+
+        return reservationRepository.findAll(reservationSpecification, pageable).getContent();
     }
 }

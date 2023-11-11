@@ -10,6 +10,7 @@ import com.app.diamondhotelbackend.service.reservation.ReservationServiceImpl;
 import com.stripe.exception.StripeException;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,17 +38,20 @@ public class ReservationController {
     }
 
     @GetMapping("/all")
-    public List<Reservation> getReservationList(@RequestParam(value = "page") int page, @RequestParam(value = "size") int size, @RequestParam(value = "payment-status", defaultValue = "", required = false) String paymentStatus, @RequestParam(value = "sort", defaultValue = "[]", required = false) JSONArray jsonArray) {
-        return reservationService.getReservationList(page, size, paymentStatus, jsonArray);
+    public List<Reservation> getReservationList(@RequestParam(value = "page") int page,
+                                                @RequestParam(value = "size") int size,
+                                                @RequestParam(value = "filters", defaultValue = "{}", required = false) JSONObject filters,
+                                                @RequestParam(value = "sort", defaultValue = "[]", required = false) JSONArray sort) {
+        return reservationService.getReservationList(page, size, filters, sort);
     }
 
     @GetMapping("/all/user-profile-id/{userProfileId}")
     public List<Reservation> getReservationListByUserProfileId(@PathVariable long userProfileId,
                                                                @RequestParam(value = "page") int page,
                                                                @RequestParam(value = "size") int size,
-                                                               @RequestParam(value = "payment-status", defaultValue = "", required = false) String paymentStatus,
-                                                               @RequestParam(value = "sort", defaultValue = "[]", required = false) JSONArray jsonArray) {
-        return reservationService.getReservationListByUserProfileId(userProfileId, page, size, paymentStatus, jsonArray);
+                                                               @RequestParam(value = "filters", defaultValue = "{}", required = false) JSONObject filters,
+                                                               @RequestParam(value = "sort", defaultValue = "[]", required = false) JSONArray sort) {
+        return reservationService.getReservationListByUserProfileId(userProfileId, page, size, filters, sort);
     }
 
     @GetMapping("/id/{id}")

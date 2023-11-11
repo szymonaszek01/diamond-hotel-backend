@@ -17,6 +17,8 @@ import com.app.diamondhotelbackend.util.PdfUtil;
 import com.app.diamondhotelbackend.util.QrCodeUtil;
 import com.stripe.exception.StripeException;
 import org.assertj.core.api.Assertions;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,11 +28,11 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.json.JSONArray;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -236,9 +238,9 @@ public class ReservationServiceTests {
     public void ReservationService_GetReservationList_ReturnsReservationList() {
         payment.setStatus(ConstantUtil.APPROVED);
 
-        when(reservationRepository.findAll(Mockito.any(PageRequest.class))).thenReturn(reservationPage);
+        when(reservationRepository.findAll(Mockito.any(Specification.class), Mockito.any(PageRequest.class))).thenReturn(reservationPage);
 
-        List<Reservation> foundReservationList = reservationService.getReservationList(1, 3, "", new JSONArray());
+        List<Reservation> foundReservationList = reservationService.getReservationList(1, 3, new JSONObject(), new JSONArray());
 
         Assertions.assertThat(foundReservationList).isNotNull();
         Assertions.assertThat(foundReservationList.size()).isEqualTo(3);
@@ -246,9 +248,9 @@ public class ReservationServiceTests {
 
     @Test
     public void ReservationService_GetReservationListByUserProfileId_ReturnsReservationList() {
-        when(reservationRepository.findAllByUserProfileId(Mockito.any(long.class), Mockito.any(PageRequest.class))).thenReturn(reservationPage);
+        when(reservationRepository.findAll(Mockito.any(Specification.class), Mockito.any(PageRequest.class))).thenReturn(reservationPage);
 
-        List<Reservation> foundReservationList = reservationService.getReservationListByUserProfileId(1, 1, 3, "", new JSONArray());
+        List<Reservation> foundReservationList = reservationService.getReservationListByUserProfileId(1, 1, 3, new JSONObject(), new JSONArray());
 
         Assertions.assertThat(foundReservationList).isNotNull();
         Assertions.assertThat(foundReservationList.size()).isEqualTo(3);
@@ -289,7 +291,7 @@ public class ReservationServiceTests {
     @Test
     public void ReservationService_CountReservationListByUserProfileId_ReturnsLong() {
         when(userProfileService.getUserProfileById(Mockito.any(long.class))).thenReturn(reservation.getUserProfile());
-        when(reservationRepository.countAllByUserProfile(Mockito.any(UserProfile.class))).thenReturn(3L);
+        when(reservationRepository.count(Mockito.any(Specification.class))).thenReturn(3L);
 
         Long countReservationList = reservationService.countReservationListByUserProfileId(1L);
 

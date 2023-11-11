@@ -13,11 +13,14 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
+
+import static com.app.diamondhotelbackend.specification.ReservationSpecification.paymentStatusEqual;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -123,7 +126,7 @@ public class ReservationRepositoryTests {
                 .children(2)
                 .userProfile(savedUserProfileList.get(0))
                 .flight(savedFlightList.get(0))
-                .payment(savedPaymentList.get(1))
+                .payment(savedPaymentList.get(0))
                 .build();
 
         reservationList = List.of(
@@ -179,7 +182,7 @@ public class ReservationRepositoryTests {
                         .children(2)
                         .userProfile(savedUserProfileList.get(1))
                         .flight(savedFlightList.get(1))
-                        .payment(savedPaymentList.get(6))
+                        .payment(savedPaymentList.get(5))
                         .build()
         );
 
@@ -196,36 +199,10 @@ public class ReservationRepositoryTests {
 
     @Test
     public void ReservationRepository_FindAll_ReturnsReservationPage() {
+        Specification<Reservation> reservationSpecification = Specification.where(paymentStatusEqual(ConstantUtil.WAITING_FOR_PAYMENT));
         reservationRepository.saveAll(reservationList);
-        Page<Reservation> reservationPage = reservationRepository.findAll(pageRequest);
 
-        Assertions.assertThat(reservationPage).isNotNull();
-    }
-
-    @Test
-    public void ReservationRepository_FindAllByPaymentStatus_ReturnsReservationPage() {
-        reservationRepository.saveAll(reservationList);
-        Page<Reservation> reservationPage = reservationRepository.findAllByPaymentStatus(ConstantUtil.APPROVED, pageRequest);
-
-        Assertions.assertThat(reservationPage).isNotNull();
-    }
-
-    @Test
-    public void ReservationRepository_FindAllByUserProfileId_ReturnsReservationPage() {
-        pageRequest = pageRequest.withPage(1);
-
-        reservationRepository.saveAll(reservationList);
-        Page<Reservation> reservationPage = reservationRepository.findAllByUserProfileId(1L, pageRequest);
-
-        Assertions.assertThat(reservationPage).isNotNull();
-    }
-
-    @Test
-    public void ReservationRepository_FindAllByUserProfileIdAndPaymentStatus_ReturnsReservationPage() {
-        pageRequest = pageRequest.withPage(1);
-
-        reservationRepository.saveAll(reservationList);
-        Page<Reservation> reservationPage = reservationRepository.findAllByUserProfileIdAndPaymentStatus(1L, ConstantUtil.APPROVED, pageRequest);
+        Page<Reservation> reservationPage = reservationRepository.findAll(reservationSpecification, pageRequest);
 
         Assertions.assertThat(reservationPage).isNotNull();
     }
@@ -247,16 +224,6 @@ public class ReservationRepositoryTests {
 
         Assertions.assertThat(countedReservationList).isNotNull();
         Assertions.assertThat(countedReservationList).isEqualTo(6);
-    }
-
-    @Test
-    public void ReservationRepository_CountAllByUserProfile_ReturnsLong() {
-        reservationRepository.saveAll(reservationList);
-
-        Long countedReservationList = reservationRepository.countAllByUserProfile(reservation.getUserProfile());
-
-        Assertions.assertThat(countedReservationList).isNotNull();
-        Assertions.assertThat(countedReservationList).isEqualTo(3);
     }
 
     @Test

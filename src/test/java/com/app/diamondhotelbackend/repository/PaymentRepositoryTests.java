@@ -12,11 +12,14 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
+
+import static com.app.diamondhotelbackend.specification.PaymentSpecification.paymentStatusEqual;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -32,13 +35,11 @@ public class PaymentRepositoryTests {
 
     private List<Payment> paymentList;
 
-    private List<UserProfile> savedUserProfileList;
-
     private PageRequest pageRequest;
 
     @BeforeEach
     public void init() {
-        savedUserProfileList = List.of(
+        List<UserProfile> savedUserProfileList = List.of(
                 testEntityManager.persistAndFlush(
                         UserProfile.builder()
                                 .email("email1")
@@ -138,36 +139,20 @@ public class PaymentRepositoryTests {
 
     @Test
     public void PaymentRepository_FindAll_ReturnsPaymentPage() {
+        Specification<Payment> paymentSpecification = Specification.where(paymentStatusEqual(ConstantUtil.WAITING_FOR_PAYMENT));
         paymentRepository.saveAll(paymentList);
-        Page<Payment> paymentPage = paymentRepository.findAll(pageRequest);
+        Page<Payment> paymentPage = paymentRepository.findAll(paymentSpecification, pageRequest);
 
         Assertions.assertThat(paymentPage).isNotNull();
     }
 
     @Test
-    public void PaymentRepository_FindAllByStatus_ReturnsPaymentPage() {
-        paymentList.forEach(p -> p.setStatus(ConstantUtil.APPROVED));
+    public void PaymentRepository_FindById_ReturnsOptionalPayment() {
+        Payment savedPayment = paymentRepository.save(payment);
+        Optional<Payment> paymentOptional = paymentRepository.findById((payment.getId()));
 
-        paymentRepository.saveAll(paymentList);
-        Page<Payment> paymentPage = paymentRepository.findAllByStatus(ConstantUtil.APPROVED, pageRequest);
-
-        Assertions.assertThat(paymentPage).isNotNull();
-    }
-
-    @Test
-    public void PaymentRepository_FindAllByReservationUserProfileId_ReturnsPaymentPage() {
-        paymentRepository.saveAll(paymentList);
-        Page<Payment> paymentPage = paymentRepository.findAllByReservationUserProfileId(savedUserProfileList.get(0).getId(), pageRequest);
-
-        Assertions.assertThat(paymentPage).isNotNull();
-    }
-
-    @Test
-    public void PaymentRepository_FindAllByStatusAndReservationUserProfileId_ReturnsPaymentPage() {
-        paymentRepository.saveAll(paymentList);
-        Page<Payment> paymentPage = paymentRepository.findAllByStatusAndReservationUserProfileId(payment.getStatus(), savedUserProfileList.get(0).getId(), pageRequest);
-
-        Assertions.assertThat(paymentPage).isNotNull();
+        Assertions.assertThat(paymentOptional).isPresent();
+        Assertions.assertThat(paymentOptional.get().getId()).isEqualTo(savedPayment.getId());
     }
 
     @Test
@@ -178,24 +163,6 @@ public class PaymentRepositoryTests {
 
         Assertions.assertThat(countedPaymentList).isNotNull();
         Assertions.assertThat(countedPaymentList).isEqualTo(4);
-    }
-
-    @Test
-    public void PaymentRepository_CountAllByReservationUserProfile_ReturnsLong() {
-        paymentRepository.saveAll(paymentList);
-
-        Long countedPaymentList = paymentRepository.countAllByReservationUserProfile(savedUserProfileList.get(1));
-
-        Assertions.assertThat(countedPaymentList).isNotNull();
-    }
-
-    @Test
-    public void PaymentRepository_FindById_ReturnsOptionalPayment() {
-        Payment savedPayment = paymentRepository.save(payment);
-        Optional<Payment> paymentOptional = paymentRepository.findById((payment.getId()));
-
-        Assertions.assertThat(paymentOptional).isPresent();
-        Assertions.assertThat(paymentOptional.get().getId()).isEqualTo(savedPayment.getId());
     }
 
     @Test

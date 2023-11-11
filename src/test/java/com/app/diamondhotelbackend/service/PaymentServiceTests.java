@@ -2,17 +2,17 @@ package com.app.diamondhotelbackend.service;
 
 import com.app.diamondhotelbackend.dto.common.PdfResponseDto;
 import com.app.diamondhotelbackend.entity.Payment;
-import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.repository.PaymentRepository;
 import com.app.diamondhotelbackend.service.payment.PaymentServiceImpl;
 import com.app.diamondhotelbackend.service.stripe.StripeServiceImpl;
-import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
 import com.app.diamondhotelbackend.util.ConstantUtil;
 import com.app.diamondhotelbackend.util.PdfUtil;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
 import com.stripe.model.Refund;
 import org.assertj.core.api.Assertions;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,11 +20,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.json.JSONArray;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,22 +51,15 @@ public class PaymentServiceTests {
     private StripeServiceImpl stripeService;
 
     @Mock
-    private UserProfileServiceImpl userProfileService;
-
-    @Mock
     private PdfUtil pdfUtil;
 
     private Charge charge;
 
     private Refund refund;
 
-    private UserProfile userProfile;
-
     private InputStreamResource inputStreamResource;
 
     private Payment payment;
-
-    private List<Payment> paymentList;
 
     private Page<Payment> paymentPage;
 
@@ -82,13 +75,11 @@ public class PaymentServiceTests {
         refund.setId("chargeId1");
         refund.setObject(ConstantUtil.REFUND);
 
-        userProfile = UserProfile.builder().id(1).email("email1").build();
-
         inputStreamResource = new InputStreamResource(InputStream.nullInputStream());
 
         payment = Payment.builder().id(1).createdAt(new Date(System.currentTimeMillis())).expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15)).status(ConstantUtil.WAITING_FOR_PAYMENT).build();
 
-        paymentList = List.of(Payment.builder().createdAt(new Date(System.currentTimeMillis())).expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15)).token("token1").build(), Payment.builder().createdAt(new Date(System.currentTimeMillis())).expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15)).token("token2").build(), Payment.builder().createdAt(new Date(System.currentTimeMillis())).expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15)).token("token3").build());
+        List<Payment> paymentList = List.of(Payment.builder().createdAt(new Date(System.currentTimeMillis())).expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15)).token("token1").build(), Payment.builder().createdAt(new Date(System.currentTimeMillis())).expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15)).token("token2").build(), Payment.builder().createdAt(new Date(System.currentTimeMillis())).expiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 15)).token("token3").build());
 
         byte[] bytes = HexFormat.of().parseHex("e04fd020");
 
@@ -109,9 +100,9 @@ public class PaymentServiceTests {
 
     @Test
     public void PaymentService_GetPaymentList_ReturnsPaymentList() {
-        when(paymentRepository.findAll(Mockito.any(PageRequest.class))).thenReturn(paymentPage);
+        when(paymentRepository.findAll(Mockito.any(Specification.class), Mockito.any(PageRequest.class))).thenReturn(paymentPage);
 
-        List<Payment> foundPaymentList = paymentService.getPaymentList(1, 3, "", new JSONArray());
+        List<Payment> foundPaymentList = paymentService.getPaymentList(1, 3, new JSONObject(), new JSONArray());
 
         Assertions.assertThat(foundPaymentList).isNotNull();
         Assertions.assertThat(foundPaymentList.size()).isEqualTo(3);
@@ -119,9 +110,9 @@ public class PaymentServiceTests {
 
     @Test
     public void PaymentService_GetPaymentListByUserProfileId_ReturnsPaymentList() {
-        when(paymentRepository.findAllByReservationUserProfileId(Mockito.any(long.class), Mockito.any(PageRequest.class))).thenReturn(paymentPage);
+        when(paymentRepository.findAll(Mockito.any(Specification.class), Mockito.any(PageRequest.class))).thenReturn(paymentPage);
 
-        List<Payment> foundPaymentList = paymentService.getPaymentListByUserProfileId(1, 1, 3, "", new JSONArray());
+        List<Payment> foundPaymentList = paymentService.getPaymentListByUserProfileId(1, 1, 3, new JSONObject(), new JSONArray());
 
         Assertions.assertThat(foundPaymentList).isNotNull();
         Assertions.assertThat(foundPaymentList.size()).isEqualTo(3);
@@ -159,8 +150,7 @@ public class PaymentServiceTests {
 
     @Test
     public void PaymentService_CountPaymentListByUserProfileId_ReturnsLong() {
-        when(userProfileService.getUserProfileById(Mockito.any(long.class))).thenReturn(userProfile);
-        when(paymentRepository.countAllByReservationUserProfile(Mockito.any(UserProfile.class))).thenReturn(3L);
+        when(paymentRepository.count(Mockito.any(Specification.class))).thenReturn(3L);
 
         Long countReservationList = paymentService.countPaymentListByUserProfileId(1L);
 

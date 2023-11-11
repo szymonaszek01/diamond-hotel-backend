@@ -5,15 +5,15 @@ import com.app.diamondhotelbackend.entity.Payment;
 import com.app.diamondhotelbackend.security.jwt.JwtFilter;
 import com.app.diamondhotelbackend.service.payment.PaymentServiceImpl;
 import com.app.diamondhotelbackend.util.ConstantUtil;
-import jakarta.servlet.ServletContext;
 import org.hamcrest.CoreMatchers;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.json.JSONArray;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -36,20 +36,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @ExtendWith(MockitoExtension.class)
 public class PaymentControllerTests {
 
+    private static final String url = "/api/v1/payment";
     @MockBean
     private PaymentServiceImpl paymentService;
-
     @MockBean
     private JwtFilter jwtFilter;
-
     @Autowired
     private MockMvc mockMvc;
-
     private PdfResponseDto pdfResponseDto;
-
     private List<Payment> paymentList;
-
-    private static final String url = "/api/v1/payment";
 
     @BeforeEach
     public void init() {
@@ -82,7 +77,7 @@ public class PaymentControllerTests {
 
     @Test
     public void PaymentController_GetPaymentList_ReturnsPaymentList() throws Exception {
-        when(paymentService.getPaymentList(Mockito.any(int.class), Mockito.any(int.class), Mockito.any(String.class), Mockito.any(JSONArray.class))).thenReturn(paymentList);
+        when(paymentService.getPaymentList(Mockito.any(int.class), Mockito.any(int.class), Mockito.any(JSONObject.class), Mockito.any(JSONArray.class))).thenReturn(paymentList);
 
         MockHttpServletRequestBuilder request = get(url + "/all")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -98,7 +93,7 @@ public class PaymentControllerTests {
 
     @Test
     public void PaymentController_GetPaymentListByUserProfileId_ReturnsPaymentList() throws Exception {
-        when(paymentService.getPaymentListByUserProfileId(Mockito.any(long.class), Mockito.any(int.class), Mockito.any(int.class), Mockito.any(String.class), Mockito.any(JSONArray.class))).thenReturn(paymentList);
+        when(paymentService.getPaymentListByUserProfileId(Mockito.any(long.class), Mockito.any(int.class), Mockito.any(int.class), Mockito.any(JSONObject.class), Mockito.any(JSONArray.class))).thenReturn(paymentList);
 
         MockHttpServletRequestBuilder request = get(url + "/all/user-profile-id/" + 1L)
                 .contentType(MediaType.APPLICATION_JSON)

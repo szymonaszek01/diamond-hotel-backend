@@ -6,6 +6,7 @@ import com.app.diamondhotelbackend.exception.PaymentProcessingException;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.stripe.exception.StripeException;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.List;
@@ -14,9 +15,9 @@ public interface PaymentService {
 
     Payment createPayment(Payment payment);
 
-    List<Payment> getPaymentList(int page, int size, String status, JSONArray jsonArray);
+    List<Payment> getPaymentList(int page, int size, JSONObject filters, JSONArray sort);
 
-    List<Payment> getPaymentListByUserProfileId(long userProfileId, int page, int size, String status, JSONArray jsonArray);
+    List<Payment> getPaymentListByUserProfileId(long userProfileId, int page, int size, JSONObject filters, JSONArray sort);
 
     Payment getPaymentById(long id) throws PaymentProcessingException;
 

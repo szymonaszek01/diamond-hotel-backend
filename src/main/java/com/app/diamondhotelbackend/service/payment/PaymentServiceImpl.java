@@ -2,14 +2,12 @@ package com.app.diamondhotelbackend.service.payment;
 
 
 import com.app.diamondhotelbackend.dto.common.PdfResponseDto;
+import com.app.diamondhotelbackend.dto.table.model.ReservationPaymentReservedRoomTableFilter;
 import com.app.diamondhotelbackend.entity.Payment;
-import com.app.diamondhotelbackend.entity.UserProfile;
-import com.app.diamondhotelbackend.exception.AuthProcessingException;
 import com.app.diamondhotelbackend.exception.PaymentProcessingException;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.repository.PaymentRepository;
 import com.app.diamondhotelbackend.service.stripe.StripeServiceImpl;
-import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
 import com.app.diamondhotelbackend.util.ConstantUtil;
 import com.app.diamondhotelbackend.util.PdfUtil;
 import com.app.diamondhotelbackend.util.UrlUtil;
@@ -19,11 +17,12 @@ import com.stripe.model.Refund;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -31,6 +30,8 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+
+import static com.app.diamondhotelbackend.specification.PaymentSpecification.*;
 
 @Service
 @AllArgsConstructor
@@ -41,8 +42,6 @@ public class PaymentServiceImpl implements PaymentService {
 
     private final StripeServiceImpl stripeService;
 
-    private final UserProfileServiceImpl userProfileService;
-
     private final PdfUtil pdfUtil;
 
     @Override
@@ -51,44 +50,21 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public List<Payment> getPaymentList(int page, int size, String status, JSONArray jsonArray) {
+    public List<Payment> getPaymentList(int page, int size, JSONObject filters, JSONArray sort) {
         if (page < 0 || size < 1) {
             return Collections.emptyList();
         }
 
-        List<Sort.Order> orderList = UrlUtil.toOrderListMapper(jsonArray);
-        Pageable pageable = PageRequest.of(page, size, Sort.by(orderList));
-        Page<Payment> paymentPage;
-        if (status.isEmpty()) {
-            paymentPage = paymentRepository.findAll(pageable);
-        } else {
-            paymentPage = paymentRepository.findAllByStatus(status, pageable);
-        }
-
-        return paymentPage.getContent();
+        return preparePaymentList(0, page, size, filters, sort);
     }
 
     @Override
-    public List<Payment> getPaymentListByUserProfileId(long userProfileId, int page, int size, String status, JSONArray jsonArray) {
-        try {
-            if (userProfileId < 1 || page < 0 || size < 1) {
-                return Collections.emptyList();
-            }
-
-            List<Sort.Order> orderList = UrlUtil.toOrderListMapper(jsonArray);
-            Pageable pageable = PageRequest.of(page, size, Sort.by(orderList));
-            Page<Payment> paymentPage;
-            if (status.isEmpty()) {
-                paymentPage = paymentRepository.findAllByReservationUserProfileId(userProfileId, pageable);
-            } else {
-                paymentPage = paymentRepository.findAllByStatusAndReservationUserProfileId(status, userProfileId, pageable);
-            }
-
-            return paymentPage.getContent();
-
-        } catch (AuthProcessingException e) {
+    public List<Payment> getPaymentListByUserProfileId(long userProfileId, int page, int size, JSONObject filters, JSONArray sort) {
+        if (userProfileId < 1 || page < 0 || size < 1) {
             return Collections.emptyList();
         }
+
+        return preparePaymentList(userProfileId, page, size, filters, sort);
     }
 
     @Override
@@ -115,9 +91,9 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public Long countPaymentListByUserProfileId(long userProfileId) throws UserProfileProcessingException {
-        UserProfile userProfile = userProfileService.getUserProfileById(userProfileId);
+        Specification<Payment> paymentSpecification = Specification.where(userProfileIdEqual(userProfileId));
 
-        return paymentRepository.countAllByReservationUserProfile(userProfile);
+        return paymentRepository.count(paymentSpecification);
     }
 
     @Override
@@ -150,5 +126,22 @@ public class PaymentServiceImpl implements PaymentService {
         paymentRepository.delete(payment);
 
         return payment;
+    }
+
+    private List<Payment> preparePaymentList(long userProfileId, int page, int size, JSONObject filters, JSONArray sort) {
+        ReservationPaymentReservedRoomTableFilter tableFilters = new ReservationPaymentReservedRoomTableFilter(filters);
+        Specification<Payment> paymentSpecification = Specification.where(userProfileId == 0 ? null : userProfileIdEqual(userProfileId))
+                .and(tableFilters.getMinDate() == null || tableFilters.getMaxDate() == null ? null : reservationCheckInReservationCheckOutBetween(tableFilters.getMinDate(), tableFilters.getMaxDate()))
+                .and(tableFilters.getUserProfileEmail().isEmpty() ? null : userProfileEmailEqual(tableFilters.getUserProfileEmail()))
+                .and(tableFilters.getFlightNumber().isEmpty() ? null : flightNumberEqual(tableFilters.getFlightNumber()))
+                .and(tableFilters.getPaymentStatus().isEmpty() ? null : paymentStatusEqual(tableFilters.getPaymentStatus()))
+                .and(tableFilters.getMinPaymentCost() == null || tableFilters.getMaxPaymentCost() == null ? null : paymentCostBetween(tableFilters.getMinPaymentCost(), tableFilters.getMaxPaymentCost()))
+                .and(tableFilters.getPaymentCharge().isEmpty() ? null : paymentChargeEqual(tableFilters.getPaymentCharge()))
+                .and(tableFilters.getRoomTypeName().isEmpty() ? null : roomTypeNameEqual(tableFilters.getRoomTypeName()));
+
+        List<Sort.Order> orderList = UrlUtil.toOrderListMapper(sort);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(orderList));
+
+        return paymentRepository.findAll(paymentSpecification, pageable).getContent();
     }
 }

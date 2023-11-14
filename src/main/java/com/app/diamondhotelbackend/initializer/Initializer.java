@@ -3,6 +3,7 @@ package com.app.diamondhotelbackend.initializer;
 import com.app.diamondhotelbackend.entity.*;
 import com.app.diamondhotelbackend.repository.*;
 import com.app.diamondhotelbackend.util.ConstantUtil;
+import com.app.diamondhotelbackend.util.UrlUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -74,7 +75,7 @@ public class Initializer implements CommandLineRunner {
     }
 
     private void initializeRoomTypeList() {
-        roomTypeList.addAll(Arrays.asList(RoomType.builder().name("Deluxe Suite").adults(2).children(0).pricePerHotelNight(BigDecimal.valueOf(350)).image("https://publish.purewow.net/wp-content/uploads/sites/2/2019/08/grand-velas.jpeg?fit=1360%2C906").equipment(Arrays.asList("King size bed", "Sofa bed", "Personalized Climate Control", "Minibar", "Balcony")).build(), RoomType.builder().name("Family Room").adults(2).children(2).pricePerHotelNight(BigDecimal.valueOf(200)).image("https://images.unsplash.com/photo-1578683010236-d716f9a3f461?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bHV4dXJ5JTIwYmVkcm9vbXxlbnwwfHwwfHw%3D&w=1000&q=80").equipment(Arrays.asList("2 queen size beds", "Coffee maker", "Mini fridge", "Bathtub", "Personalized Climate Control")).build(), RoomType.builder().name("Standard Room").adults(2).children(0).pricePerHotelNight(BigDecimal.valueOf(120)).image("https://64.media.tumblr.com/52fd5697912a153efc4fdf057d877ab4/453e1459b5398164-9a/s1280x1920/e6917139b223f2ae9996ed37c11e422f94c316e8.jpg").equipment(Arrays.asList("King bed", "Desk", "Wardrobe", "Automated Lighting System", "Personalized Climate Control")).build()));
+        roomTypeList.addAll(Arrays.asList(RoomType.builder().name("Deluxe Suite").adults(2).children(0).pricePerHotelNight(BigDecimal.valueOf(350)).image(UrlUtil.toImageAsByteArrayMapper("https://publish.purewow.net/wp-content/uploads/sites/2/2019/08/grand-velas.jpeg?fit=1360%2C906")).equipment(Arrays.asList("King size bed", "Sofa bed", "Personalized Climate Control", "Minibar", "Balcony")).build(), RoomType.builder().name("Family Room").adults(2).children(2).pricePerHotelNight(BigDecimal.valueOf(200)).image(UrlUtil.toImageAsByteArrayMapper("https://images.unsplash.com/photo-1578683010236-d716f9a3f461?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bHV4dXJ5JTIwYmVkcm9vbXxlbnwwfHwwfHw%3D&w=1000&q=80")).equipment(Arrays.asList("2 queen size beds", "Coffee maker", "Mini fridge", "Bathtub", "Personalized Climate Control")).build(), RoomType.builder().name("Standard Room").adults(2).children(0).pricePerHotelNight(BigDecimal.valueOf(120)).image(UrlUtil.toImageAsByteArrayMapper("https://img.homejournal.com/202008/5f27752d94eeb.jpeg")).equipment(Arrays.asList("King bed", "Desk", "Wardrobe", "Automated Lighting System", "Personalized Climate Control")).build()));
     }
 
     private void initializeFlightList() {

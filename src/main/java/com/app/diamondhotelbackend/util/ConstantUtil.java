@@ -119,6 +119,8 @@ public class ConstantUtil {
 
     public static final String RESERVATION_EXPIRED_EXCEPTION = "Reservation expired exception";
 
+    public static final String ROOM_NOT_FOUND = "Room not found";
+
 
     /**
      * ----- OPINION -----

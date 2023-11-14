@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class PdfResponseDto {
+public class FileResponseDto {
 
     @JsonProperty("file_name")
     private String fileName;

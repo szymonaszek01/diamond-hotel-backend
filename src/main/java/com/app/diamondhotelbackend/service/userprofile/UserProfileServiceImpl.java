@@ -1,7 +1,7 @@
 package com.app.diamondhotelbackend.service.userprofile;
 
+import com.app.diamondhotelbackend.dto.common.FileResponseDto;
 import com.app.diamondhotelbackend.dto.userprofile.request.UserProfileDetailsUpdateRequestDto;
-import com.app.diamondhotelbackend.dto.userprofile.response.UserProfilePictureDetailsResponseDto;
 import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.repository.UserProfileRepository;
@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,9 +45,17 @@ public class UserProfileServiceImpl implements UserProfileService {
     }
 
     @Override
-    public UserProfilePictureDetailsResponseDto getUserProfilePictureByEmail(String email) throws UserProfileProcessingException {
+    public FileResponseDto getUserProfilePictureByEmail(String email) throws UserProfileProcessingException {
         UserProfile userProfile = getUserProfileByEmail(UrlUtil.decode(email));
-        return UserProfilePictureDetailsResponseDto.builder().email(userProfile.getEmail()).image(userProfile.getPicture()).build();
+        String encodedFile = null;
+        if (userProfile.getPicture() != null) {
+            encodedFile = Base64.getEncoder().encodeToString(userProfile.getPicture());
+        }
+
+        return FileResponseDto.builder()
+                .fileName(userProfile.getId() + "-image")
+                .encodedFile(encodedFile)
+                .build();
     }
 
     @Override
@@ -72,12 +81,12 @@ public class UserProfileServiceImpl implements UserProfileService {
     }
 
     @Override
-    public UserProfilePictureDetailsResponseDto updateUserProfilePicture(MultipartFile file, String email) throws UserProfileProcessingException, IOException {
+    public FileResponseDto updateUserProfilePicture(MultipartFile file, String email) throws UserProfileProcessingException, IOException {
         UserProfile userProfile = getUserProfileByEmail(UrlUtil.decode(email));
         userProfile.setPicture(file.getBytes());
         userProfileRepository.save(userProfile);
 
-        return UserProfilePictureDetailsResponseDto.builder().email(userProfile.getEmail()).image(file.getBytes()).build();
+        return FileResponseDto.builder().fileName(userProfile.getId() + "-image").encodedFile(Base64.getEncoder().encodeToString(userProfile.getPicture())).build();
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.app.diamondhotelbackend.controller;
 
+import com.app.diamondhotelbackend.dto.common.FileResponseDto;
 import com.app.diamondhotelbackend.dto.userprofile.request.UserProfileDetailsUpdateRequestDto;
-import com.app.diamondhotelbackend.dto.userprofile.response.UserProfilePictureDetailsResponseDto;
 import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
@@ -47,7 +47,7 @@ public class UserProfileController {
     }
 
     @GetMapping("/email/{email}/picture")
-    public ResponseEntity<UserProfilePictureDetailsResponseDto> getUserProfilePictureByEmail(@PathVariable String email) {
+    public ResponseEntity<FileResponseDto> getUserProfilePictureByEmail(@PathVariable String email) {
         try {
             return ResponseEntity.ok(userProfileService.getUserProfilePictureByEmail(email));
         } catch (UserProfileProcessingException e) {
@@ -65,7 +65,7 @@ public class UserProfileController {
     }
 
     @PostMapping("/email/{email}/picture")
-    public ResponseEntity<UserProfilePictureDetailsResponseDto> updateUserProfilePicture(@PathVariable String email, @RequestParam("image") MultipartFile file) {
+    public ResponseEntity<FileResponseDto> updateUserProfilePicture(@PathVariable String email, @RequestParam("image") MultipartFile file) {
         try {
             return ResponseEntity.ok(userProfileService.updateUserProfilePicture(file, email));
         } catch (IOException | UserProfileProcessingException e) {

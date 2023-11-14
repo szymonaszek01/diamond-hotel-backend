@@ -52,6 +52,7 @@ public class UserProfile {
     @JsonProperty("auth_provider")
     private String authProvider;
 
+    @JsonIgnore
     private byte[] picture;
 
     @JsonProperty("confirmed")

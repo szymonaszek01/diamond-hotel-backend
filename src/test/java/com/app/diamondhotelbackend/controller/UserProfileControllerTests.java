@@ -1,7 +1,7 @@
 package com.app.diamondhotelbackend.controller;
 
+import com.app.diamondhotelbackend.dto.common.FileResponseDto;
 import com.app.diamondhotelbackend.dto.userprofile.request.UserProfileDetailsUpdateRequestDto;
-import com.app.diamondhotelbackend.dto.userprofile.response.UserProfilePictureDetailsResponseDto;
 import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.security.jwt.JwtFilter;
 import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
@@ -25,6 +25,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Base64;
 import java.util.HexFormat;
 import java.util.List;
 
@@ -37,33 +38,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @ExtendWith(MockitoExtension.class)
 public class UserProfileControllerTests {
 
+    private static final String url = "/api/v1/user-profile";
     @MockBean
     private UserProfileServiceImpl userProfileService;
-
     @MockBean
     private JwtFilter jwtFilter;
-
     @Autowired
     private MockMvc mockMvc;
-
     @Autowired
     private ObjectMapper objectMapper;
-
     private UserProfile userProfile;
-
     private UserProfile updatedUserProfile;
-
     private List<UserProfile> userProfileList;
-
     private UserProfileDetailsUpdateRequestDto userProfileDetailsUpdateRequestDto;
-
-    private UserProfilePictureDetailsResponseDto userProfilePictureDetailsResponseDto;
-
-    private UserProfilePictureDetailsResponseDto userProfilePictureDetailsResponseDtoAfterUpdate;
-
+    private FileResponseDto fileResponseDto;
     private MockMultipartFile file;
-
-    private static final String url = "/api/v1/user-profile";
 
     @BeforeEach
     public void init() {
@@ -126,14 +115,9 @@ public class UserProfileControllerTests {
                 .postalCode("09-783")
                 .build();
 
-        userProfilePictureDetailsResponseDto = UserProfilePictureDetailsResponseDto.builder()
-                .email(userProfile.getEmail())
-                .image(userProfile.getPicture())
-                .build();
-
-        userProfilePictureDetailsResponseDtoAfterUpdate = UserProfilePictureDetailsResponseDto.builder()
-                .email(userProfile.getEmail())
-                .image(HexFormat.of().parseHex("a04fd020ea3a6910a2d808002b30309d"))
+        fileResponseDto = FileResponseDto.builder()
+                .fileName(userProfile.getId() + "-image")
+                .encodedFile(Base64.getEncoder().encodeToString(userProfile.getPicture()))
                 .build();
 
         file = new MockMultipartFile(
@@ -188,8 +172,8 @@ public class UserProfileControllerTests {
     }
 
     @Test
-    public void UserProfileController_GetUserProfilePictureByEmail_ReturnsUserProfilePictureDetailsResponseDto() throws Exception {
-        when(userProfileService.getUserProfilePictureByEmail(Mockito.any(String.class))).thenReturn(userProfilePictureDetailsResponseDto);
+    public void UserProfileController_GetUserProfilePictureByEmail_ReturnsFileResponseDto() throws Exception {
+        when(userProfileService.getUserProfilePictureByEmail(Mockito.any(String.class))).thenReturn(fileResponseDto);
 
         MockHttpServletRequestBuilder request = get(url + "/email/" + UrlUtil.encode(userProfile.getEmail()) + "/picture")
                 .contentType(MediaType.APPLICATION_JSON);
@@ -198,8 +182,8 @@ public class UserProfileControllerTests {
                 .perform(request)
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.email", CoreMatchers.is(userProfilePictureDetailsResponseDto.getEmail())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.image", CoreMatchers.is(objectMapper.writeValueAsString(userProfilePictureDetailsResponseDto.getImage()).replace("\"", ""))));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.file_name", CoreMatchers.is(userProfile.getId() + "-image")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.encoded_file", CoreMatchers.is(fileResponseDto.getEncodedFile())));
     }
 
     @Test
@@ -214,13 +198,13 @@ public class UserProfileControllerTests {
                 .perform(request)
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.email", CoreMatchers.is(userProfilePictureDetailsResponseDto.getEmail())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.email", CoreMatchers.is(userProfile.getEmail())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.firstname", CoreMatchers.is(userProfileDetailsUpdateRequestDto.getFirstname())));
     }
 
     @Test
-    public void UserProfileController_UpdateUserProfilePicture_ReturnsUserProfilePictureDetailsResponseDto() throws Exception {
-        when(userProfileService.updateUserProfilePicture(Mockito.any(MultipartFile.class), Mockito.any(String.class))).thenReturn(userProfilePictureDetailsResponseDtoAfterUpdate);
+    public void UserProfileController_UpdateUserProfilePicture_ReturnsFileResponseDto() throws Exception {
+        when(userProfileService.updateUserProfilePicture(Mockito.any(MultipartFile.class), Mockito.any(String.class))).thenReturn(fileResponseDto);
 
         MockHttpServletRequestBuilder request = multipart(url + "/email/" + UrlUtil.encode(userProfile.getEmail()) + "/picture")
                 .file(file);
@@ -228,7 +212,9 @@ public class UserProfileControllerTests {
         mockMvc
                 .perform(request)
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.file_name", CoreMatchers.is(userProfile.getId() + "-image")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.encoded_file", CoreMatchers.is(fileResponseDto.getEncodedFile())));
     }
 
     @Test

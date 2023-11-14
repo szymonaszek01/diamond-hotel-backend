@@ -1,7 +1,7 @@
 package com.app.diamondhotelbackend.service;
 
+import com.app.diamondhotelbackend.dto.common.FileResponseDto;
 import com.app.diamondhotelbackend.dto.userprofile.request.UserProfileDetailsUpdateRequestDto;
-import com.app.diamondhotelbackend.dto.userprofile.response.UserProfilePictureDetailsResponseDto;
 import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.repository.UserProfileRepository;
 import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
@@ -134,14 +134,13 @@ public class UserProfileServiceTests {
     }
 
     @Test
-    public void UserProfileService_GetUserProfileImageByEmail_UserProfilePictureDetailsResponseDto() {
+    public void UserProfileService_GetUserProfileImageByEmail_FileResponseDto() {
         when(userProfileRepository.findByEmail(Mockito.any(String.class))).thenReturn(Optional.of(userProfile));
 
-        UserProfilePictureDetailsResponseDto foundUserProfilePictureDetailsResponseDto = userProfileService.getUserProfilePictureByEmail(userProfile.getEmail());
+        FileResponseDto fileResponseDto = userProfileService.getUserProfilePictureByEmail(userProfile.getEmail());
 
-        Assertions.assertThat(foundUserProfilePictureDetailsResponseDto).isNotNull();
-        Assertions.assertThat(foundUserProfilePictureDetailsResponseDto.getImage()).isNotNull();
-        Assertions.assertThat(foundUserProfilePictureDetailsResponseDto.getEmail()).isEqualTo(userProfile.getEmail());
+        Assertions.assertThat(fileResponseDto).isNotNull();
+        Assertions.assertThat(fileResponseDto.getEncodedFile()).isNotNull();
     }
 
     @Test
@@ -169,17 +168,16 @@ public class UserProfileServiceTests {
     }
 
     @Test
-    public void UserProfileService_UpdateUserProfilePicture_UserProfilePictureDetailsResponseDto() {
+    public void UserProfileService_UpdateUserProfilePicture_FileResponseDto() {
         try {
             String email = "ala-gembala@wp.pl";
 
             when(userProfileRepository.findByEmail(Mockito.any(String.class))).thenReturn(Optional.of(userProfile));
 
-            UserProfilePictureDetailsResponseDto updatedUserProfilePictureDetailsResponseDto = userProfileService.updateUserProfilePicture(file, email);
+            FileResponseDto fileResponseDto = userProfileService.updateUserProfilePicture(file, email);
 
-            Assertions.assertThat(updatedUserProfilePictureDetailsResponseDto).isNotNull();
-            Assertions.assertThat(updatedUserProfilePictureDetailsResponseDto.getImage()).isNotNull();
-            Assertions.assertThat(updatedUserProfilePictureDetailsResponseDto.getEmail()).isEqualTo(userProfile.getEmail());
+            Assertions.assertThat(fileResponseDto).isNotNull();
+            Assertions.assertThat(fileResponseDto.getEncodedFile()).isNotNull();
 
         } catch (IOException e) {
             Assertions.fail(e.getMessage());

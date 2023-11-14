@@ -1,6 +1,6 @@
 package com.app.diamondhotelbackend.service;
 
-import com.app.diamondhotelbackend.dto.common.PdfResponseDto;
+import com.app.diamondhotelbackend.dto.common.FileResponseDto;
 import com.app.diamondhotelbackend.entity.Payment;
 import com.app.diamondhotelbackend.repository.PaymentRepository;
 import com.app.diamondhotelbackend.service.payment.PaymentServiceImpl;
@@ -63,7 +63,7 @@ public class PaymentServiceTests {
 
     private Page<Payment> paymentPage;
 
-    private PdfResponseDto pdfResponseDto;
+    private FileResponseDto fileResponseDto;
 
     @BeforeEach
     public void init() {
@@ -83,7 +83,7 @@ public class PaymentServiceTests {
 
         byte[] bytes = HexFormat.of().parseHex("e04fd020");
 
-        pdfResponseDto = PdfResponseDto.builder().fileName("Payment1.pdf").encodedFile(Base64.getEncoder().encodeToString(bytes)).build();
+        fileResponseDto = FileResponseDto.builder().fileName("Payment1.pdf").encodedFile(Base64.getEncoder().encodeToString(bytes)).build();
 
         paymentPage = new PageImpl<>(paymentList);
     }
@@ -129,13 +129,13 @@ public class PaymentServiceTests {
     }
 
     @Test
-    public void PaymentService_GetPaymentPdfDocumentById_ReturnsPdfResponseDto() throws IOException {
+    public void PaymentService_GetPaymentPdfDocumentById_ReturnsFileResponseDto() throws IOException {
         when(paymentRepository.findById(Mockito.any(long.class))).thenReturn(Optional.of(payment));
         when(pdfUtil.getPaymentForReservationPdf(Mockito.any(Payment.class))).thenReturn(inputStreamResource);
 
-        PdfResponseDto createdPdfResponseDto = paymentService.getPaymentPdfDocumentById(payment.getId());
+        FileResponseDto createdFileResponseDto = paymentService.getPaymentPdfDocumentById(payment.getId());
 
-        Assertions.assertThat(createdPdfResponseDto.getFileName()).isEqualTo(pdfResponseDto.getFileName());
+        Assertions.assertThat(createdFileResponseDto.getFileName()).isEqualTo(fileResponseDto.getFileName());
     }
 
     @Test

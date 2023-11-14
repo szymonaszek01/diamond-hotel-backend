@@ -1,6 +1,6 @@
 package com.app.diamondhotelbackend.service.reservation;
 
-import com.app.diamondhotelbackend.dto.common.PdfResponseDto;
+import com.app.diamondhotelbackend.dto.common.FileResponseDto;
 import com.app.diamondhotelbackend.dto.reservation.request.ReservationCreateRequestDto;
 import com.app.diamondhotelbackend.entity.Reservation;
 import com.app.diamondhotelbackend.exception.ReservationProcessingException;
@@ -23,7 +23,7 @@ public interface ReservationService {
 
     Reservation getReservationById(long id) throws ReservationProcessingException;
 
-    PdfResponseDto getReservationPdfDocumentById(long id) throws ReservationProcessingException, IOException;
+    FileResponseDto getReservationPdfDocumentById(long id) throws ReservationProcessingException, IOException;
 
     Long countReservationList();
 

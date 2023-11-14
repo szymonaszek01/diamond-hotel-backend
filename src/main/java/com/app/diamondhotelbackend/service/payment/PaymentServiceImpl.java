@@ -1,7 +1,7 @@
 package com.app.diamondhotelbackend.service.payment;
 
 
-import com.app.diamondhotelbackend.dto.common.PdfResponseDto;
+import com.app.diamondhotelbackend.dto.common.FileResponseDto;
 import com.app.diamondhotelbackend.dto.table.model.ReservationPaymentReservedRoomTableFilter;
 import com.app.diamondhotelbackend.entity.Payment;
 import com.app.diamondhotelbackend.exception.PaymentProcessingException;
@@ -73,12 +73,12 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public PdfResponseDto getPaymentPdfDocumentById(long id) throws PaymentProcessingException, IOException {
+    public FileResponseDto getPaymentPdfDocumentById(long id) throws PaymentProcessingException, IOException {
         Payment payment = getPaymentById(id);
         InputStreamResource inputStreamResource = pdfUtil.getPaymentForReservationPdf(payment);
         String encodedFile = inputStreamResource != null ? Base64.getEncoder().encodeToString(inputStreamResource.getContentAsByteArray()) : "";
 
-        return PdfResponseDto.builder()
+        return FileResponseDto.builder()
                 .fileName("Payment" + id + ".pdf")
                 .encodedFile(encodedFile)
                 .build();

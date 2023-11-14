@@ -1,6 +1,6 @@
 package com.app.diamondhotelbackend.controller;
 
-import com.app.diamondhotelbackend.dto.common.PdfResponseDto;
+import com.app.diamondhotelbackend.dto.common.FileResponseDto;
 import com.app.diamondhotelbackend.entity.Payment;
 import com.app.diamondhotelbackend.exception.ReservationProcessingException;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
@@ -42,7 +42,7 @@ public class PaymentController {
     }
 
     @GetMapping(value = "/id/{id}/pdf")
-    public ResponseEntity<PdfResponseDto> getPaymentPdfDocumentById(@PathVariable long id) {
+    public ResponseEntity<FileResponseDto> getPaymentPdfDocumentById(@PathVariable long id) {
         try {
             return ResponseEntity.ok(paymentService.getPaymentPdfDocumentById(id));
 

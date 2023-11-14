@@ -1,6 +1,6 @@
 package com.app.diamondhotelbackend.service.payment;
 
-import com.app.diamondhotelbackend.dto.common.PdfResponseDto;
+import com.app.diamondhotelbackend.dto.common.FileResponseDto;
 import com.app.diamondhotelbackend.entity.Payment;
 import com.app.diamondhotelbackend.exception.PaymentProcessingException;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
@@ -21,7 +21,7 @@ public interface PaymentService {
 
     Payment getPaymentById(long id) throws PaymentProcessingException;
 
-    PdfResponseDto getPaymentPdfDocumentById(long id) throws PaymentProcessingException, IOException;
+    FileResponseDto getPaymentPdfDocumentById(long id) throws PaymentProcessingException, IOException;
 
     Long countPaymentList();
 

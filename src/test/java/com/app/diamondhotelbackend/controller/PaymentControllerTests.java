@@ -1,6 +1,6 @@
 package com.app.diamondhotelbackend.controller;
 
-import com.app.diamondhotelbackend.dto.common.PdfResponseDto;
+import com.app.diamondhotelbackend.dto.common.FileResponseDto;
 import com.app.diamondhotelbackend.entity.Payment;
 import com.app.diamondhotelbackend.security.jwt.JwtFilter;
 import com.app.diamondhotelbackend.service.payment.PaymentServiceImpl;
@@ -43,14 +43,14 @@ public class PaymentControllerTests {
     private JwtFilter jwtFilter;
     @Autowired
     private MockMvc mockMvc;
-    private PdfResponseDto pdfResponseDto;
+    private FileResponseDto fileResponseDto;
     private List<Payment> paymentList;
 
     @BeforeEach
     public void init() {
         byte[] bytes = HexFormat.of().parseHex("e04fd020");
 
-        pdfResponseDto = PdfResponseDto.builder()
+        fileResponseDto = FileResponseDto.builder()
                 .fileName("testFileName")
                 .encodedFile(Base64.getEncoder().encodeToString(bytes))
                 .build();
@@ -110,8 +110,8 @@ public class PaymentControllerTests {
     }
 
     @Test
-    public void PaymentController_GetPaymentPdfDocumentById_ReturnsPdfResponseDto() throws Exception {
-        when(paymentService.getPaymentPdfDocumentById(Mockito.any(long.class))).thenReturn(pdfResponseDto);
+    public void PaymentController_GetPaymentPdfDocumentById_ReturnsFileResponseDto() throws Exception {
+        when(paymentService.getPaymentPdfDocumentById(Mockito.any(long.class))).thenReturn(fileResponseDto);
 
         MockHttpServletRequestBuilder request = get(url + "/id/" + 1 + "/pdf")
                 .contentType(MediaType.APPLICATION_JSON);
@@ -120,7 +120,7 @@ public class PaymentControllerTests {
                 .perform(request)
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.encoded_file", CoreMatchers.is(pdfResponseDto.getEncodedFile())));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.encoded_file", CoreMatchers.is(fileResponseDto.getEncodedFile())));
     }
 
     @Test

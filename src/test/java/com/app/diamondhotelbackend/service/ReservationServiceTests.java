@@ -1,6 +1,6 @@
 package com.app.diamondhotelbackend.service;
 
-import com.app.diamondhotelbackend.dto.common.PdfResponseDto;
+import com.app.diamondhotelbackend.dto.common.FileResponseDto;
 import com.app.diamondhotelbackend.dto.reservation.request.ReservationCreateRequestDto;
 import com.app.diamondhotelbackend.dto.room.model.RoomSelected;
 import com.app.diamondhotelbackend.entity.*;
@@ -104,7 +104,7 @@ public class ReservationServiceTests {
 
     private byte[] bytes;
 
-    private PdfResponseDto pdfResponseDto;
+    private FileResponseDto fileResponseDto;
 
     @BeforeEach
     public void init() {
@@ -202,7 +202,7 @@ public class ReservationServiceTests {
 
         bytes = HexFormat.of().parseHex("e04fd020");
 
-        pdfResponseDto = PdfResponseDto.builder()
+        fileResponseDto = FileResponseDto.builder()
                 .fileName("Reservation1.pdf")
                 .encodedFile(Base64.getEncoder().encodeToString(bytes))
                 .build();
@@ -267,15 +267,15 @@ public class ReservationServiceTests {
     }
 
     @Test
-    public void ReservationService_GetReservationPdfDocumentById_ReturnsPdfResponseDto() throws IOException {
+    public void ReservationService_GetReservationPdfDocumentById_ReturnsFileResponseDto() throws IOException {
         when(reservationRepository.findById(Mockito.any(long.class))).thenReturn(Optional.of(reservation));
         when(reservedRoomService.getReservedRoomListByReservationId(Mockito.any(long.class))).thenReturn(reservation.getReservedRoomList());
         when(qrCodeUtil.getQRCode(Mockito.any(String.class), Mockito.any(int.class), Mockito.any(int.class))).thenReturn(bytes);
         when(pdfUtil.getReservationPdf(Mockito.any(Reservation.class), Mockito.anyList(), Mockito.any(byte[].class))).thenReturn(inputStreamResource);
 
-        PdfResponseDto createdPdfResponseDto = reservationService.getReservationPdfDocumentById(payment.getId());
+        FileResponseDto createdFileResponseDto = reservationService.getReservationPdfDocumentById(payment.getId());
 
-        Assertions.assertThat(createdPdfResponseDto.getFileName()).isEqualTo(pdfResponseDto.getFileName());
+        Assertions.assertThat(createdFileResponseDto.getFileName()).isEqualTo(fileResponseDto.getFileName());
     }
 
     @Test

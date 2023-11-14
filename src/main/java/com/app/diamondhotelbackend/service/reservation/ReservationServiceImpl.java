@@ -1,6 +1,6 @@
 package com.app.diamondhotelbackend.service.reservation;
 
-import com.app.diamondhotelbackend.dto.common.PdfResponseDto;
+import com.app.diamondhotelbackend.dto.common.FileResponseDto;
 import com.app.diamondhotelbackend.dto.reservation.request.ReservationCreateRequestDto;
 import com.app.diamondhotelbackend.dto.room.model.RoomSelected;
 import com.app.diamondhotelbackend.dto.table.model.ReservationPaymentReservedRoomTableFilter;
@@ -114,7 +114,7 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public PdfResponseDto getReservationPdfDocumentById(long id) throws ReservationProcessingException, IOException {
+    public FileResponseDto getReservationPdfDocumentById(long id) throws ReservationProcessingException, IOException {
         Reservation reservation = getReservationById(id);
         List<ReservedRoom> reservedRoomList = reservedRoomService.getReservedRoomListByReservationId(id);
         String text = "Reservation id: " + reservation.getId();
@@ -122,7 +122,7 @@ public class ReservationServiceImpl implements ReservationService {
         InputStreamResource inputStreamResource = pdfUtil.getReservationPdf(reservation, reservedRoomList, qrCode);
         String encodedFile = inputStreamResource != null ? Base64.getEncoder().encodeToString(inputStreamResource.getContentAsByteArray()) : "";
 
-        return PdfResponseDto.builder()
+        return FileResponseDto.builder()
                 .fileName("Reservation" + id + ".pdf")
                 .encodedFile(encodedFile)
                 .build();

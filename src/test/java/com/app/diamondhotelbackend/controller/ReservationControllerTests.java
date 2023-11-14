@@ -1,6 +1,6 @@
 package com.app.diamondhotelbackend.controller;
 
-import com.app.diamondhotelbackend.dto.common.PdfResponseDto;
+import com.app.diamondhotelbackend.dto.common.FileResponseDto;
 import com.app.diamondhotelbackend.dto.reservation.request.ReservationCreateRequestDto;
 import com.app.diamondhotelbackend.dto.room.model.RoomSelected;
 import com.app.diamondhotelbackend.entity.Flight;
@@ -53,7 +53,7 @@ public class ReservationControllerTests {
     private ObjectMapper objectMapper;
     private ReservationCreateRequestDto reservationCreateRequestDto;
     private Reservation reservation;
-    private PdfResponseDto pdfResponseDto;
+    private FileResponseDto fileResponseDto;
     private List<Reservation> reservationList;
 
     @BeforeEach
@@ -111,7 +111,7 @@ public class ReservationControllerTests {
 
         byte[] bytes = HexFormat.of().parseHex("e04fd020");
 
-        pdfResponseDto = PdfResponseDto.builder()
+        fileResponseDto = FileResponseDto.builder()
                 .fileName("testFileName")
                 .encodedFile(Base64.getEncoder().encodeToString(bytes))
                 .build();
@@ -211,8 +211,8 @@ public class ReservationControllerTests {
     }
 
     @Test
-    public void ReservationController_GetReservationPdfDocumentById_ReturnsPdfResponseDto() throws Exception {
-        when(reservationService.getReservationPdfDocumentById(Mockito.any(long.class))).thenReturn(pdfResponseDto);
+    public void ReservationController_GetReservationPdfDocumentById_ReturnsFileResponseDto() throws Exception {
+        when(reservationService.getReservationPdfDocumentById(Mockito.any(long.class))).thenReturn(fileResponseDto);
 
         MockHttpServletRequestBuilder request = get(url + "/id/" + 1 + "/pdf")
                 .contentType(MediaType.APPLICATION_JSON);
@@ -221,7 +221,7 @@ public class ReservationControllerTests {
                 .perform(request)
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.encoded_file", CoreMatchers.is(pdfResponseDto.getEncodedFile())));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.encoded_file", CoreMatchers.is(fileResponseDto.getEncodedFile())));
     }
 
     @Test

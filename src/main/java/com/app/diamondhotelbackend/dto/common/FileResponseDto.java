@@ -13,4 +13,6 @@ public class FileResponseDto {
 
     @JsonProperty("encoded_file")
     private String encodedFile;
+
+    private byte[] file;
 }

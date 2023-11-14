@@ -30,12 +30,13 @@ public class RoomType {
     @JsonProperty("price_per_hotel_night")
     private BigDecimal pricePerHotelNight;
 
-    private String image;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private byte[] image;
 
     @ElementCollection
     @CollectionTable(name = "room_equipment", joinColumns = @JoinColumn(name = "room_type_id"))
     @Column(name = "name")
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private List<String> equipment;
 
     @JsonIgnore

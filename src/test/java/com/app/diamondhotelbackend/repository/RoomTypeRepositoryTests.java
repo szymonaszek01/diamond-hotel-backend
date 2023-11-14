@@ -10,6 +10,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,7 +32,7 @@ public class RoomTypeRepositoryTests {
                 .adults(2)
                 .children(2)
                 .pricePerHotelNight(BigDecimal.valueOf(350))
-                .image("https://publish.purewow.net/wp-content/uploads/sites/2/2019/08/grand-velas.jpeg?fit=1360%2C906")
+                .image(HexFormat.of().parseHex("e04fd020ea3a6910a2d808002b30309d"))
                 .build();
 
         roomTypeList = List.of(
@@ -40,7 +41,7 @@ public class RoomTypeRepositoryTests {
                         .adults(2)
                         .children(0)
                         .pricePerHotelNight(BigDecimal.valueOf(350))
-                        .image("https://publish.purewow.net/wp-content/uploads/sites/2/2019/08/grand-velas.jpeg?fit=1360%2C906")
+                        .image(HexFormat.of().parseHex("e04fd020ea3a6910a2d808002b30309d"))
                         .equipment(Arrays.asList("King size bed", "Sofa bed", "Personalized Climate Control", "Minibar", "Balcony"))
                         .build(),
                 RoomType.builder()
@@ -48,7 +49,7 @@ public class RoomTypeRepositoryTests {
                         .adults(2)
                         .children(2)
                         .pricePerHotelNight(BigDecimal.valueOf(200))
-                        .image("https://images.unsplash.com/photo-1578683010236-d716f9a3f461?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bHV4dXJ5JTIwYmVkcm9vbXxlbnwwfHwwfHw%3D&w=1000&q=80")
+                        .image(HexFormat.of().parseHex("e04fd020ea3a6910a2d808002b30309d"))
                         .equipment(Arrays.asList("2 queen size beds", "Coffee maker", "Mini fridge", "Bathtub", "Personalized Climate Control"))
                         .build()
         );
@@ -135,5 +136,14 @@ public class RoomTypeRepositoryTests {
         Optional<RoomType> roomTypeOptional = roomTypeRepository.findById(roomType.getId());
 
         Assertions.assertThat(roomTypeOptional).isEmpty();
+    }
+
+    @Test
+    public void RoomTypeRepository_FindImageById_ReturnsByteArray() {
+        RoomType savedRoomType = roomTypeRepository.save(roomType);
+
+        byte[] image = roomTypeRepository.findImageById(savedRoomType.getId());
+
+        Assertions.assertThat(image).isNotNull();
     }
 }

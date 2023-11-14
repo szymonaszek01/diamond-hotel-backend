@@ -18,4 +18,7 @@ public interface RoomTypeRepository extends JpaRepository<RoomType, Long> {
 
     @Query("SELECT DISTINCT r.equipment FROM RoomType r WHERE r.id = :id")
     List<String> findEquipmentById(long id);
+
+    @Query("SELECT DISTINCT r.image FROM RoomType r WHERE r.id = :id")
+    byte[] findImageById(long id);
 }

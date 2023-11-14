@@ -67,6 +67,7 @@ public class SecurityConfiguration {
                 .requestMatchers("/api/v1/room-type/all/names").permitAll()
                 .requestMatchers("/api/v1/room-type/id/{id}/equipment").permitAll()
                 .requestMatchers("/api/v1/room-type/id/{id}/image").permitAll()
+                .requestMatchers("/api/v1/room-type/image").permitAll()
                 .requestMatchers("/api/v1/reservation/create").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)
                 .requestMatchers("/api/v1/reservation/all").hasAuthority(ConstantUtil.ADMIN)
                 .requestMatchers("/api/v1/reservation/all/user-profile-id/{userProfileId}").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)

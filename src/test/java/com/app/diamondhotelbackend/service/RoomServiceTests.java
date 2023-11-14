@@ -1,6 +1,7 @@
 package com.app.diamondhotelbackend.service;
 
 import com.app.diamondhotelbackend.dto.room.model.RoomSelected;
+import com.app.diamondhotelbackend.dto.room.request.AddRoomRequestDto;
 import com.app.diamondhotelbackend.dto.room.response.RoomAvailableResponseDto;
 import com.app.diamondhotelbackend.dto.room.response.RoomSelectedCostResponseDto;
 import com.app.diamondhotelbackend.entity.Reservation;
@@ -59,6 +60,10 @@ public class RoomServiceTests {
 
     private RoomSelected roomSelected;
 
+    private AddRoomRequestDto addRoomRequestDto;
+
+    private Room room;
+
     @BeforeEach
     public void init() {
         roomType = RoomType.builder()
@@ -113,6 +118,28 @@ public class RoomServiceTests {
                 .roomTypeId(1)
                 .rooms(1)
                 .build();
+
+        addRoomRequestDto = AddRoomRequestDto.builder()
+                .number(123)
+                .floor(2)
+                .roomTypeId(3)
+                .build();
+
+        room = Room.builder()
+                .number(123)
+                .floor(2)
+                .roomType(RoomType.builder().name("Deluxe Suite").build())
+                .build();
+    }
+
+    @Test
+    public void RoomService_CreateRoom_ReturnsRoom() {
+        when(roomRepository.save((Mockito.any(Room.class)))).thenReturn(room);
+
+        Room savedRoom = roomService.createRoom(addRoomRequestDto);
+
+        Assertions.assertThat(savedRoom).isNotNull();
+        Assertions.assertThat(savedRoom.getNumber()).isEqualTo(123);
     }
 
     @Test

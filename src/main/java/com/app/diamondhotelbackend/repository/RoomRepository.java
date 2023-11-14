@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface RoomRepository extends JpaRepository<Room, Long> {
@@ -15,4 +16,6 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     List<Room> findAllByRoomTypePricePerHotelNightLessThanEqual(BigDecimal pricePerHotelNight);
 
     List<Room> findAllByRoomTypeIdInAndRoomTypePricePerHotelNightLessThanEqual(List<Long> roomTypeIdList, BigDecimal pricePerHotelNight);
+
+    Optional<Room> findByNumberAndFloor(int number, int floor);
 }

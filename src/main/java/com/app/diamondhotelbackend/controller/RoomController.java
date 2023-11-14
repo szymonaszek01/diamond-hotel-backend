@@ -1,7 +1,9 @@
 package com.app.diamondhotelbackend.controller;
 
+import com.app.diamondhotelbackend.dto.room.request.AddRoomRequestDto;
 import com.app.diamondhotelbackend.dto.room.response.RoomAvailableResponseDto;
 import com.app.diamondhotelbackend.dto.room.response.RoomSelectedCostResponseDto;
+import com.app.diamondhotelbackend.entity.Room;
 import com.app.diamondhotelbackend.exception.RoomProcessingException;
 import com.app.diamondhotelbackend.service.room.RoomServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,15 @@ import java.util.List;
 public class RoomController {
 
     private final RoomServiceImpl roomService;
+
+    @PostMapping("/create")
+    public ResponseEntity<Room> createRoom(@RequestBody AddRoomRequestDto addRoomRequestDto) {
+        try {
+            return ResponseEntity.ok(roomService.createRoom(addRoomRequestDto));
+        } catch (RoomProcessingException e) {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, e.getMessage());
+        }
+    }
 
     @GetMapping("/all/available")
     public ResponseEntity<RoomAvailableResponseDto> getRoomAvailabilityList(@RequestParam(value = "check-in") String checkIn,

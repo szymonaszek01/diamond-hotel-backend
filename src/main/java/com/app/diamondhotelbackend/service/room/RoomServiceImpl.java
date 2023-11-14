@@ -3,6 +3,7 @@ package com.app.diamondhotelbackend.service.room;
 import com.app.diamondhotelbackend.dto.room.model.RoomAvailability;
 import com.app.diamondhotelbackend.dto.room.model.RoomSelected;
 import com.app.diamondhotelbackend.dto.room.model.RoomSelectedCost;
+import com.app.diamondhotelbackend.dto.room.request.AddRoomRequestDto;
 import com.app.diamondhotelbackend.dto.room.response.RoomAvailableResponseDto;
 import com.app.diamondhotelbackend.dto.room.response.RoomSelectedCostResponseDto;
 import com.app.diamondhotelbackend.entity.Room;
@@ -34,6 +35,28 @@ public class RoomServiceImpl implements RoomService {
     private final RoomTypeServiceImpl roomTypeService;
 
     private final ReservedRoomServiceImpl reservedRoomService;
+
+    @Override
+    public Room createRoom(AddRoomRequestDto addRoomRequestDto) {
+        if (addRoomRequestDto == null || addRoomRequestDto.getNumber() == 0 || addRoomRequestDto.getFloor() == 0) {
+            throw new RoomProcessingException(ConstantUtil.INVALID_PARAMETERS_EXCEPTION);
+        }
+
+        Room room;
+        RoomType roomType = null;
+        try {
+            roomType = roomTypeService.getRoomTypeById(addRoomRequestDto.getRoomTypeId());
+            room = getRoomByNumberAndFloor(addRoomRequestDto.getNumber(), addRoomRequestDto.getFloor());
+            room.setRoomType(roomType);
+
+        } catch (RoomTypeProcessingException e) {
+            throw new RoomProcessingException(ConstantUtil.INVALID_PARAMETERS_EXCEPTION);
+        } catch (RoomProcessingException e) {
+            room = Room.builder().number(addRoomRequestDto.getNumber()).floor(addRoomRequestDto.getFloor()).roomType(roomType).build();
+        }
+
+        return roomRepository.save(room);
+    }
 
     @Override
     public RoomAvailableResponseDto getRoomAvailableList(String checkIn, String checkOut, int rooms, int adults, int children, List<Long> roomTypeIdList, double pricePerHotelNight) throws RoomProcessingException {
@@ -91,6 +114,11 @@ public class RoomServiceImpl implements RoomService {
                 .checkOut(checkOutAsDate.get())
                 .roomSelectedCost(roomSelectedCost)
                 .build();
+    }
+
+    @Override
+    public Room getRoomByNumberAndFloor(int number, int floor) {
+        return roomRepository.findByNumberAndFloor(number, floor).orElseThrow(() -> new RoomProcessingException(ConstantUtil.ROOM_NOT_FOUND));
     }
 
     private List<RoomAvailability> toRoomAvailableListMapper(List<Room> roomList) {

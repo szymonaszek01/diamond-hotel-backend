@@ -2,10 +2,14 @@ package com.app.diamondhotelbackend.controller;
 
 import com.app.diamondhotelbackend.dto.room.model.RoomAvailability;
 import com.app.diamondhotelbackend.dto.room.model.RoomSelectedCost;
+import com.app.diamondhotelbackend.dto.room.request.AddRoomRequestDto;
 import com.app.diamondhotelbackend.dto.room.response.RoomAvailableResponseDto;
 import com.app.diamondhotelbackend.dto.room.response.RoomSelectedCostResponseDto;
+import com.app.diamondhotelbackend.entity.Room;
+import com.app.diamondhotelbackend.entity.RoomType;
 import com.app.diamondhotelbackend.security.jwt.JwtFilter;
 import com.app.diamondhotelbackend.service.room.RoomServiceImpl;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,6 +29,7 @@ import java.sql.Date;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
@@ -33,32 +38,25 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @ExtendWith(MockitoExtension.class)
 public class RoomControllerTests {
 
+    private static final String url = "/api/v1/room";
     @MockBean
     private RoomServiceImpl roomService;
-
     @MockBean
     private JwtFilter jwtFilter;
-
     @Autowired
     private MockMvc mockMvc;
-
+    @Autowired
+    private ObjectMapper objectMapper;
     private RoomAvailableResponseDto roomAvailableResponseDto;
-
     private RoomSelectedCostResponseDto roomSelectedCostResponseDto;
-
     private String checkIn;
-
     private String checkOut;
-
     private String rooms;
-
     private String adults;
-
     private String children;
-
     private String roomTypeId;
-
-    private static final String url = "/api/v1/room";
+    private AddRoomRequestDto addRoomRequestDto;
+    private Room room;
 
     @BeforeEach
     public void init() {
@@ -103,6 +101,33 @@ public class RoomControllerTests {
                 .checkOut(Date.valueOf(checkOut))
                 .roomSelectedCost(roomSelectedCost)
                 .build();
+
+        addRoomRequestDto = AddRoomRequestDto.builder()
+                .number(123)
+                .floor(2)
+                .roomTypeId(3)
+                .build();
+
+        room = Room.builder()
+                .number(123)
+                .floor(2)
+                .roomType(RoomType.builder().name("Deluxe Suite").build())
+                .build();
+    }
+
+    @Test
+    public void RoomController_CreateRoom_ReturnsRoom() throws Exception {
+        when(roomService.createRoom(Mockito.any(AddRoomRequestDto.class))).thenReturn(room);
+
+        MockHttpServletRequestBuilder request = post(url + "/create")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(addRoomRequestDto));
+
+        mockMvc
+                .perform(request)
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.number").value(objectMapper.writeValueAsString(123)));
     }
 
     @Test

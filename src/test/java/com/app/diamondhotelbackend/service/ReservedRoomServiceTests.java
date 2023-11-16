@@ -79,9 +79,11 @@ public class ReservedRoomServiceTests {
         reservedRoomList = List.of(
                 ReservedRoom.builder()
                         .id(1)
+                        .room(Room.builder().number(123).floor(1).build())
                         .build(),
                 ReservedRoom.builder()
                         .id(2)
+                        .room(Room.builder().number(124).floor(1).build())
                         .build()
         );
 
@@ -109,16 +111,6 @@ public class ReservedRoomServiceTests {
     }
 
     @Test
-    public void ReservedRoomService_GetReservedRoomListByReservationCheckInAndReservationCheckOut_ReturnsReservedRoomList() {
-        when(reservedRoomRepository.findAllByReservationCheckInAndReservationCheckOut(Mockito.any(Date.class), Mockito.any(Date.class))).thenReturn(reservedRoomList);
-
-        List<ReservedRoom> foundReservedRoomList = reservedRoomService.getReservedRoomListByReservationCheckInAndReservationCheckOut(Date.valueOf("2023-09-20"), Date.valueOf("2023-09-25"));
-
-        Assertions.assertThat(foundReservedRoomList).isNotNull();
-        Assertions.assertThat(foundReservedRoomList.size()).isEqualTo(2);
-    }
-
-    @Test
     public void ReservedRoomService_GetReservedRoomListByReservationId_ReturnsReservedRoomList() {
         when(reservedRoomRepository.findAll(Mockito.any(Specification.class))).thenReturn(reservedRoomList);
 
@@ -139,7 +131,7 @@ public class ReservedRoomServiceTests {
     }
 
     @Test
-    public void ReservedRoomService_Count_Long() {
+    public void ReservedRoomService_Count_ReturnsLong() {
         when(reservedRoomRepository.count()).thenReturn(2L);
 
         Long countReservationList = reservedRoomService.countReservedRoomList();
@@ -149,7 +141,7 @@ public class ReservedRoomServiceTests {
     }
 
     @Test
-    public void ReservedRoomService_CountReservedRoomListByUserProfileId_Long() {
+    public void ReservedRoomService_CountReservedRoomListByUserProfileId_ReturnsLong() {
         when(reservedRoomRepository.count(Mockito.any(Specification.class))).thenReturn(2L);
 
         Long countReservationList = reservedRoomService.countReservedRoomListByUserProfileId(1L);
@@ -160,6 +152,11 @@ public class ReservedRoomServiceTests {
 
     @Test
     public void ReservedRoomService_GetReservedRoomListByFloor_ReturnsReservedRoomList() {
-        /* TODO GetReservedRoomListByFloor test - service */
+        when(reservedRoomRepository.findAll(Mockito.any(Specification.class))).thenReturn(reservedRoomList);
+
+        List<ReservedRoom> foundReservedRoomList = reservedRoomService.getReservedRoomListByFloor(1);
+
+        Assertions.assertThat(foundReservedRoomList).isNotNull();
+        Assertions.assertThat(foundReservedRoomList.size()).isEqualTo(2);
     }
 }

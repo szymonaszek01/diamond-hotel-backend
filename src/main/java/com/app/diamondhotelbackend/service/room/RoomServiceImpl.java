@@ -112,7 +112,7 @@ public class RoomServiceImpl implements RoomService {
 
         List<Sort.Order> orderList = List.of(new Sort.Order(Sort.Direction.ASC, "number"));
         Pageable pageable = PageRequest.of(page, size, Sort.by(orderList));
-        List<Room> roomList = roomRepository.findAllByFloor(floor, pageable);
+        List<Room> roomList = roomRepository.findAllByFloor(floor, pageable).getContent();
         List<ReservedRoom> reservedRoomList = reservedRoomService.getReservedRoomListByFloor(floor);
 
         List<RoomDetailsDto> roomDetailsDtoListWithoutReservations = roomList.stream()

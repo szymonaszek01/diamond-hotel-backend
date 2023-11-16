@@ -3,11 +3,9 @@ package com.app.diamondhotelbackend.service;
 import com.app.diamondhotelbackend.dto.room.model.RoomSelected;
 import com.app.diamondhotelbackend.dto.room.request.AddRoomRequestDto;
 import com.app.diamondhotelbackend.dto.room.response.RoomAvailableResponseDto;
+import com.app.diamondhotelbackend.dto.room.response.RoomDetailsDto;
 import com.app.diamondhotelbackend.dto.room.response.RoomSelectedCostResponseDto;
-import com.app.diamondhotelbackend.entity.Reservation;
-import com.app.diamondhotelbackend.entity.ReservedRoom;
-import com.app.diamondhotelbackend.entity.Room;
-import com.app.diamondhotelbackend.entity.RoomType;
+import com.app.diamondhotelbackend.entity.*;
 import com.app.diamondhotelbackend.repository.RoomRepository;
 import com.app.diamondhotelbackend.service.reservedroom.ReservedRoomServiceImpl;
 import com.app.diamondhotelbackend.service.room.RoomServiceImpl;
@@ -20,6 +18,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -89,10 +89,12 @@ public class RoomServiceTests {
                 Reservation.builder()
                         .checkIn(Date.valueOf("2024-09-20"))
                         .checkOut(Date.valueOf("2024-09-25"))
+                        .userProfile(UserProfile.builder().id(1).email("szymon-jakubaszek@wp.pl").build())
                         .build(),
                 Reservation.builder()
                         .checkIn(Date.valueOf("2024-12-20"))
                         .checkOut(Date.valueOf("2024-12-25"))
+                        .userProfile(UserProfile.builder().id(1).email("szymon-jakubaszek@wp.pl").build())
                         .build()
         );
 
@@ -217,11 +219,22 @@ public class RoomServiceTests {
 
     @Test
     public void RoomService_GetRoomFloorList_ReturnsIntegerList() {
-        /* TODO GetRoomFloorList test - service */
+        when(roomRepository.findAllFloors()).thenReturn(List.of(3, 2, 1));
+
+        List<Integer> foundFloorList = roomService.getRoomFloorList();
+
+        Assertions.assertThat(foundFloorList).isNotNull();
+        Assertions.assertThat(foundFloorList.size()).isEqualTo(3);
     }
 
     @Test
     public void RoomService_GetRoomDetailsListByFloor_ReturnsRoomDetailsDtoList() {
-        /* TODO GetRoomDetailsListByFloor test - service */
+        when(roomRepository.findAllByFloor(Mockito.any(int.class), Mockito.any(PageRequest.class))).thenReturn(new PageImpl<>(roomList));
+        when(reservedRoomService.getReservedRoomListByFloor(Mockito.any(int.class))).thenReturn(reservedRoomList);
+
+        List<RoomDetailsDto> foundRoomDetailsDtoList = roomService.getRoomDetailsListByFloor(1, 0, 10);
+
+        Assertions.assertThat(foundRoomDetailsDtoList).isNotNull();
+        Assertions.assertThat(foundRoomDetailsDtoList.size()).isEqualTo(2);
     }
 }

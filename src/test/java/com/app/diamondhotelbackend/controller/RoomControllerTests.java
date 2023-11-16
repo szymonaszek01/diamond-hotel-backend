@@ -4,6 +4,7 @@ import com.app.diamondhotelbackend.dto.room.model.RoomAvailability;
 import com.app.diamondhotelbackend.dto.room.model.RoomSelectedCost;
 import com.app.diamondhotelbackend.dto.room.request.AddRoomRequestDto;
 import com.app.diamondhotelbackend.dto.room.response.RoomAvailableResponseDto;
+import com.app.diamondhotelbackend.dto.room.response.RoomDetailsDto;
 import com.app.diamondhotelbackend.dto.room.response.RoomSelectedCostResponseDto;
 import com.app.diamondhotelbackend.entity.Room;
 import com.app.diamondhotelbackend.entity.RoomType;
@@ -29,8 +30,8 @@ import java.sql.Date;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @WebMvcTest(controllers = RoomController.class)
@@ -167,11 +168,32 @@ public class RoomControllerTests {
 
     @Test
     public void RoomController_GetRoomFloorList_ReturnsIntegerList() throws Exception {
-        /* TODO GetRoomFloorList test - controller */
+        when(roomService.getRoomFloorList()).thenReturn(List.of(3, 2, 1));
+
+        MockHttpServletRequestBuilder request = get(url + "/all/floors")
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc
+                .perform(request)
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.size()").value(3));
     }
 
     @Test
     public void RoomController_GetRoomDetailsListByFloor_ReturnsRoomDetailsDtoList() throws Exception {
-        /* TODO GetRoomDetailsListByFloor test - controller */
+        List<RoomDetailsDto> roomDetailsDtoList = List.of(RoomDetailsDto.builder().build(), RoomDetailsDto.builder().build());
+        when(roomService.getRoomDetailsListByFloor(Mockito.any(int.class), Mockito.any(int.class), Mockito.any(int.class))).thenReturn(roomDetailsDtoList);
+
+        MockHttpServletRequestBuilder request = get(url + "/all/floor/" + 1 + "/details")
+                .contentType(MediaType.APPLICATION_JSON)
+                .queryParam("page", "0")
+                .queryParam("size", "2");
+
+        mockMvc
+                .perform(request)
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.size()").value(2));
     }
 }

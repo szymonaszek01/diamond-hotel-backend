@@ -1,6 +1,7 @@
 package com.app.diamondhotelbackend.repository;
 
 import com.app.diamondhotelbackend.entity.Room;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -24,5 +25,5 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
     @Query("SELECT DISTINCT r.floor FROM Room r")
     List<Integer> findAllFloors();
 
-    List<Room> findAllByFloor(int floor, Pageable pageable);
+    Page<Room> findAllByFloor(int floor, Pageable pageable);
 }

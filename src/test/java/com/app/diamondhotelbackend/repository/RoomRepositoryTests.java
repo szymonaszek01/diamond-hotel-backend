@@ -8,6 +8,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
@@ -137,12 +141,19 @@ public class RoomRepositoryTests {
 
     @Test
     public void RoomRepository_FindAllFloors_ReturnsIntegerList() {
-        /* TODO FindAllFloors test - repository */
+        roomRepository.saveAll(roomList);
+        List<Integer> foundFloorList = roomRepository.findAllFloors();
+
+        Assertions.assertThat(foundFloorList).isNotNull();
+        Assertions.assertThat(foundFloorList.size()).isEqualTo(2);
     }
 
     @Test
-    public void RoomRepository_FindAllByFloor_ReturnsRoomList() {
-        /* TODO FindAllByFloor test - repository */
+    public void RoomRepository_FindAllByFloor_ReturnsRoomPage() {
+        roomRepository.saveAll(roomList);
+        Page<Room> foundedRoomPage = roomRepository.findAllByFloor(1, PageRequest.of(1, 10));
+
+        Assertions.assertThat(foundedRoomPage).isNotNull();
     }
 
     @Test

@@ -214,4 +214,14 @@ public class RoomServiceTests {
         Assertions.assertThat(foundSelectedCostResponseDto).isNotNull();
         Assertions.assertThat(foundSelectedCostResponseDto.getRoomSelectedCost().getCost()).isEqualTo(BigDecimal.valueOf(500));
     }
+
+    @Test
+    public void RoomService_GetRoomFloorList_ReturnsIntegerList() {
+        /* TODO GetRoomFloorList test - service */
+    }
+
+    @Test
+    public void RoomService_GetRoomDetailsListByFloor_ReturnsRoomDetailsDtoList() {
+        /* TODO GetRoomDetailsListByFloor test - service */
+    }
 }

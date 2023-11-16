@@ -60,6 +60,8 @@ public class SecurityConfiguration {
                 .requestMatchers("/api/v1/room/create").hasAnyAuthority(ConstantUtil.ADMIN)
                 .requestMatchers("/api/v1/room/all/available").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)
                 .requestMatchers("/api/v1/room/all/selected/cost").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)
+                .requestMatchers("/api/v1/room/all/floors").hasAnyAuthority(ConstantUtil.ADMIN)
+                .requestMatchers("/api/v1/room/all/floor/{floor}/details").hasAnyAuthority(ConstantUtil.ADMIN)
                 .requestMatchers("/api/v1/room-type/create").hasAnyAuthority(ConstantUtil.ADMIN)
                 .requestMatchers("/api/v1/room-type/id/{id}").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)
                 .requestMatchers("/api/v1/room-type/name/{name}").hasAnyAuthority(ConstantUtil.USER, ConstantUtil.ADMIN)

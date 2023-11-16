@@ -136,6 +136,16 @@ public class RoomRepositoryTests {
     }
 
     @Test
+    public void RoomRepository_FindAllFloors_ReturnsIntegerList() {
+        /* TODO FindAllFloors test - repository */
+    }
+
+    @Test
+    public void RoomRepository_FindAllByFloor_ReturnsRoomList() {
+        /* TODO FindAllByFloor test - repository */
+    }
+
+    @Test
     public void RoomRepository_FindById_ReturnsOptionalRoom() {
         Room savedRoom = roomRepository.save(room);
         Optional<Room> roomOptional = roomRepository.findById((room.getId()));

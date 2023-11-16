@@ -164,4 +164,14 @@ public class RoomControllerTests {
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
+
+    @Test
+    public void RoomController_GetRoomFloorList_ReturnsIntegerList() throws Exception {
+        /* TODO GetRoomFloorList test - controller */
+    }
+
+    @Test
+    public void RoomController_GetRoomDetailsListByFloor_ReturnsRoomDetailsDtoList() throws Exception {
+        /* TODO GetRoomDetailsListByFloor test - controller */
+    }
 }

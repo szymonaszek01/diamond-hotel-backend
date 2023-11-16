@@ -27,6 +27,16 @@ public class ReservedRoomSpecification {
         };
     }
 
+    public static Specification<ReservedRoom> reservationCheckInReservationCheckOutIncludes(Date min, Date max) {
+        return (root, query, criteriaBuilder) -> {
+            Join<Reservation, ReservedRoom> reservationReservedRoomJoin = root.join("reservation", JoinType.INNER);
+            Predicate checkInPredicate = criteriaBuilder.lessThanOrEqualTo(reservationReservedRoomJoin.get("checkIn"),  min);
+            Predicate checkOutPredicate = criteriaBuilder.greaterThanOrEqualTo(reservationReservedRoomJoin.get("checkOut"), max);
+            List<Predicate> predicateList = List.of(checkInPredicate, checkOutPredicate);
+            return criteriaBuilder.and(predicateList.toArray(Predicate[]::new));
+        };
+    }
+
     public static Specification<ReservedRoom> userProfileIdEqual(long userProfileId) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.join("reservation", JoinType.INNER).join("userProfile", JoinType.INNER).get("id"), userProfileId);
     }
@@ -53,5 +63,9 @@ public class ReservedRoomSpecification {
 
     public static Specification<ReservedRoom> roomTypeNameEqual(String roomTypeName) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.join("room", JoinType.INNER).join("roomType", JoinType.INNER).get("name"), roomTypeName);
+    }
+
+    public static Specification<ReservedRoom> roomFloorEqual(int roomFloor) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.join("room", JoinType.INNER).get("floor"), roomFloor);
     }
 }

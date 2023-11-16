@@ -22,6 +22,8 @@ public interface ReservedRoomService {
 
     List<ReservedRoom> getReservedRoomListByUserProfileId(long userProfileId, int page, int size, JSONObject filters, JSONArray sort);
 
+    List<ReservedRoom> getReservedRoomListByFloor(int floor);
+
     Long countReservedRoomList();
 
     Long countReservedRoomListByUserProfileId(long userProfileId) throws UserProfileProcessingException;

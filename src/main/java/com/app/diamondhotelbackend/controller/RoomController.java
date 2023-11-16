@@ -2,6 +2,7 @@ package com.app.diamondhotelbackend.controller;
 
 import com.app.diamondhotelbackend.dto.room.request.AddRoomRequestDto;
 import com.app.diamondhotelbackend.dto.room.response.RoomAvailableResponseDto;
+import com.app.diamondhotelbackend.dto.room.response.RoomDetailsDto;
 import com.app.diamondhotelbackend.dto.room.response.RoomSelectedCostResponseDto;
 import com.app.diamondhotelbackend.entity.Room;
 import com.app.diamondhotelbackend.exception.RoomProcessingException;
@@ -53,6 +54,27 @@ public class RoomController {
                                                                            @RequestParam(value = "room-type-id") long roomTypeId) {
         try {
             return ResponseEntity.ok(roomService.getRoomSelectedCost(checkIn, checkOut, roomTypeId, rooms));
+        } catch (RoomProcessingException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    @GetMapping("/all/floors")
+    public ResponseEntity<List<Integer>> getRoomFloorList() {
+        try {
+            return ResponseEntity.ok(roomService.getRoomFloorList());
+        } catch (RoomProcessingException e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+        }
+    }
+
+    @GetMapping("/all/floor/{floor}/details")
+    public ResponseEntity<List<RoomDetailsDto>> getRoomDetailsListByFloor(@PathVariable int floor,
+                                                                          @RequestParam(value = "page") int page,
+                                                                          @RequestParam(value = "size") int size
+    ) {
+        try {
+            return ResponseEntity.ok(roomService.getRoomDetailsListByFloor(floor, page, size));
         } catch (RoomProcessingException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }

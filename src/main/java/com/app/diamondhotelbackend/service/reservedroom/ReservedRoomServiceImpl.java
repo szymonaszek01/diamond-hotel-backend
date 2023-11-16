@@ -30,6 +30,7 @@ import static com.app.diamondhotelbackend.specification.ReservedRoomSpecificatio
 @Slf4j
 public class ReservedRoomServiceImpl implements ReservedRoomService {
 
+    private static final long DAY_IN_MILLIS = 24 * 60 * 60 * 1000;
     private final ReservedRoomRepository reservedRoomRepository;
 
     @Override
@@ -70,6 +71,17 @@ public class ReservedRoomServiceImpl implements ReservedRoomService {
         }
 
         return prepareReservedRoomList(userProfileId, page, size, filters, sort);
+    }
+
+    @Override
+    public List<ReservedRoom> getReservedRoomListByFloor(int floor) {
+        long currentDate = new Date(System.currentTimeMillis()).getTime();
+        Date min = new Date(currentDate - currentDate % (DAY_IN_MILLIS));
+        Date max = new Date(min.getTime() + (DAY_IN_MILLIS));
+        Specification<ReservedRoom> reservedRoomSpecification = Specification.where(roomFloorEqual(floor))
+                .and(reservationCheckInReservationCheckOutIncludes(min, max));
+
+        return reservedRoomRepository.findAll(reservedRoomSpecification);
     }
 
     @Override

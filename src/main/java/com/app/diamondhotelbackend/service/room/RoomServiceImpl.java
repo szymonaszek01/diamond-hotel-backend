@@ -5,7 +5,9 @@ import com.app.diamondhotelbackend.dto.room.model.RoomSelected;
 import com.app.diamondhotelbackend.dto.room.model.RoomSelectedCost;
 import com.app.diamondhotelbackend.dto.room.request.AddRoomRequestDto;
 import com.app.diamondhotelbackend.dto.room.response.RoomAvailableResponseDto;
+import com.app.diamondhotelbackend.dto.room.response.RoomDetailsDto;
 import com.app.diamondhotelbackend.dto.room.response.RoomSelectedCostResponseDto;
+import com.app.diamondhotelbackend.entity.ReservedRoom;
 import com.app.diamondhotelbackend.entity.Room;
 import com.app.diamondhotelbackend.entity.RoomType;
 import com.app.diamondhotelbackend.exception.RoomProcessingException;
@@ -17,10 +19,15 @@ import com.app.diamondhotelbackend.util.ConstantUtil;
 import com.app.diamondhotelbackend.util.DateUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -93,6 +100,35 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    public List<Integer> getRoomFloorList() {
+        return roomRepository.findAllFloors();
+    }
+
+    @Override
+    public List<RoomDetailsDto> getRoomDetailsListByFloor(int floor, int page, int size) {
+        if (floor < 1 || page < 0 || size < 1) {
+            return Collections.emptyList();
+        }
+
+        List<Sort.Order> orderList = List.of(new Sort.Order(Sort.Direction.ASC, "number"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(orderList));
+        List<Room> roomList = roomRepository.findAllByFloor(floor, pageable);
+        List<ReservedRoom> reservedRoomList = reservedRoomService.getReservedRoomListByFloor(floor);
+
+        List<RoomDetailsDto> roomDetailsDtoListWithoutReservations = roomList.stream()
+                .map(this::toRoomDetailsDtoMapper)
+                .toList();
+
+        List<RoomDetailsDto> roomDetailsDtoListWithReservations = reservedRoomList.stream()
+                .map(this::toRoomDetailsDtoMapper)
+                .toList();
+
+        return roomDetailsDtoListWithoutReservations.stream()
+                .map(roomDetailsDto -> getRoomDetailsDtoByNumber(roomDetailsDto.getNumber(), roomDetailsDtoListWithReservations).orElse(roomDetailsDto))
+                .toList();
+    }
+
+    @Override
     public RoomSelectedCostResponseDto getRoomSelectedCost(String checkIn, String checkOut, long roomTypeId, int rooms) throws RoomTypeProcessingException {
         Optional<Date> checkInAsDate = DateUtil.parseDate(checkIn);
         Optional<Date> checkOutAsDate = DateUtil.parseDate(checkOut);
@@ -119,6 +155,39 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public Room getRoomByNumberAndFloor(int number, int floor) {
         return roomRepository.findByNumberAndFloor(number, floor).orElseThrow(() -> new RoomProcessingException(ConstantUtil.ROOM_NOT_FOUND));
+    }
+
+    private Optional<RoomDetailsDto> getRoomDetailsDtoByNumber(int number, List<RoomDetailsDto> roomDetailsDtoList) {
+        return roomDetailsDtoList.stream().filter(roomDetailsDto -> roomDetailsDto.getNumber() == number).findAny();
+    }
+
+    private RoomDetailsDto toRoomDetailsDtoMapper(Room room) {
+        return RoomDetailsDto.builder()
+                .number(room.getNumber())
+                .floor(room.getFloor())
+                .roomTypeName(room.getRoomType().getName())
+                .roomTypeShortcut(toRoomTypeNameShortcutMapper(room.getRoomType().getName()))
+                .build();
+    }
+
+    private RoomDetailsDto toRoomDetailsDtoMapper(ReservedRoom reservedRoom) {
+        return RoomDetailsDto.builder()
+                .number(reservedRoom.getRoom().getNumber())
+                .floor(reservedRoom.getRoom().getFloor())
+                .roomTypeName(reservedRoom.getRoom().getRoomType().getName())
+                .roomTypeShortcut(toRoomTypeNameShortcutMapper(reservedRoom.getRoom().getRoomType().getName()))
+                .occupied(reservedRoom.getOccupied() == 1)
+                .reservationId(reservedRoom.getReservation().getId())
+                .checkIn(reservedRoom.getReservation().getCheckIn().toString())
+                .checkOut(reservedRoom.getReservation().getCheckOut().toString())
+                .email(reservedRoom.getReservation().getUserProfile().getEmail())
+                .build();
+    }
+
+    private String toRoomTypeNameShortcutMapper(String roomTypeName) {
+        return Arrays.stream(roomTypeName.split(" "))
+                .map(word -> word.toUpperCase().substring(0, 1))
+                .collect(Collectors.joining());
     }
 
     private List<RoomAvailability> toRoomAvailableListMapper(List<Room> roomList) {

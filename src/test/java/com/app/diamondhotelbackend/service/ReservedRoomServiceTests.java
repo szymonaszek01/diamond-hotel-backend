@@ -157,4 +157,9 @@ public class ReservedRoomServiceTests {
         Assertions.assertThat(countReservationList).isNotNull();
         Assertions.assertThat(countReservationList).isEqualTo(2L);
     }
+
+    @Test
+    public void ReservedRoomService_GetReservedRoomListByFloor_ReturnsReservedRoomList() {
+        /* TODO GetReservedRoomListByFloor test - service */
+    }
 }

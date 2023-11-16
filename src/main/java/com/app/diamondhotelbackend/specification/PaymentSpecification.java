@@ -13,7 +13,7 @@ import java.util.List;
 
 public class PaymentSpecification {
 
-    public static Specification<Payment> reservationCheckInReservationCheckOutBetween(Date min, Date max) {
+    public static Specification<Payment> reservationCheckInAndReservationCheckOutBetween(Date min, Date max) {
         return (root, query, criteriaBuilder) -> {
             Join<Reservation, Payment> reservationPaymentJoin = root.join("reservation", JoinType.INNER);
             Predicate checkInPredicate = criteriaBuilder.between(reservationPaymentJoin.get("checkIn"), min, max);

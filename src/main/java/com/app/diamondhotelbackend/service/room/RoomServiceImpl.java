@@ -74,7 +74,7 @@ public class RoomServiceImpl implements RoomService {
             throw new RoomProcessingException(ConstantUtil.INVALID_PARAMETERS_EXCEPTION);
         }
 
-        List<Room> roomList = filterRoomList(checkInAsDate.get(), checkOutAsDate.get(), roomTypeIdList, pricePerHotelNight);
+        List<Room> roomList = getNotReservedRoomList(checkInAsDate.get(), checkOutAsDate.get(), roomTypeIdList, pricePerHotelNight);
         List<RoomAvailability> roomAvailableList = toRoomAvailableListMapper(roomList);
         if (!isRoomAvailableListValid(roomAvailableList, rooms, adults, children)) {
             throw new RoomProcessingException(ConstantUtil.AVAILABLE_ROOM_NOT_FOUND_EXCEPTION);
@@ -89,7 +89,7 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public List<Room> getRoomAvailableList(Date checkIn, Date checkOut, RoomSelected roomSelected) throws RoomProcessingException {
-        List<Room> roomList = filterRoomList(checkIn, checkOut, List.of(roomSelected.getRoomTypeId()), 0);
+        List<Room> roomList = getNotReservedRoomList(checkIn, checkOut, List.of(roomSelected.getRoomTypeId()), 0);
         if (roomList.size() < roomSelected.getRooms()) {
             throw new RoomProcessingException(ConstantUtil.NOT_ENOUGH_AVAILABLE_ROOMS);
         }
@@ -196,8 +196,7 @@ public class RoomServiceImpl implements RoomService {
                 .toList();
     }
 
-    private RoomAvailability getRoomAvailable
-            (List<Room> roomList, long roomTypeId) {
+    private RoomAvailability getRoomAvailable(List<Room> roomList, long roomTypeId) {
         return RoomAvailability.builder()
                 .roomTypeId(roomTypeId)
                 .availability(roomList.stream()
@@ -207,9 +206,14 @@ public class RoomServiceImpl implements RoomService {
                 ).build();
     }
 
-    private List<Room> filterRoomList(Date checkIn, Date checkOut, List<Long> roomTypeIdList, double pricePerHotelNight) {
+    private List<Room> getNotReservedRoomList(Date checkIn, Date checkOut, List<Long> roomTypeIdList, double pricePerHotelNight) {
+        List<Room> reservedRoomList = reservedRoomService.getReservedRoomListByReservationCheckInAndReservationCheckOut(checkIn, checkOut)
+                .stream()
+                .map(ReservedRoom::getRoom)
+                .toList();
+
         return getRoomList(roomTypeIdList, pricePerHotelNight).stream()
-                .filter(room -> !isRoomReserved(room.getId(), checkIn, checkOut))
+                .filter(room -> reservedRoomList.stream().noneMatch(reservedRoom -> reservedRoom.getId() == room.getId()))
                 .toList();
     }
 
@@ -250,10 +254,5 @@ public class RoomServiceImpl implements RoomService {
         } catch (RoomTypeProcessingException e) {
             return false;
         }
-    }
-
-    private boolean isRoomReserved(long roomId, Date checkIn, Date checkOut) {
-        return reservedRoomService.getReservedRoomListByReservationCheckInAndReservationCheckOut(checkIn, checkOut).stream()
-                .anyMatch(reservedRoom -> reservedRoom.getRoom().getId() == roomId);
     }
 }

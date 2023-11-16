@@ -6,6 +6,7 @@ import com.app.diamondhotelbackend.entity.ReservedRoom;
 import com.app.diamondhotelbackend.entity.Room;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.repository.ReservedRoomRepository;
+import com.app.diamondhotelbackend.util.ConstantUtil;
 import com.app.diamondhotelbackend.util.DateUtil;
 import com.app.diamondhotelbackend.util.UrlUtil;
 import lombok.AllArgsConstructor;
@@ -54,7 +55,9 @@ public class ReservedRoomServiceImpl implements ReservedRoomService {
 
     @Override
     public List<ReservedRoom> getReservedRoomListByReservationCheckInAndReservationCheckOut(Date checkIn, Date checkOut) {
-        return reservedRoomRepository.findAllByReservationCheckInAndReservationCheckOut(checkIn, checkOut);
+        Specification<ReservedRoom> reservedRoomSpecification = Specification.where(paymentStatusNotEqual(ConstantUtil.CANCELLED))
+                .and(Specification.where(reservationCheckInOrReservationCheckOutBetween(checkIn, checkOut)).or(reservationCheckInAndReservationCheckOutIncludes(checkIn, checkOut)));
+        return reservedRoomRepository.findAll(reservedRoomSpecification);
     }
 
     @Override
@@ -79,7 +82,7 @@ public class ReservedRoomServiceImpl implements ReservedRoomService {
         Date min = new Date(currentDate - currentDate % (DAY_IN_MILLIS));
         Date max = new Date(min.getTime() + (DAY_IN_MILLIS));
         Specification<ReservedRoom> reservedRoomSpecification = Specification.where(roomFloorEqual(floor))
-                .and(reservationCheckInReservationCheckOutIncludes(min, max));
+                .and(reservationCheckInAndReservationCheckOutIncludes(min, max));
 
         return reservedRoomRepository.findAll(reservedRoomSpecification);
     }
@@ -99,7 +102,7 @@ public class ReservedRoomServiceImpl implements ReservedRoomService {
     private List<ReservedRoom> prepareReservedRoomList(long userProfileId, int page, int size, JSONObject filters, JSONArray sort) {
         ReservationPaymentReservedRoomTableFilter tableFilters = new ReservationPaymentReservedRoomTableFilter(filters);
         Specification<ReservedRoom> reservedRoomSpecification = Specification.where(userProfileId == 0 ? null : userProfileIdEqual(userProfileId))
-                .and(tableFilters.getMinDate() == null || tableFilters.getMaxDate() == null ? null : reservationCheckInReservationCheckOutBetween(tableFilters.getMinDate(), tableFilters.getMaxDate()))
+                .and(tableFilters.getMinDate() == null || tableFilters.getMaxDate() == null ? null : reservationCheckInAndReservationCheckOutBetween(tableFilters.getMinDate(), tableFilters.getMaxDate()))
                 .and(tableFilters.getUserProfileEmail().isEmpty() ? null : userProfileEmailEqual(tableFilters.getUserProfileEmail()))
                 .and(tableFilters.getFlightNumber().isEmpty() ? null : flightNumberEqual(tableFilters.getFlightNumber()))
                 .and(tableFilters.getPaymentStatus().isEmpty() ? null : paymentStatusEqual(tableFilters.getPaymentStatus()))

@@ -11,7 +11,7 @@ import java.util.List;
 
 public class ReservationSpecification {
 
-    public static Specification<Reservation> reservationCheckInReservationCheckOutBetween(Date min, Date max) {
+    public static Specification<Reservation> reservationCheckInAndReservationCheckOutBetween(Date min, Date max) {
         return (root, query, criteriaBuilder) -> {
             Predicate checkInPredicate = criteriaBuilder.between(root.get("checkIn"), min, max);
             Predicate checkOutPredicate = criteriaBuilder.between(root.get("checkOut"), min, max);

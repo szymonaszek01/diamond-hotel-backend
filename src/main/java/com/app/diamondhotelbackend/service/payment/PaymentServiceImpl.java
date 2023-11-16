@@ -131,7 +131,7 @@ public class PaymentServiceImpl implements PaymentService {
     private List<Payment> preparePaymentList(long userProfileId, int page, int size, JSONObject filters, JSONArray sort) {
         ReservationPaymentReservedRoomTableFilter tableFilters = new ReservationPaymentReservedRoomTableFilter(filters);
         Specification<Payment> paymentSpecification = Specification.where(userProfileId == 0 ? null : userProfileIdEqual(userProfileId))
-                .and(tableFilters.getMinDate() == null || tableFilters.getMaxDate() == null ? null : reservationCheckInReservationCheckOutBetween(tableFilters.getMinDate(), tableFilters.getMaxDate()))
+                .and(tableFilters.getMinDate() == null || tableFilters.getMaxDate() == null ? null : reservationCheckInAndReservationCheckOutBetween(tableFilters.getMinDate(), tableFilters.getMaxDate()))
                 .and(tableFilters.getUserProfileEmail().isEmpty() ? null : userProfileEmailEqual(tableFilters.getUserProfileEmail()))
                 .and(tableFilters.getFlightNumber().isEmpty() ? null : flightNumberEqual(tableFilters.getFlightNumber()))
                 .and(tableFilters.getPaymentStatus().isEmpty() ? null : paymentStatusEqual(tableFilters.getPaymentStatus()))

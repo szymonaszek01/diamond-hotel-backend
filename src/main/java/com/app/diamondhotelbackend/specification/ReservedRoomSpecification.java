@@ -17,24 +17,12 @@ public class ReservedRoomSpecification {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.join("reservation", JoinType.INNER).get("id"), reservationId);
     }
 
-    public static Specification<ReservedRoom> reservationCheckInAndReservationCheckOutBetween(Date min, Date max) {
-        return (root, query, criteriaBuilder) -> {
-            Join<Reservation, ReservedRoom> reservationReservedRoomJoin = root.join("reservation", JoinType.INNER);
-            Predicate checkInPredicate = criteriaBuilder.between(reservationReservedRoomJoin.get("checkIn"), min, max);
-            Predicate checkOutPredicate = criteriaBuilder.between(reservationReservedRoomJoin.get("checkOut"), min, max);
-            List<Predicate> predicateList = List.of(checkInPredicate, checkOutPredicate);
-            return criteriaBuilder.and(predicateList.toArray(Predicate[]::new));
-        };
+    public static Specification<ReservedRoom> reservationCheckInBetween(Date min, Date max) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.join("reservation", JoinType.INNER).get("checkIn"), min, max);
     }
 
-    public static Specification<ReservedRoom> reservationCheckInOrReservationCheckOutBetween(Date min, Date max) {
-        return (root, query, criteriaBuilder) -> {
-            Join<Reservation, ReservedRoom> reservationReservedRoomJoin = root.join("reservation", JoinType.INNER);
-            Predicate checkInPredicate = criteriaBuilder.between(reservationReservedRoomJoin.get("checkIn"), min, max);
-            Predicate checkOutPredicate = criteriaBuilder.between(reservationReservedRoomJoin.get("checkOut"), min, max);
-            List<Predicate> predicateList = List.of(checkInPredicate, checkOutPredicate);
-            return criteriaBuilder.or(predicateList.toArray(Predicate[]::new));
-        };
+    public static Specification<ReservedRoom> reservationCheckOutBetween(Date min, Date max) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.join("reservation", JoinType.INNER).get("checkOut"), min, max);
     }
 
     public static Specification<ReservedRoom> reservationCheckInAndReservationCheckOutIncludes(Date min, Date max) {

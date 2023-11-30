@@ -16,6 +16,8 @@ public interface ReservedRoomService {
 
     List<ReservedRoom> getReservedRoomList(int page, int size, JSONObject filters, JSONArray sort);
 
+    List<ReservedRoom> getReservedRoomList(Date min, Date max);
+
     List<ReservedRoom> getReservedRoomListByReservationCheckInAndReservationCheckOut(Date checkIn, Date checkOut);
 
     List<ReservedRoom> getReservedRoomListByReservationId(long reservationId);

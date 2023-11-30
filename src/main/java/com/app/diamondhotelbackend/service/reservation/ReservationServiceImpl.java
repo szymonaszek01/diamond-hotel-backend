@@ -100,6 +100,29 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
+    public List<Integer> getReservationCheckInAndCheckOutYearList() {
+        List<Integer> yearList = new ArrayList<>(reservationRepository.findAllCheckInYears());
+        yearList.addAll(reservationRepository.findAllCheckOutYears());
+
+        return yearList.stream()
+                .distinct()
+                .toList();
+    }
+
+    @Override
+    public List<Reservation> getReservationList(Date min, Date max) {
+        if (min == null || max == null) {
+            return new ArrayList<>();
+        }
+
+        Specification<Reservation> reservationSpecification = Specification.where(paymentStatusNotEqual(ConstantUtil.CANCELLED))
+                .and(reservationCheckInBetween(min, max).or(reservationCheckOutBetween(min, max)));
+        Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
+
+        return reservationRepository.findAll(reservationSpecification, pageable).getContent();
+    }
+
+    @Override
     public List<Reservation> getReservationListByUserProfileId(long userProfileId, int page, int size, JSONObject filters, JSONArray sort) {
         if (userProfileId < 1 || page < 0 || size < 1) {
             return Collections.emptyList();
@@ -242,7 +265,8 @@ public class ReservationServiceImpl implements ReservationService {
     private List<Reservation> prepareReservationList(long userProfileId, int page, int size, JSONObject filters, JSONArray sort) {
         ReservationPaymentReservedRoomTableFilter tableFilters = new ReservationPaymentReservedRoomTableFilter(filters);
         Specification<Reservation> reservationSpecification = Specification.where(userProfileId == 0 ? null : userProfileIdEqual(userProfileId))
-                .and(tableFilters.getMinDate() == null || tableFilters.getMaxDate() == null ? null : reservationCheckInAndReservationCheckOutBetween(tableFilters.getMinDate(), tableFilters.getMaxDate()))
+                .and(tableFilters.getMinDate() == null ? null : reservationCheckInBetween(tableFilters.getMinDate(), tableFilters.getMaxDate()))
+                .and(tableFilters.getMaxDate() == null ? null : reservationCheckOutBetween(tableFilters.getMinDate(), tableFilters.getMaxDate()))
                 .and(tableFilters.getUserProfileEmail().isEmpty() ? null : userProfileEmailEqual(tableFilters.getUserProfileEmail()))
                 .and(tableFilters.getFlightNumber().isEmpty() ? null : flightNumberEqual(tableFilters.getFlightNumber()))
                 .and(tableFilters.getPaymentStatus().isEmpty() ? null : paymentStatusEqual(tableFilters.getPaymentStatus()))

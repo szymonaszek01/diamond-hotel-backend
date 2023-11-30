@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.sql.Date;
 import java.util.List;
 
 public interface ReservationService {
@@ -19,7 +20,11 @@ public interface ReservationService {
 
     List<Reservation> getReservationList(int page, int size, JSONObject filters, JSONArray sort);
 
+    List<Reservation> getReservationList(Date min, Date max);
+
     List<Reservation> getReservationListByUserProfileId(long userProfileId, int page, int size, JSONObject filters, JSONArray sort);
+
+    List<Integer> getReservationCheckInAndCheckOutYearList();
 
     Reservation getReservationById(long id) throws ReservationProcessingException;
 

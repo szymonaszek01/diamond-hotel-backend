@@ -2,22 +2,19 @@ package com.app.diamondhotelbackend.specification;
 
 import com.app.diamondhotelbackend.entity.Reservation;
 import jakarta.persistence.criteria.JoinType;
-import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
 import java.sql.Date;
-import java.util.List;
 
 public class ReservationSpecification {
 
-    public static Specification<Reservation> reservationCheckInAndReservationCheckOutBetween(Date min, Date max) {
-        return (root, query, criteriaBuilder) -> {
-            Predicate checkInPredicate = criteriaBuilder.between(root.get("checkIn"), min, max);
-            Predicate checkOutPredicate = criteriaBuilder.between(root.get("checkOut"), min, max);
-            List<Predicate> predicateList = List.of(checkInPredicate, checkOutPredicate);
-            return criteriaBuilder.and(predicateList.toArray(Predicate[]::new));
-        };
+    public static Specification<Reservation> reservationCheckInBetween(Date min, Date max) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.get("checkIn"), min, max);
+    }
+
+    public static Specification<Reservation> reservationCheckOutBetween(Date min, Date max) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.get("checkOut"), min, max);
     }
 
     public static Specification<Reservation> userProfileIdEqual(long userProfileId) {
@@ -34,6 +31,10 @@ public class ReservationSpecification {
 
     public static Specification<Reservation> paymentStatusEqual(String paymentStatus) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.join("payment", JoinType.INNER).get("status"), paymentStatus);
+    }
+
+    public static Specification<Reservation> paymentStatusNotEqual(String paymentStatus) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.notEqual(root.join("payment", JoinType.INNER).get("status"), paymentStatus);
     }
 
     public static Specification<Reservation> paymentCostBetween(BigDecimal min, BigDecimal max) {

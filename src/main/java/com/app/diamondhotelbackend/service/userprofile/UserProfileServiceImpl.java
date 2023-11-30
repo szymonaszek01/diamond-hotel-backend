@@ -6,6 +6,7 @@ import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.repository.UserProfileRepository;
 import com.app.diamondhotelbackend.util.ConstantUtil;
+import com.app.diamondhotelbackend.util.DateUtil;
 import com.app.diamondhotelbackend.util.UrlUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Base64;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,6 +44,19 @@ public class UserProfileServiceImpl implements UserProfileService {
     @Override
     public List<UserProfile> getUserProfileList() {
         return userProfileRepository.findAll();
+    }
+
+    @Override
+    public List<UserProfile> getUserProfileList(java.sql.Date min, java.sql.Date max) {
+        Date minUtil = DateUtil.toUtilDateMapper(min, false);
+        Date maxUtil = DateUtil.toUtilDateMapper(max, true);
+
+        return userProfileRepository.findAllByCreatedAtBetween(minUtil, maxUtil);
+    }
+
+    @Override
+    public List<Integer> getUserProfileCreatedAtYearList() {
+        return userProfileRepository.findAllCreatedAtYears();
     }
 
     @Override

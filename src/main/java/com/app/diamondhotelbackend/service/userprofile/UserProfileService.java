@@ -19,6 +19,10 @@ public interface UserProfileService {
 
     List<UserProfile> getUserProfileList();
 
+    List<UserProfile> getUserProfileList(java.sql.Date min, java.sql.Date max);
+
+    List<Integer> getUserProfileCreatedAtYearList();
+
     FileResponseDto getUserProfilePictureByEmail(String email) throws UserProfileProcessingException;
 
     UserProfile updateUserProfile(UserProfile userProfile);

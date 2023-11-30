@@ -28,6 +28,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -68,6 +69,7 @@ public class AuthServiceImpl implements AuthService {
         UserProfile userProfile = UserProfile.builder()
                 .email(accountRegistrationRequestDto.getEmail())
                 .password(passwordEncoder.encode(accountRegistrationRequestDto.getPassword()))
+                .createdAt(new Date(System.currentTimeMillis()))
                 .firstname(accountRegistrationRequestDto.getFirstname())
                 .lastname(accountRegistrationRequestDto.getLastname())
                 .age(accountRegistrationRequestDto.getAge())

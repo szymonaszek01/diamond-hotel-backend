@@ -9,6 +9,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.sql.Date;
 import java.util.List;
 
 public interface PaymentService {
@@ -16,6 +17,8 @@ public interface PaymentService {
     Payment createPayment(Payment payment);
 
     List<Payment> getPaymentList(int page, int size, JSONObject filters, JSONArray sort);
+
+    List<Payment> getPaymentList(Date min, Date max);
 
     List<Payment> getPaymentListByUserProfileId(long userProfileId, int page, int size, JSONObject filters, JSONArray sort);
 

@@ -9,6 +9,7 @@ import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.repository.PaymentRepository;
 import com.app.diamondhotelbackend.service.stripe.StripeServiceImpl;
 import com.app.diamondhotelbackend.util.ConstantUtil;
+import com.app.diamondhotelbackend.util.DateUtil;
 import com.app.diamondhotelbackend.util.PdfUtil;
 import com.app.diamondhotelbackend.util.UrlUtil;
 import com.stripe.exception.StripeException;
@@ -26,10 +27,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.app.diamondhotelbackend.specification.PaymentSpecification.*;
 
@@ -56,6 +54,22 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         return preparePaymentList(0, page, size, filters, sort);
+    }
+
+    @Override
+    public List<Payment> getPaymentList(java.sql.Date min, java.sql.Date max) {
+        if (min == null || max == null) {
+            return new ArrayList<>();
+        }
+
+        Date minUtil = DateUtil.toUtilDateMapper(min, false);
+        Date maxUtil = DateUtil.toUtilDateMapper(max, true);
+
+        Specification<Payment> paymentSpecification = Specification.where(paymentStatusNotEqual(ConstantUtil.CANCELLED))
+                .and(paymentCreatedAtBetween(minUtil, maxUtil));
+        Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
+
+        return paymentRepository.findAll(paymentSpecification, pageable).getContent();
     }
 
     @Override
@@ -131,7 +145,8 @@ public class PaymentServiceImpl implements PaymentService {
     private List<Payment> preparePaymentList(long userProfileId, int page, int size, JSONObject filters, JSONArray sort) {
         ReservationPaymentReservedRoomTableFilter tableFilters = new ReservationPaymentReservedRoomTableFilter(filters);
         Specification<Payment> paymentSpecification = Specification.where(userProfileId == 0 ? null : userProfileIdEqual(userProfileId))
-                .and(tableFilters.getMinDate() == null || tableFilters.getMaxDate() == null ? null : reservationCheckInAndReservationCheckOutBetween(tableFilters.getMinDate(), tableFilters.getMaxDate()))
+                .and(tableFilters.getMinDate() == null ? null : reservationCheckInBetween(tableFilters.getMinDate(), tableFilters.getMaxDate()))
+                .and(tableFilters.getMaxDate() == null ? null : reservationCheckOutBetween(tableFilters.getMinDate(), tableFilters.getMaxDate()))
                 .and(tableFilters.getUserProfileEmail().isEmpty() ? null : userProfileEmailEqual(tableFilters.getUserProfileEmail()))
                 .and(tableFilters.getFlightNumber().isEmpty() ? null : flightNumberEqual(tableFilters.getFlightNumber()))
                 .and(tableFilters.getPaymentStatus().isEmpty() ? null : paymentStatusEqual(tableFilters.getPaymentStatus()))

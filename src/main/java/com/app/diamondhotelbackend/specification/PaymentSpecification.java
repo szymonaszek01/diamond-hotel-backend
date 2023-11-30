@@ -1,26 +1,20 @@
 package com.app.diamondhotelbackend.specification;
 
 import com.app.diamondhotelbackend.entity.Payment;
-import com.app.diamondhotelbackend.entity.Reservation;
-import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
-import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
 import java.sql.Date;
-import java.util.List;
 
 public class PaymentSpecification {
 
-    public static Specification<Payment> reservationCheckInAndReservationCheckOutBetween(Date min, Date max) {
-        return (root, query, criteriaBuilder) -> {
-            Join<Reservation, Payment> reservationPaymentJoin = root.join("reservation", JoinType.INNER);
-            Predicate checkInPredicate = criteriaBuilder.between(reservationPaymentJoin.get("checkIn"), min, max);
-            Predicate checkOutPredicate = criteriaBuilder.between(reservationPaymentJoin.get("checkOut"), min, max);
-            List<Predicate> predicateList = List.of(checkInPredicate, checkOutPredicate);
-            return criteriaBuilder.and(predicateList.toArray(Predicate[]::new));
-        };
+    public static Specification<Payment> reservationCheckInBetween(Date min, Date max) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.join("reservation", JoinType.INNER).get("checkIn"), min, max);
+    }
+
+    public static Specification<Payment> reservationCheckOutBetween(Date min, Date max) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.join("reservation", JoinType.INNER).get("checkOut"), min, max);
     }
 
     public static Specification<Payment> userProfileIdEqual(long userProfileId) {
@@ -39,6 +33,10 @@ public class PaymentSpecification {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("status"), paymentStatus);
     }
 
+    public static Specification<Payment> paymentStatusNotEqual(String paymentStatus) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.notEqual(root.get("status"), paymentStatus);
+    }
+
     public static Specification<Payment> paymentCostBetween(BigDecimal min, BigDecimal max) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.get("cost"), min, max);
     }
@@ -49,5 +47,9 @@ public class PaymentSpecification {
 
     public static Specification<Payment> roomTypeNameEqual(String roomTypeName) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.join("reservation", JoinType.INNER).join("reservedRoomList", JoinType.INNER).join("room", JoinType.INNER).join("roomType", JoinType.INNER).get("name"), roomTypeName);
+    }
+
+    public static Specification<Payment> paymentCreatedAtBetween(java.util.Date min, java.util.Date max) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.between(root.get("createdAt"), min, max);
     }
 }

@@ -1,5 +1,8 @@
 package com.app.diamondhotelbackend.util;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class ConstantUtil {
 
     /**
@@ -176,4 +179,22 @@ public class ConstantUtil {
     public static final String EMAIL_PAYMENT_FOR_RESERVATION_CONFIRMED_SUBJECT = "Diamond hotel - reservation paid";
 
     public static final String EMAIL_PAYMENT_FOR_RESERVATION_CANCELLED_SUBJECT = "Diamond hotel - reservation cancelled";
+
+    /**
+     * ----- STATISTICS -----
+     **/
+    public static final List<String> STATISTICS_MONTH_LIST = Arrays.asList(
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+    );
+
+    public static final String STATISTICS_NONE = "None";
+
+    public static final String STATISTICS_USERS = "Created users";
+
+    public static final String STATISTICS_RESERVATIONS = "Reservations";
+
+    public static final String STATISTICS_RESERVED_ROOMS = "Reserved rooms";
+
+    public static final String STATISTICS_INCOME = "Income";
 }

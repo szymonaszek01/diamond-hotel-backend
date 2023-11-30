@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.sql.Date;
 import java.util.List;
 
 @NoArgsConstructor
@@ -24,6 +25,10 @@ public class UserProfile {
 
     @JsonIgnore
     private String password;
+
+    @JsonProperty("created_at")
+    @Column(nullable = false)
+    private Date createdAt;
 
     private String firstname;
 

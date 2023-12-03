@@ -44,12 +44,14 @@ public class ReservationRepositoryTests {
                 testEntityManager.persistAndFlush(
                         UserProfile.builder()
                                 .email("email1")
+                                .createdAt(java.sql.Date.valueOf("2023-11-01"))
                                 .passportNumber("passportNumber1")
                                 .build()
                 ),
                 testEntityManager.persistAndFlush(
                         UserProfile.builder()
                                 .email("email2")
+                                .createdAt(java.sql.Date.valueOf("2023-10-01"))
                                 .passportNumber("passportNumber2")
                                 .build()
                 )
@@ -205,6 +207,24 @@ public class ReservationRepositoryTests {
         Page<Reservation> reservationPage = reservationRepository.findAll(reservationSpecification, pageRequest);
 
         Assertions.assertThat(reservationPage).isNotNull();
+    }
+
+    @Test
+    public void ReservationRepository_FindAllCheckInYears_ReturnsIntegerList() {
+        reservationRepository.saveAll(reservationList);
+        List<Integer> foundYearList = reservationRepository.findAllCheckInYears();
+
+        Assertions.assertThat(foundYearList).isNotNull();
+        Assertions.assertThat(foundYearList.size()).isEqualTo(2);
+    }
+
+    @Test
+    public void ReservationRepository_FindAllCheckOutYears_ReturnsIntegerList() {
+        reservationRepository.saveAll(reservationList);
+        List<Integer> foundYearList = reservationRepository.findAllCheckOutYears();
+
+        Assertions.assertThat(foundYearList).isNotNull();
+        Assertions.assertThat(foundYearList.size()).isEqualTo(2);
     }
 
     @Test

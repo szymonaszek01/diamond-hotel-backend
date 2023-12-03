@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +28,7 @@ public class UserProfileRepositoryTests {
     public void init() {
         userProfile = UserProfile.builder()
                 .email("ala-gembala@wp.pl")
+                .createdAt(java.sql.Date.valueOf("2023-11-01"))
                 .passportNumber("ZF005401499")
                 .role(ConstantUtil.USER)
                 .authProvider(ConstantUtil.LOCAL)
@@ -36,6 +38,7 @@ public class UserProfileRepositoryTests {
         userProfileList = List.of(
                 UserProfile.builder()
                         .email("ala-gembala@wp.pl")
+                        .createdAt(java.sql.Date.valueOf("2023-11-01"))
                         .passportNumber("ZF005401499")
                         .role(ConstantUtil.USER)
                         .authProvider(ConstantUtil.LOCAL)
@@ -43,6 +46,7 @@ public class UserProfileRepositoryTests {
                         .build(),
                 UserProfile.builder()
                         .email("beata-pacanek@wp.pl")
+                        .createdAt(java.sql.Date.valueOf("2023-10-01"))
                         .passportNumber("DF115499499")
                         .role(ConstantUtil.USER)
                         .authProvider(ConstantUtil.LOCAL)
@@ -66,6 +70,24 @@ public class UserProfileRepositoryTests {
 
         Assertions.assertThat(foundUserProfileList).isNotNull();
         Assertions.assertThat(foundUserProfileList.size()).isEqualTo(2);
+    }
+
+    @Test
+    public void UserProfileRepository_FindAllByCreatedAtBetween_ReturnsUserProfileList() {
+        userProfileRepository.saveAll(userProfileList);
+        List<UserProfile> foundUserProfileList = userProfileRepository.findAllByCreatedAtBetween(Date.valueOf("2023-01-01"), Date.valueOf("2023-12-31"));
+
+        Assertions.assertThat(foundUserProfileList).isNotNull();
+        Assertions.assertThat(foundUserProfileList.size()).isEqualTo(2);
+    }
+
+    @Test
+    public void UserProfileRepository_FindAllCreatedAtYears_ReturnsIntegerList() {
+        userProfileRepository.saveAll(userProfileList);
+        List<Integer> foundYearList = userProfileRepository.findAllCreatedAtYears();
+
+        Assertions.assertThat(foundYearList).isNotNull();
+        Assertions.assertThat(foundYearList.size()).isEqualTo(1);
     }
 
     @Test

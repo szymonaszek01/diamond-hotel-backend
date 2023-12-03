@@ -106,6 +106,8 @@ public class ReservationServiceTests {
 
     private FileResponseDto fileResponseDto;
 
+    private List<Integer> yearList;
+
     @BeforeEach
     public void init() {
         RoomType roomType = RoomType.builder()
@@ -213,6 +215,8 @@ public class ReservationServiceTests {
                 .reservation(reservation)
                 .cost(BigDecimal.valueOf(600))
                 .build();
+
+        yearList = List.of(2023, 2024);
     }
 
     @Test
@@ -235,7 +239,7 @@ public class ReservationServiceTests {
     }
 
     @Test
-    public void ReservationService_GetReservationList_ReturnsReservationList() {
+    public void ReservationService_GetReservationList_ReturnsReservationList_Case1() {
         payment.setStatus(ConstantUtil.APPROVED);
 
         when(reservationRepository.findAll(Mockito.any(Specification.class), Mockito.any(PageRequest.class))).thenReturn(reservationPage);
@@ -244,6 +248,27 @@ public class ReservationServiceTests {
 
         Assertions.assertThat(foundReservationList).isNotNull();
         Assertions.assertThat(foundReservationList.size()).isEqualTo(3);
+    }
+
+    @Test
+    public void ReservationService_GetReservationList_ReturnsReservationList_Case2() {
+        when(reservationRepository.findAll(Mockito.any(Specification.class), Mockito.any(PageRequest.class))).thenReturn(reservationPage);
+
+        List<Reservation> foundReservationList = reservationService.getReservationList(Date.valueOf("2023-01-01"), Date.valueOf("2023-12-31"));
+
+        Assertions.assertThat(foundReservationList).isNotNull();
+        Assertions.assertThat(foundReservationList.size()).isEqualTo(3);
+    }
+
+    @Test
+    public void ReservationService_GetReservationCheckInAndCheckOutYearList_ReturnsIntegerList() {
+        when(reservationRepository.findAllCheckInYears()).thenReturn(yearList);
+        when(reservationRepository.findAllCheckOutYears()).thenReturn(yearList);
+
+        List<Integer> foundIntegerList = reservationService.getReservationCheckInAndCheckOutYearList();
+
+        Assertions.assertThat(foundIntegerList).isNotNull();
+        Assertions.assertThat(foundIntegerList.size()).isEqualTo(2);
     }
 
     @Test

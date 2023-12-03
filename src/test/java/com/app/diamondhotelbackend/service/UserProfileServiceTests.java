@@ -19,6 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.io.IOException;
+import java.sql.Date;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +42,8 @@ public class UserProfileServiceTests {
     private UserProfileDetailsUpdateRequestDto userProfileDetailsUpdateRequestDto;
 
     private MockMultipartFile file;
+
+    private List<Integer> yearList;
 
     @BeforeEach
     public void init() {
@@ -90,6 +93,8 @@ public class UserProfileServiceTests {
                 "testFile",
                 HexFormat.of().parseHex("a04fd020ea3a6910a2d808002b30309d")
         );
+
+        yearList = List.of(2023, 2024);
     }
 
     @Test
@@ -124,13 +129,33 @@ public class UserProfileServiceTests {
     }
 
     @Test
-    public void UserProfileService_GetUserProfileList_ReturnsUserProfileList() {
+    public void UserProfileService_GetUserProfileList_ReturnsUserProfileList_Case1() {
         when(userProfileRepository.findAll()).thenReturn(userProfileList);
 
         List<UserProfile> foundUserProfileList = userProfileService.getUserProfileList();
 
         Assertions.assertThat(foundUserProfileList).isNotNull();
         Assertions.assertThat(foundUserProfileList.size()).isEqualTo(2);
+    }
+
+    @Test
+    public void UserProfileService_GetUserProfileList_ReturnsUserProfileList_Case2() {
+        when(userProfileRepository.findAllByCreatedAtBetween(Mockito.any(Date.class), Mockito.any(Date.class))).thenReturn(userProfileList);
+
+        List<UserProfile> foundUserProfileList = userProfileService.getUserProfileList(Date.valueOf("2023-01-01"), Date.valueOf("2023-12-31"));
+
+        Assertions.assertThat(foundUserProfileList).isNotNull();
+        Assertions.assertThat(foundUserProfileList.size()).isEqualTo(2);
+    }
+
+    @Test
+    public void UserProfileService_GetUserProfileCreatedAtYearList_ReturnsIntegerList() {
+        when(userProfileRepository.findAllCreatedAtYears()).thenReturn(yearList);
+
+        List<Integer> foundIntegerList = userProfileService.getUserProfileCreatedAtYearList();
+
+        Assertions.assertThat(foundIntegerList).isNotNull();
+        Assertions.assertThat(foundIntegerList.size()).isEqualTo(2);
     }
 
     @Test

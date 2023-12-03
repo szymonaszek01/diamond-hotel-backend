@@ -35,6 +35,7 @@ public class ConfirmationTokenRepositoryTests {
 
         UserProfile userProfile = UserProfile.builder()
                 .email("ala-gembala@wp.pl")
+                .createdAt(java.sql.Date.valueOf("2023-11-01"))
                 .passportNumber("ZF005401499")
                 .role(ConstantUtil.USER)
                 .authProvider(ConstantUtil.LOCAL)

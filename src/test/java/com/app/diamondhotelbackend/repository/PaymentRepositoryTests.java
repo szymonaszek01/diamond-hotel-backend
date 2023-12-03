@@ -16,6 +16,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.sql.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,12 +44,14 @@ public class PaymentRepositoryTests {
                 testEntityManager.persistAndFlush(
                         UserProfile.builder()
                                 .email("email1")
+                                .createdAt(java.sql.Date.valueOf("2023-11-01"))
                                 .passportNumber("passportNumber1")
                                 .build()
                 ),
                 testEntityManager.persistAndFlush(
                         UserProfile.builder()
                                 .email("email2")
+                                .createdAt(java.sql.Date.valueOf("2023-10-01"))
                                 .passportNumber("passportNumber2")
                                 .build()
                 )

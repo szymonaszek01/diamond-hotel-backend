@@ -101,10 +101,20 @@ public class ReservedRoomServiceTests {
     }
 
     @Test
-    public void ReservationService_GetReservedRoomList_ReturnsReservationList() {
+    public void ReservedRoomService_GetReservedRoomList_ReturnsReservedRoomList_Case1() {
         when(reservedRoomRepository.findAll(Mockito.any(Specification.class), Mockito.any(PageRequest.class))).thenReturn(reservedRoomPage);
 
         List<ReservedRoom> foundReservedRoomList = reservedRoomService.getReservedRoomList(1, 3, new JSONObject(), new JSONArray());
+
+        Assertions.assertThat(foundReservedRoomList).isNotNull();
+        Assertions.assertThat(foundReservedRoomList.size()).isEqualTo(2);
+    }
+
+    @Test
+    public void ReservedRoomService_GetReservedRoomList_ReturnsReservedRoomList_Case2() {
+        when(reservedRoomRepository.findAll(Mockito.any(Specification.class), Mockito.any(PageRequest.class))).thenReturn(reservedRoomPage);
+
+        List<ReservedRoom> foundReservedRoomList = reservedRoomService.getReservedRoomList(Date.valueOf("2023-01-01"), Date.valueOf("2023-12-31"));
 
         Assertions.assertThat(foundReservedRoomList).isNotNull();
         Assertions.assertThat(foundReservedRoomList.size()).isEqualTo(2);

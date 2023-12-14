@@ -31,7 +31,7 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.util.*;
 
-import static com.app.diamondhotelbackend.specification.ReservationSpecification.*;
+import static com.app.diamondhotelbackend.repository.specification.ReservationSpecification.*;
 
 @Service
 @AllArgsConstructor

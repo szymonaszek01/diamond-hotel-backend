@@ -20,7 +20,7 @@ import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
 
-import static com.app.diamondhotelbackend.specification.ReservationSpecification.paymentStatusEqual;
+import static com.app.diamondhotelbackend.repository.specification.ReservationSpecification.paymentStatusEqual;
 
 @DataJpaTest
 @ActiveProfiles("test")

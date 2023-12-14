@@ -31,11 +31,24 @@ public class SecurityConfiguration {
 
     private final CustomOAuth2AuthenticationFailureHandler customOAuth2AuthenticationFailureHandler;
 
+    private static final String[] PERMIT_ALL_LIST = {
+            "/v2/api-docs",
+            "/swagger-resources",
+            "/swagger-resources/**",
+            "/configuration/ui",
+            "/configuration/security",
+            "/swagger-ui.html",
+            "/webjars/**",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/error"
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.cors().and().csrf().disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/").permitAll()
+                .requestMatchers(PERMIT_ALL_LIST).permitAll()
                 .requestMatchers("/error").permitAll()
                 .requestMatchers("/api/v1/auth/account/login").permitAll()
                 .requestMatchers("/api/v1/auth/account/registration").permitAll()

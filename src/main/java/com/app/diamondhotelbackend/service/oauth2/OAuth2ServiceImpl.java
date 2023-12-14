@@ -16,6 +16,8 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
+
 @Service
 @RequiredArgsConstructor
 public class OAuth2ServiceImpl extends DefaultOAuth2UserService implements OAuth2Service {
@@ -55,6 +57,7 @@ public class OAuth2ServiceImpl extends DefaultOAuth2UserService implements OAuth
 
         UserProfile userProfile = UserProfile.builder()
                 .email(customOAuth2User.getEmail())
+                .createdAt(new Date(System.currentTimeMillis()))
                 .firstname(customOAuth2User.getGivenName())
                 .lastname(customOAuth2User.getFamilyName())
                 .authProvider(ConstantUtil.OAUTH2)

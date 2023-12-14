@@ -29,7 +29,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.*;
 
-import static com.app.diamondhotelbackend.specification.PaymentSpecification.*;
+import static com.app.diamondhotelbackend.repository.specification.PaymentSpecification.*;
 
 @Service
 @AllArgsConstructor

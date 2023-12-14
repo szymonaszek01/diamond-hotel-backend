@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.app.diamondhotelbackend.specification.ReservedRoomSpecification.*;
+import static com.app.diamondhotelbackend.repository.specification.ReservedRoomSpecification.*;
 
 @Service
 @AllArgsConstructor

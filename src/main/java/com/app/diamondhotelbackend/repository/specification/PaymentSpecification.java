@@ -1,4 +1,4 @@
-package com.app.diamondhotelbackend.specification;
+package com.app.diamondhotelbackend.repository.specification;
 
 import com.app.diamondhotelbackend.entity.Payment;
 import jakarta.persistence.criteria.JoinType;

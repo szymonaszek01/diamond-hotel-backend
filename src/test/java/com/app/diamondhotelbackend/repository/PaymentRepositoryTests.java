@@ -16,11 +16,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.sql.Date;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-import static com.app.diamondhotelbackend.specification.PaymentSpecification.paymentStatusEqual;
+import static com.app.diamondhotelbackend.repository.specification.PaymentSpecification.paymentStatusEqual;
 
 @DataJpaTest
 @ActiveProfiles("test")

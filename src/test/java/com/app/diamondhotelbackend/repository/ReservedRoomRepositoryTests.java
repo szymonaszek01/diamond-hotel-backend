@@ -15,11 +15,10 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.sql.Date;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-import static com.app.diamondhotelbackend.specification.ReservedRoomSpecification.paymentStatusEqual;
+import static com.app.diamondhotelbackend.repository.specification.ReservedRoomSpecification.paymentStatusEqual;
 
 @DataJpaTest
 @ActiveProfiles("test")

@@ -38,39 +38,25 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @ExtendWith(MockitoExtension.class)
 public class AuthControllerTests {
 
+    private static final long CONFIRMATION_TOKEN_EXPIRATION = 1000 * 60 * 15;
+    private static final String url = "/api/v1/auth";
     @MockBean
     private AuthServiceImpl authService;
-
     @MockBean
     private JwtFilter jwtFilter;
-
     @Autowired
     private MockMvc mockMvc;
-
     @Autowired
     private ObjectMapper objectMapper;
-
     private UserProfile userProfile;
-
     private AuthToken authToken;
-
     private ConfirmationToken confirmationToken;
-
     private AccountDetailsResponseDto accountDetailsResponseDto;
-
     private AccountLoginRequestDto accountLoginRequestDto;
-
     private AccountRegistrationRequestDto accountRegistrationRequestDto;
-
     private AccountEmailUpdateRequestDto accountEmailUpdateRequestDto;
-
     private AccountPasswordUpdateRequestDto accountPasswordUpdateRequestDto;
-
     private AccountForgottenPasswordRequestDto accountForgottenPasswordRequestDto;
-
-    private static final long CONFIRMATION_TOKEN_EXPIRATION = 1000 * 60 * 15;
-
-    private static final String url = "/api/v1/auth";
 
     @BeforeEach
     public void init() {
@@ -197,8 +183,8 @@ public class AuthControllerTests {
     }
 
     @Test
-    public void AuthController_ForgotAccountPassword_ReturnsConfirmationToken() throws Exception {
-        when(authService.forgotAccountPassword(Mockito.any(String.class))).thenReturn(confirmationToken);
+    public void AuthController_ForgotAccountPassword_ReturnsString() throws Exception {
+        when(authService.forgotAccountPassword(Mockito.any(String.class))).thenReturn("Link was sent to " + userProfile.getEmail() + " successfully");
 
         MockHttpServletRequestBuilder request = get(url + "/email/" + UrlUtil.encode(userProfile.getEmail()) + "/account/forgotten/password")
                 .contentType(MediaType.APPLICATION_JSON);
@@ -206,9 +192,7 @@ public class AuthControllerTests {
         mockMvc
                 .perform(request)
                 .andDo(print())
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id", CoreMatchers.is((int) confirmationToken.getId())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.access_value", CoreMatchers.is(confirmationToken.getAccessValue())));
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
     @Test

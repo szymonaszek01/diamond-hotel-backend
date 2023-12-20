@@ -50,7 +50,7 @@ public class AuthController {
     }
 
     @GetMapping("/email/{email}/account/forgotten/password")
-    public ResponseEntity<ConfirmationToken> forgotAccountPassword(@PathVariable String email) {
+    public ResponseEntity<String> forgotAccountPassword(@PathVariable String email) {
         try {
             return ResponseEntity.ok(authService.forgotAccountPassword(email));
         } catch (UserProfileProcessingException e) {

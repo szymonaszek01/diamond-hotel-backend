@@ -59,6 +59,10 @@ class Authentication implements org.springframework.security.core.Authentication
         return principal;
     }
 
+    public void setPrincipal(Object principal) {
+        this.principal = principal;
+    }
+
     @Override
     public boolean isAuthenticated() {
         return false;
@@ -72,56 +76,35 @@ class Authentication implements org.springframework.security.core.Authentication
     public String getName() {
         return null;
     }
-
-    public void setPrincipal(Object principal) {
-        this.principal = principal;
-    }
 }
 
 @ExtendWith(MockitoExtension.class)
 public class AuthServiceTests {
 
+    private static final long CONFIRMATION_TOKEN_EXPIRATION = 1000 * 60 * 15;
     @InjectMocks
     private AuthServiceImpl authService;
-
     @Mock
     private AuthenticationManager authenticationManager;
-
     @Mock
     private UserProfileServiceImpl userProfileService;
-
     @Mock
     private AuthTokenServiceImpl authTokenService;
-
     @Mock
     private ConfirmationTokenServiceImpl confirmationTokenService;
-
     @Mock
     private EmailServiceImpl emailService;
-
     private UserProfile userProfile;
-
     private UserProfile updatedUserProfile;
-
     private UserDetails userDetails;
-
     private Authentication authentication;
-
     private AuthToken authToken;
-
     private ConfirmationToken confirmationToken;
-
     private AccountLoginRequestDto accountLoginRequestDto;
-
     private AccountRegistrationRequestDto accountRegistrationRequestDto;
-
     private AccountEmailUpdateRequestDto accountEmailUpdateRequestDto;
-
     private AccountPasswordUpdateRequestDto accountPasswordUpdateRequestDto;
-
     private AccountForgottenPasswordRequestDto accountForgottenPasswordRequestDto;
-
-    private static final long CONFIRMATION_TOKEN_EXPIRATION = 1000 * 60 * 15;
 
     @BeforeEach
     public void init() {
@@ -252,19 +235,18 @@ public class AuthServiceTests {
     }
 
     @Test
-    public void AuthService_ForgotAccountPassword_ReturnsConfirmationToken() {
+    public void AuthService_ForgotAccountPassword_ReturnsString() {
         userProfile.setAccountConfirmed(true);
 
         when(userProfileService.getUserProfileByEmail(Mockito.any(String.class))).thenReturn(userProfile);
         when(confirmationTokenService.createConfirmationToken(Mockito.any(UserProfile.class))).thenReturn(confirmationToken);
 
-        ConfirmationToken savedConfirmationToken = authService.forgotAccountPassword(userProfile.getEmail());
+        String savedConfirmationToken = authService.forgotAccountPassword(userProfile.getEmail());
 
         verify(emailService).sendConfirmationPasswordChangingEmail(Mockito.any(ConfirmationToken.class));
 
         Assertions.assertThat(savedConfirmationToken).isNotNull();
-        Assertions.assertThat(savedConfirmationToken.getAccessValue()).isEqualTo(confirmationToken.getAccessValue());
-        Assertions.assertThat(savedConfirmationToken.getConfirmedAt()).isNull();
+        Assertions.assertThat(savedConfirmationToken).isEqualTo("Link was sent to " + userProfile.getEmail() + " successfully");
     }
 
     @Test

@@ -16,7 +16,7 @@ public interface AuthService {
 
     AccountDetailsResponseDto confirmAccount(String token) throws ConfirmationTokenProcessingException;
 
-    ConfirmationToken forgotAccountPassword(String email) throws UserProfileProcessingException;
+    String forgotAccountPassword(String email) throws UserProfileProcessingException;
 
     UserProfile updateAccountEmail(AccountEmailUpdateRequestDto accountEmailUpdateRequestDto);
 

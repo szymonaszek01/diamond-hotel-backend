@@ -105,14 +105,14 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public ConfirmationToken forgotAccountPassword(String email) throws UserProfileProcessingException {
+    public String forgotAccountPassword(String email) throws UserProfileProcessingException {
         String decodedEmail = UrlUtil.decode(email);
         UserProfile userProfile = userProfileService.getUserProfileByEmail(decodedEmail);
         ConfirmationToken confirmationToken = confirmationTokenService.createConfirmationToken(userProfile);
 
         emailService.sendConfirmationPasswordChangingEmail(confirmationToken);
 
-        return confirmationToken;
+        return "Link was sent to " + decodedEmail + " successfully";
     }
 
     @Override

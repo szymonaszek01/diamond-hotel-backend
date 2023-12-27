@@ -65,10 +65,6 @@ public class UserProfile {
 
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "userProfile", cascade = CascadeType.ALL)
-    private List<RoomTypeOpinion> roomTypeOpinionList;
-
-    @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "userProfile", cascade = CascadeType.ALL)
     private List<Reservation> reservationList;
 
     @JsonIgnore

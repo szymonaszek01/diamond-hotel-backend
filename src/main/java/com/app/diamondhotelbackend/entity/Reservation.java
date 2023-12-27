@@ -43,8 +43,4 @@ public class Reservation {
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "reservation", cascade = CascadeType.ALL)
     private List<ReservedRoom> reservedRoomList;
-
-    @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "reservation", cascade = CascadeType.ALL)
-    private List<CarRent> carRentList;
 }

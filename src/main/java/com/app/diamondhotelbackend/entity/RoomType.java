@@ -1,6 +1,5 @@
 package com.app.diamondhotelbackend.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
@@ -38,8 +37,4 @@ public class RoomType {
     @Column(name = "name")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private List<String> equipment;
-
-    @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "roomType", cascade = CascadeType.ALL)
-    private List<RoomTypeOpinion> roomTypeOpinionList;
 }

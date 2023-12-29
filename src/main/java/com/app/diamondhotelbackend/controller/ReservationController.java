@@ -8,6 +8,7 @@ import com.app.diamondhotelbackend.exception.RoomProcessingException;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.service.reservation.ReservationServiceImpl;
 import com.stripe.exception.StripeException;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -19,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.util.List;
 
+@Tag(name = "Reservation", description = "Reservation management APIs")
 @RequestMapping("/api/v1/reservation")
 @RestController
 @RequiredArgsConstructor

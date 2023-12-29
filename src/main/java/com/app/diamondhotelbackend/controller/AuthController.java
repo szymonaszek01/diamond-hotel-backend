@@ -8,12 +8,14 @@ import com.app.diamondhotelbackend.exception.AuthProcessingException;
 import com.app.diamondhotelbackend.exception.ConfirmationTokenProcessingException;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.service.auth.AuthServiceImpl;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+@Tag(name = "Auth", description = "Authorization and authentication management APIs")
 @RequestMapping("/api/v1/auth")
 @RestController
 @RequiredArgsConstructor

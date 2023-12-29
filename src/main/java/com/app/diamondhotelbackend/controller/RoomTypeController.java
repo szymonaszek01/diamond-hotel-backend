@@ -5,6 +5,7 @@ import com.app.diamondhotelbackend.entity.RoomType;
 import com.app.diamondhotelbackend.exception.RoomProcessingException;
 import com.app.diamondhotelbackend.exception.RoomTypeProcessingException;
 import com.app.diamondhotelbackend.service.roomtype.RoomTypeServiceImpl;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.util.List;
 
+
+@Tag(name = "Room type", description = "Room type management APIs")
 @RequestMapping("/api/v1/room-type")
 @RestController
 @RequiredArgsConstructor

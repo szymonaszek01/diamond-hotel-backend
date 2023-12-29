@@ -5,6 +5,7 @@ import com.app.diamondhotelbackend.entity.Payment;
 import com.app.diamondhotelbackend.exception.ReservationProcessingException;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.service.payment.PaymentServiceImpl;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -16,6 +17,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.util.List;
 
+
+@Tag(name = "Payment", description = "Payment management APIs")
 @RequestMapping("/api/v1/payment")
 @RestController
 @RequiredArgsConstructor

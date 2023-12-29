@@ -7,6 +7,7 @@ import com.app.diamondhotelbackend.dto.room.response.RoomSelectedCostResponseDto
 import com.app.diamondhotelbackend.entity.Room;
 import com.app.diamondhotelbackend.exception.RoomProcessingException;
 import com.app.diamondhotelbackend.service.room.RoomServiceImpl;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
+
+@Tag(name = "Room", description = "Room management APIs")
 @RequestMapping("/api/v1/room")
 @RestController
 @RequiredArgsConstructor

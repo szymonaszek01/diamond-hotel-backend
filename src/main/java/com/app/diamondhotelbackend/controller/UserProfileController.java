@@ -5,6 +5,7 @@ import com.app.diamondhotelbackend.dto.userprofile.request.UserProfileDetailsUpd
 import com.app.diamondhotelbackend.entity.UserProfile;
 import com.app.diamondhotelbackend.exception.UserProfileProcessingException;
 import com.app.diamondhotelbackend.service.userprofile.UserProfileServiceImpl;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.util.List;
 
+
+@Tag(name = "User profile", description = "User profile management APIs")
 @RequestMapping("/api/v1/user-profile")
 @RestController
 @RequiredArgsConstructor

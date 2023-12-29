@@ -2,6 +2,7 @@ package com.app.diamondhotelbackend.controller;
 
 import com.app.diamondhotelbackend.dto.weather.response.WeatherResponseDto;
 import com.app.diamondhotelbackend.service.weather.WeatherServiceImpl;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 
+
+@Tag(name = "Weather", description = "Weather management APIs")
 @RequestMapping("/api/v1/weather")
 @RestController
 @RequiredArgsConstructor

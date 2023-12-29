@@ -4,6 +4,7 @@ import com.app.diamondhotelbackend.dto.statistics.request.StatisticsRequestDto;
 import com.app.diamondhotelbackend.dto.statistics.response.StatisticsResponseDto;
 import com.app.diamondhotelbackend.exception.ReservationProcessingException;
 import com.app.diamondhotelbackend.service.statistics.StatisticsServiceImpl;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
+
+@Tag(name = "Statistics", description = "Statistics management APIs")
 @RequestMapping("/api/v1/statistics")
 @RestController
 @RequiredArgsConstructor

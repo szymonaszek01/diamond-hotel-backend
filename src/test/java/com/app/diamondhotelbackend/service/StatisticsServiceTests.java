@@ -64,14 +64,14 @@ public class StatisticsServiceTests {
         );
 
         reservationList = List.of(
-                Reservation.builder().id(1).checkIn(Date.valueOf("2023-12-01")).checkOut(Date.valueOf("2023-12-05")).build(),
-                Reservation.builder().id(2).checkIn(Date.valueOf("2023-12-29")).checkOut(Date.valueOf("2024-01-02")).build()
+                Reservation.builder().id(1).checkIn(Date.valueOf("2024-01-01")).checkOut(Date.valueOf("2024-01-05")).build(),
+                Reservation.builder().id(2).checkIn(Date.valueOf("2024-01-26")).checkOut(Date.valueOf("2024-01-31")).build()
         );
 
         reservedRoomList = List.of(
                 ReservedRoom.builder()
                         .id(1)
-                        .reservation(Reservation.builder().id(1).checkIn(Date.valueOf("2023-12-01")).checkOut(Date.valueOf("2023-12-05")).build())
+                        .reservation(Reservation.builder().id(1).checkIn(Date.valueOf("2024-01-01")).checkOut(Date.valueOf("2024-01-05")).build())
                         .room(
                                 Room.builder()
                                         .id(1)
@@ -86,7 +86,7 @@ public class StatisticsServiceTests {
                         .build(),
                 ReservedRoom.builder()
                         .id(2)
-                        .reservation(Reservation.builder().id(2).checkIn(Date.valueOf("2023-12-29")).checkOut(Date.valueOf("2024-01-02")).build())
+                        .reservation(Reservation.builder().id(2).checkIn(Date.valueOf("2024-01-26")).checkOut(Date.valueOf("2024-01-31")).build())
                         .room(
                                 Room.builder()
                                         .id(2)
@@ -106,7 +106,7 @@ public class StatisticsServiceTests {
                 Payment.builder().id(2).createdAt(new java.util.Date(System.currentTimeMillis())).cost(BigDecimal.valueOf(10000)).build()
         );
 
-        statisticsRequestDto = new StatisticsRequestDto(2023, 0);
+        statisticsRequestDto = new StatisticsRequestDto(2024, 0);
     }
 
     @Test
@@ -160,8 +160,8 @@ public class StatisticsServiceTests {
         StatisticsResponseDto foundStatisticsResponseDto = statisticsService.getUserProfileStatistics(statisticsRequestDto);
 
         Assertions.assertThat(foundStatisticsResponseDto).isNotNull();
-        Assertions.assertThat(foundStatisticsResponseDto.getStatisticsDataList().get(11).getX()).isEqualTo(ConstantUtil.STATISTICS_MONTH_LIST.get(11));
-        Assertions.assertThat(foundStatisticsResponseDto.getStatisticsDataList().get(11).getY()).isEqualTo(2);
+        Assertions.assertThat(foundStatisticsResponseDto.getStatisticsDataList().get(0).getX()).isEqualTo(ConstantUtil.STATISTICS_MONTH_LIST.get(0));
+        Assertions.assertThat(foundStatisticsResponseDto.getStatisticsDataList().get(0).getY()).isEqualTo(2);
     }
 
     @Test
@@ -171,8 +171,8 @@ public class StatisticsServiceTests {
         StatisticsResponseDto foundStatisticsResponseDto = statisticsService.getReservationStatistics(statisticsRequestDto);
 
         Assertions.assertThat(foundStatisticsResponseDto).isNotNull();
-        Assertions.assertThat(foundStatisticsResponseDto.getStatisticsDataList().get(11).getX()).isEqualTo(ConstantUtil.STATISTICS_MONTH_LIST.get(11));
-        Assertions.assertThat(foundStatisticsResponseDto.getStatisticsDataList().get(11).getY()).isEqualTo(2);
+        Assertions.assertThat(foundStatisticsResponseDto.getStatisticsDataList().get(0).getX()).isEqualTo(ConstantUtil.STATISTICS_MONTH_LIST.get(0));
+        Assertions.assertThat(foundStatisticsResponseDto.getStatisticsDataList().get(0).getY()).isEqualTo(2);
     }
 
     @Test
@@ -182,8 +182,8 @@ public class StatisticsServiceTests {
         StatisticsResponseDto foundStatisticsResponseDto = statisticsService.getReservedRoomStatistics(statisticsRequestDto);
 
         Assertions.assertThat(foundStatisticsResponseDto).isNotNull();
-        Assertions.assertThat(foundStatisticsResponseDto.getStatisticsDataList().get(11).getX()).isEqualTo(ConstantUtil.STATISTICS_MONTH_LIST.get(11));
-        Assertions.assertThat(foundStatisticsResponseDto.getStatisticsDataList().get(11).getY()).isEqualTo(2);
+        Assertions.assertThat(foundStatisticsResponseDto.getStatisticsDataList().get(0).getX()).isEqualTo(ConstantUtil.STATISTICS_MONTH_LIST.get(0));
+        Assertions.assertThat(foundStatisticsResponseDto.getStatisticsDataList().get(0).getY()).isEqualTo(2);
     }
 
     @Test
@@ -193,7 +193,7 @@ public class StatisticsServiceTests {
         StatisticsResponseDto foundStatisticsResponseDto = statisticsService.getIncomeStatistics(statisticsRequestDto);
 
         Assertions.assertThat(foundStatisticsResponseDto).isNotNull();
-        Assertions.assertThat(foundStatisticsResponseDto.getStatisticsDataList().get(11).getX()).isEqualTo(ConstantUtil.STATISTICS_MONTH_LIST.get(11));
-        Assertions.assertThat(foundStatisticsResponseDto.getStatisticsDataList().get(11).getY()).isEqualTo(15000);
+        Assertions.assertThat(foundStatisticsResponseDto.getStatisticsDataList().get(0).getX()).isEqualTo(ConstantUtil.STATISTICS_MONTH_LIST.get(0));
+        Assertions.assertThat(foundStatisticsResponseDto.getStatisticsDataList().get(0).getY()).isEqualTo(15000);
     }
 }
